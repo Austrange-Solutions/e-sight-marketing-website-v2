@@ -1,0 +1,315 @@
+'use client';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Twitter,
+  Instagram,
+} from "lucide-react";
+
+const Contact = () => {
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "success" | "error" | "submitting"
+  >("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormStatus("submitting");
+    try {
+      // Create FormData object instead of using JSON
+      const formData = new FormData();
+      Object.entries(formState).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      const date = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      const time = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      formData.append("date", date);
+      formData.append("time", time);
+      // // Set formStatus to indicate processing
+      // setFormStatus("idle");
+
+      // Use fetch with form data and no Content-Type header (browser sets it automatically)
+      await fetch(
+        "https://script.google.com/macros/s/AKfycbwvt8y-9o2RP8OWaIkSQ6DK3-EiFmnv6jdKFdV-6kwUTa7nSvFCo8bH6vBIyKIvy7ycwQ/exec",
+        {
+          method: "POST",
+          body: formData,
+          // No headers needed - browser will set the appropriate Content-Type
+          mode: "no-cors", // Use no-cors mode to avoid preflight requests
+        }
+      );
+      // Since no-cors doesn't return readable response, assume success if no error
+      setFormStatus("success");
+
+      // Reset form after submission
+      setFormState({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setFormStatus("error");
+    }
+
+    setTimeout(() => setFormStatus("idle"), 3000);
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setFormState({
+      ...formState,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  return (
+    <div className="pt-16">
+      {/* Contact Hero */}
+      <section className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-8">
+              Get in Touch
+            </h1>
+            <p className="text-xl max-w-3xl mx-auto">
+              Have questions? We&apos;d love to hear from you. Send us a message and
+              we&apos;ll respond as soon as possible.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Contact Information */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-8"
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-8">
+                Contact Information
+              </h2>
+
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <Mail className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Email</p>
+                    <a
+                      href="mailto:austrange.india@gmail.com"
+                      className="text-lg font-medium text-gray-900 hover:text-indigo-600"
+                    >
+                      austrange.india@gmail.com
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <Phone className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Phone</p>
+                    <a
+                      href="tel:+919322871984"
+                      className="text-lg font-medium text-gray-900 hover:text-indigo-600"
+                    >
+                      +91 93228 71984
+                    </a>{" "}
+                    /{" "}
+                    <a
+                      href="tel:+918433887840"
+                      className="text-lg font-medium text-gray-900 hover:text-indigo-600"
+                    >
+                      +91 84338 87840
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <MapPin className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Address</p>
+                    <p className="text-lg font-medium text-gray-900">
+                      Not yet, we are online
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Follow Us
+                </h3>
+                <div className="flex space-x-4">
+                  <a
+                    href="#"
+                    className="bg-indigo-100 p-3 rounded-full text-indigo-600 hover:bg-indigo-200 transition-colors duration-200"
+                  >
+                    <Facebook className="h-6 w-6" />
+                  </a>
+                  <a
+                    href="#"
+                    className="bg-indigo-100 p-3 rounded-full text-indigo-600 hover:bg-indigo-200 transition-colors duration-200"
+                  >
+                    <Twitter className="h-6 w-6" />
+                  </a>
+                  <a
+                    href="#"
+                    className="bg-indigo-100 p-3 rounded-full text-indigo-600 hover:bg-indigo-200 transition-colors duration-200"
+                  >
+                    <Instagram className="h-6 w-6" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Contact Form */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-2xl shadow-lg p-8"
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-8">
+                Send us a Message
+              </h2>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value={formState.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 peer"
+                    placeholder=" "
+                  />
+                  <label
+                    htmlFor="name"
+                    className="absolute left-4 top-3 text-gray-500 transition-all duration-200 -translate-y-7 bg-white px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-white"
+                  >
+                    Your Name
+                  </label>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={formState.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 peer"
+                    placeholder=" "
+                  />
+                  <label
+                    htmlFor="email"
+                    className="absolute left-4 top-3 text-gray-500 transition-all duration-200 -translate-y-7 bg-white px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-white"
+                  >
+                    Email Address
+                  </label>
+                </div>
+
+                <div className="relative">
+                  <select
+                    name="subject"
+                    id="subject"
+                    value={formState.subject}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200"
+                  >
+                    <option value="">Select a Subject</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="support">Technical Support</option>
+                    <option value="business">Business Partnership</option>
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    name="message"
+                    id="message"
+                    value={formState.message}
+                    onChange={handleChange}
+                    required
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 peer"
+                    placeholder=" "
+                  ></textarea>
+                  <label
+                    htmlFor="message"
+                    className="absolute left-4 top-3 text-gray-500 transition-all duration-200 -translate-y-7 bg-white px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-white"
+                  >
+                    Your Message
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors duration-200 ${
+                    formStatus === "success"
+                      ? "bg-green-500"
+                      : formStatus === "error"
+                      ? "bg-red-500"
+                      : formStatus === "submitting"
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
+                >
+                  {formStatus === "success"
+                    ? "Message Sent!"
+                    : formStatus === "submitting"
+                    ? "Sending..."
+                    : formStatus === "error"
+                    ? "Error Sending Message"
+                    : "Send Message"}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Contact;
