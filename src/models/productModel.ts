@@ -1,0 +1,104 @@
+import mongoose from "mongoose";
+
+export type TProduct = {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  image: string;
+  description: string;
+  type: "basic" | "pro" | "max";
+  price: number;
+  details: string[];
+  category: string;
+  stock: number;
+  status: "active" | "inactive" | "out_of_stock";
+  tax: {
+    type: "percentage" | "fixed";
+    value: number;
+    label: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const productSchema = new mongoose.Schema<TProduct>({
+  name: {
+    type: String,
+    required: [true, "Please provide a product name"],
+  },
+  image: {
+    type: String,
+    required: [true, "Please provide a product image URL"],
+  },
+  description: {
+    type: String,
+    required: [true, "Please provide a product description"],
+  },
+  type: {
+    type: String,
+    enum: ["basic", "pro", "max"],
+    required: [true, "Please provide a product type"],
+  },
+  price: {
+    type: Number,
+    required: [true, "Please provide a product price"],
+    min: [0, "Price cannot be negative"],
+  },
+  details: {
+    type: [String], // list of product feature points
+    required: [true, "Please provide 4 to 8 detailed points about the product"],
+    validate: {
+      validator: (v: string[]) => v.length >= 4 && v.length <= 8,
+      message: "A product must have between 4 and 8 detail points.",
+    },
+  },
+  category: {
+    type: String,
+    required: [true, "Please provide a product category"],
+    enum: ["Electronics", "Accessories", "Home", "Sports", "Health", "Other"],
+    default: "Other",
+  },
+  stock: {
+    type: Number,
+    required: [true, "Please provide stock quantity"],
+    min: [0, "Stock cannot be negative"],
+    default: 0,
+  },
+  status: {
+    type: String,
+    enum: ["active", "inactive", "out_of_stock"],
+    default: "active",
+  },
+  tax: {
+    type: {
+      type: String,
+      enum: ["percentage", "fixed"],
+      default: "percentage",
+    },
+    value: {
+      type: Number,
+      min: [0, "Tax value cannot be negative"],
+      default: 18, // 18% GST default
+    },
+    label: {
+      type: String,
+      default: "GST",
+    },
+  },
+}, {
+  timestamps: true, // This adds createdAt and updatedAt automatically
+});
+
+// Pre-save middleware to update status based on stock
+productSchema.pre('save', function(next) {
+  if (this.stock === 0) {
+    this.status = 'out_of_stock';
+  } else if (this.status === 'out_of_stock' && this.stock > 0) {
+    this.status = 'active';
+  }
+  next();
+});
+
+const Product =
+  mongoose.models.Product || mongoose.model("Product", productSchema);
+
+export default Product;

@@ -1,0 +1,21 @@
+import { connect } from "@/dbConfig/dbConfig";
+import User from "@/models/userModel";
+import { NextRequest, NextResponse } from "next/server";
+import { getAdminFromToken } from "@/middleware/adminAuth";
+
+export async function GET(request: NextRequest) {
+  try {
+    await connect();
+    
+    const adminData = getAdminFromToken(request);
+    if (!adminData) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const users = await User.find({}).select("-password").sort({ createdAt: -1 });
+
+    return NextResponse.json({ users });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
