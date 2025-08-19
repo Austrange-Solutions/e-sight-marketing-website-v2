@@ -5,7 +5,7 @@ import { getAdminFromToken } from "@/middleware/adminAuth";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connect();
@@ -15,6 +15,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const params = await context.params;
     const { id } = params;
 
     if (!id) {

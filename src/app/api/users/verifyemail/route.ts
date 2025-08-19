@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Verification error:", error);
     return NextResponse.json(
       { error: "An error occurred during verification" }, // Generic message

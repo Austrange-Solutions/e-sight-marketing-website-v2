@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -23,9 +23,14 @@ export default function LoginPage() {
             console.log("Login success", response.data);
             toast.success("Login successful!");
             router.push("/profile");
-        } catch (error: any) {
-            console.log("Login failed", error.message);
-            toast.error(error.response?.data?.error || "Login failed");
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Login failed';
+            console.log("Login failed", errorMessage);
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data?.error || "Login failed");
+            } else {
+                toast.error("Login failed");
+            }
         } finally {
             setLoading(false);
         }
@@ -167,7 +172,7 @@ export default function LoginPage() {
                             </div>
                             <div className="relative flex justify-center text-sm">
                                 <span className="px-2 bg-gray-100 text-gray-500">
-                                    Don't have an account?
+                                    Don&apos;t have an account?
                                 </span>
                             </div>
                         </div>

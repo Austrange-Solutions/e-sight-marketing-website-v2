@@ -4,13 +4,22 @@ import Link from "next/link";
 import { Menu, X, ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { data } from "framer-motion/client";
 
+interface CartItem {
+  _id: string;
+  productId: {
+    _id: string;
+    name: string;
+    price: number;
+    image: string;
+  };
+  quantity: number;
+}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
 

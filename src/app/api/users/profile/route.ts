@@ -19,9 +19,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ user });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error fetching user profile';
     return NextResponse.json(
-      { error: error.message || "Error fetching user profile" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -49,9 +50,10 @@ export async function PUT(request: NextRequest) {
       message: "Profile updated successfully",
       user: updatedUser 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error updating profile';
     return NextResponse.json(
-      { error: error.message || "Error updating profile" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

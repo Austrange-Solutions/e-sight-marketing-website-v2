@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     const users = await User.find({}).select("-password").sort({ createdAt: -1 });
 
     return NextResponse.json({ users });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

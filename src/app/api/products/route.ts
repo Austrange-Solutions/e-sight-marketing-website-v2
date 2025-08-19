@@ -57,8 +57,9 @@ export async function POST(request: NextRequest) {
     const savedProduct = await newProduct.save();
     
     return NextResponse.json(savedProduct, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create product';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -86,7 +87,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Prepare update object
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       name,
       image,
       description,
@@ -115,9 +116,10 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json(updatedProduct);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[PUT_PRODUCTS_ERROR]", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update product';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -149,8 +151,9 @@ export async function DELETE(request: NextRequest) {
       { message: "Product deleted successfully" },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DELETE_PRODUCTS_ERROR]", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete product';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

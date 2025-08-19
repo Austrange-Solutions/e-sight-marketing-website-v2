@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Check if product already in cart
     const existingItemIndex = cart.items.findIndex(
-      (item: { productId: { toString: () => any; }; }) => item.productId.toString() === productId
+      (item: { productId: { toString: () => string; }; }) => item.productId.toString() === productId
     );
 
     if (existingItemIndex >= 0) {
@@ -63,9 +63,10 @@ export async function POST(request: NextRequest) {
       message: "Item added to cart",
       cart,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error adding to cart';
     return NextResponse.json(
-      { error: error.message || "Error adding to cart" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -92,9 +93,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ cart });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error fetching cart';
     return NextResponse.json(
-      { error: error.message || "Error fetching cart" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

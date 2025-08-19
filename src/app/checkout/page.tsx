@@ -1,13 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import RazorpayButton from "@/components/RazorpayButton";
 
 const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [cartData, setCartData] = useState<any>(null);
-  const [calculatedCharges, setCalculatedCharges] = useState<any>(null);
+  const [cartData, setCartData] = useState<{ items: Array<{ _id: string, name: string, price: number, quantity: number, image: string }>, orderSummary: { subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } } | null>(null);
+  const [calculatedCharges, setCalculatedCharges] = useState<{ subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } | null>(null);
   const [setAsDefault, setSetAsDefault] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string>("");
   const router = useRouter();
@@ -27,18 +28,6 @@ const CheckoutPage = () => {
     addressType: "Home",
   });
 
-  // Fetch cart data on component mount
-  useEffect(() => {
-    fetchCartData();
-  }, []);
-
-  // Recalculate charges when city changes
-  useEffect(() => {
-    if (cartData && shippingForm.city) {
-      calculateDynamicCharges();
-    }
-  }, [shippingForm.city, cartData]);
-
   const fetchCartData = async () => {
     try {
       const res = await fetch("/api/checkout");
@@ -49,7 +38,7 @@ const CheckoutPage = () => {
     }
   };
 
-  const calculateDynamicCharges = () => {
+  const calculateDynamicCharges = useCallback(() => {
     if (!cartData) return;
 
     const subtotal = cartData.orderSummary.subtotal;
@@ -61,13 +50,28 @@ const CheckoutPage = () => {
                      shippingForm.city.toLowerCase().includes('bombay');
     const deliveryCharges = isMumbai ? 500 : 1000;
 
+    const total = subtotal + gst + transactionFee + deliveryCharges;
+
     setCalculatedCharges({
       subtotal,
       gst,
       transactionFee,
       deliveryCharges,
+      total,
     });
-  };
+  }, [cartData, shippingForm.city]);
+
+  // Fetch cart data on component mount
+  useEffect(() => {
+    fetchCartData();
+  }, []);
+
+  // Recalculate charges when city changes
+  useEffect(() => {
+    if (cartData && shippingForm.city) {
+      calculateDynamicCharges();
+    }
+  }, [shippingForm.city, cartData, calculateDynamicCharges]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setShippingForm({
@@ -114,7 +118,8 @@ const CheckoutPage = () => {
   const calculateTotal = () => {
     if (!calculatedCharges && !cartData) return 0;
     
-    const charges = calculatedCharges || cartData.orderSummary;
+    const charges = calculatedCharges || cartData?.orderSummary;
+    if (!charges) return 0;
     return charges.subtotal + charges.gst + charges.transactionFee + charges.deliveryCharges;
   };
 
@@ -518,12 +523,14 @@ const CheckoutPage = () => {
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cartData.items.map((item: any, index: number) => (
+                {cartData.items.map((item: { _id: string, name: string, price: number, quantity: number, image: string }, index: number) => (
                   <div key={index} className="flex items-start space-x-4">
                     <div className="relative">
-                      <img
+                      <Image
                         src={item.image || "/placeholder-product.jpg"}
                         alt={item.name}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-cover rounded-lg"
                       />
                       <span className="absolute -top-2 -right-2 bg-gray-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

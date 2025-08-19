@@ -8,9 +8,10 @@ export const getDataFromToken = (request: NextRequest) => {
       throw new Error("Token not found");
     }
 
-    const decodedToken: any = jwt.verify(token, process.env.TOKEN_SECRET!);
+    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET!) as { id: string };
     return decodedToken.id; // userId stored in JWT payload
-  } catch (error: any) {
-    throw new Error(error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Token verification failed';
+    throw new Error(errorMessage);
   }
 };
