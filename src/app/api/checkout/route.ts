@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 connect();
 
 // Helper function to calculate charges
-const calculateCharges = (subtotal: number, city: string, state: string) => {
+const calculateCharges = (subtotal: number, city: string) => {
   // GST calculation (18%)
   const gst = subtotal * 0.18;
   
@@ -57,22 +57,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate subtotal
-    const subtotal = cart.items.reduce((total: number, item: any) => 
+    const subtotal = cart.items.reduce((total: number, item: { productId: { price: number }, quantity: number }) => 
       total + (item.productId.price * item.quantity), 0
     );
 
     // Calculate charges
     const { gst, transactionFee, deliveryCharges } = calculateCharges(
       subtotal, 
-      shippingAddress.city, 
-      shippingAddress.state
+      shippingAddress.city
     );
 
     // Calculate total
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
     // Prepare items for checkout
-    const checkoutItems = cart.items.map((item: any) => ({
+    const checkoutItems = cart.items.map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
       productId: item.productId._id,
       name: item.productId.name,
       price: item.productId.price,
@@ -124,10 +123,11 @@ export async function POST(request: NextRequest) {
       shippingAddress: checkout.shippingAddress, // Return saved address for verification
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Checkout error:", error); // Debug log
+    const errorMessage = error instanceof Error ? error.message : 'Error creating checkout';
     return NextResponse.json(
-      { error: error.message || "Error creating checkout" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const items = cart.items.map((item: any) => ({
+    const items = cart.items.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
       _id: item._id,
       productId: item.productId._id,
       name: item.productId.name,
@@ -167,12 +167,12 @@ export async function GET(request: NextRequest) {
       image: item.productId.image,
     }));
 
-    const subtotal = items.reduce((total: number, item: any) => 
+    const subtotal = items.reduce((total: number, item: { price: number, quantity: number }) => 
       total + (item.price * item.quantity), 0
     );
 
     // For preview, use default charges (Mumbai location)
-    const { gst, transactionFee, deliveryCharges } = calculateCharges(subtotal, "Mumbai", "Maharashtra");
+    const { gst, transactionFee, deliveryCharges } = calculateCharges(subtotal, "Mumbai");
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
     return NextResponse.json({
@@ -186,9 +186,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error fetching checkout data';
     return NextResponse.json(
-      { error: error.message || "Error fetching checkout data" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

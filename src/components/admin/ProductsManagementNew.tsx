@@ -1,25 +1,11 @@
 import { useState } from 'react';
-import { Edit, Trash2, Plus, Minus, ShoppingBag, Tag, Package2, Eye, DollarSign } from 'lucide-react';
+import { Edit, Trash2, Plus, Minus, ShoppingBag, Package2, Eye, DollarSign } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { TProduct } from '@/models/productModel';
 
-interface Product {
+// Create a serialized version for client components
+interface Product extends Omit<TProduct, '_id'> {
   _id: string;
-  name: string;
-  image: string;
-  description: string;
-  type: "basic" | "pro" | "max";
-  price: number;
-  details: string[];
-  category: string;
-  stock: number;
-  status: "active" | "inactive" | "out_of_stock";
-  tax: {
-    type: "percentage" | "fixed";
-    value: number;
-    label: string;
-  };
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface ProductsManagementProps {

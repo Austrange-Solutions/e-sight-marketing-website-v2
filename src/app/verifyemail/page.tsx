@@ -31,8 +31,9 @@ export default function VerifyEmailPage() {
 
       setMessage('✅ Email verified successfully! Redirecting to login...');
       setTimeout(() => router.push('/login'), 2000);
-    } catch (error: any) {
-      setMessage(`❌ ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+      setMessage(`❌ ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +55,9 @@ export default function VerifyEmailPage() {
       // });
       
       setMessage('✅ Verification code resent successfully!');
-    } catch (error: any) {
-      setMessage(`❌ ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Resend failed';
+      setMessage(`❌ ${errorMessage}`);
     }
   };
 
@@ -68,7 +70,7 @@ export default function VerifyEmailPage() {
             Verify Your Email
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            We've sent a 6-digit code to your email address
+            We&apos;ve sent a 6-digit code to your email address
           </p>
         </div>
 
@@ -197,7 +199,7 @@ export default function VerifyEmailPage() {
           {/* Footer Links */}
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
-              Didn't receive the code?{' '}
+              Didn&apos;t receive the code?{' '}
               <button
                 type="button"
                 onClick={handleResendCode}

@@ -70,7 +70,7 @@ export default function DashboardOverview({ stats }: DashboardOverviewProps) {
       <div className="bg-gray-50 rounded-lg p-6">
         <h4 className="text-md font-medium text-gray-900 mb-2">Welcome to Admin Dashboard</h4>
         <p className="text-gray-600">
-          Use the tabs above to manage users, products, and orders. Monitor your platform's 
+          Use the tabs above to manage users, products, and orders. Monitor your platform&apos;s 
           performance through the comprehensive statistics and management tools available.
         </p>
       </div>

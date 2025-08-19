@@ -625,7 +625,7 @@ export default function ProductsManagement({ products, setProducts, onRefresh }:
               <h3 className="text-lg font-medium text-gray-900 mt-2">Delete Product</h3>
               <div className="mt-2 px-7 py-3">
                 <p className="text-sm text-gray-500">
-                  Are you sure you want to delete "{selectedProduct.name}"? This action cannot be undone.
+                  Are you sure you want to delete &quot;{selectedProduct.name}&quot;? This action cannot be undone.
                 </p>
               </div>
               <div className="flex justify-center space-x-3 px-7 py-3">

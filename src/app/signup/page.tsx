@@ -25,9 +25,14 @@ export default function SignupPage() {
             toast.success("Account created successfully!");
             router.push("/verifyemail");
             
-        } catch (error: any) {
-            console.log("Signup failed", error.message);
-            toast.error(error.response?.data?.error || "Signup failed");
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Signup failed';
+            console.log("Signup failed", errorMessage);
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data?.error || "Signup failed");
+            } else {
+                toast.error("Signup failed");
+            }
         } finally {
             setLoading(false);
         }

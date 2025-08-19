@@ -35,7 +35,7 @@ export async function PUT(request: NextRequest) {
 
     // Update the quantity
     const itemIndex = cart.items.findIndex(
-      (item: { _id: { toString: () => any; }; }) => item._id.toString() === itemId
+      (item: { _id: { toString: () => string; }; }) => item._id.toString() === itemId
     );
 
     if (itemIndex === -1) {
@@ -53,9 +53,10 @@ export async function PUT(request: NextRequest) {
       message: "Cart updated",
       cart,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error updating cart';
     return NextResponse.json(
-      { error: error.message || "Error updating cart" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

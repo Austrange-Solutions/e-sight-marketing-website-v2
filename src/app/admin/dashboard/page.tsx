@@ -6,6 +6,12 @@ import DashboardOverview from '@/components/admin/DashboardOverview';
 import UsersManagement from '@/components/admin/UsersManagement';
 import ProductsManagement from '@/components/admin/ProductsManagementNew';
 import OrdersManagement from '@/components/admin/OrdersManagement';
+import { TProduct } from '@/models/productModel';
+
+// Serialized version for client components
+interface Product extends Omit<TProduct, '_id'> {
+  _id: string;
+}
 
 interface DashboardStats {
   totalUsers: number;
@@ -22,24 +28,12 @@ interface User {
   createdAt: string;
 }
 
-interface Product {
+interface User {
   _id: string;
-  name: string;
-  price: number;
-  type: string;
-  image: string;
-  description: string;
-  details: string[];
-  category: string;
-  stock: number;
-  status: "active" | "inactive" | "out_of_stock";
-  tax: {
-    type: "percentage" | "fixed";
-    value: number;
-    label: string;
-  };
+  username: string;
+  email: string;
+  isVerified: boolean;
   createdAt: string;
-  updatedAt: string;
 }
 
 interface Order {

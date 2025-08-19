@@ -35,9 +35,10 @@ export async function DELETE(request: NextRequest) {
       message: "Item removed from cart",
       cart,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error removing item';
     return NextResponse.json(
-      { error: error.message || "Error removing item" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

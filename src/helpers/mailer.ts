@@ -2,8 +2,8 @@ import nodemailer from 'nodemailer';
 import User from "@/models/userModel";
 import bcryptjs from 'bcryptjs';
 
-export async function sendEmail({ email, emailType, code }: { email: string, emailType: "VERIFY", code: string }) {
-  var transport = nodemailer.createTransport({
+export async function sendEmail({ email, code }: { email: string, code: string }) {
+  const transport = nodemailer.createTransport({
             host: "sandbox.smtp.mailtrap.io",
             port: 2525,
             auth: {
@@ -23,7 +23,7 @@ export async function sendEmail({ email, emailType, code }: { email: string, ema
   return result;
 }
 
-export const sendmail = async({email, emailType, userId}:any) => {
+export const sendmail = async({email, emailType, userId}: {email: string, emailType: string, userId: string}) => {
     try {
         // create a hased token
         const hashedToken = await bcryptjs.hash(userId.toString(), 10)
@@ -36,7 +36,7 @@ export const sendmail = async({email, emailType, userId}:any) => {
                 {forgotPasswordToken: hashedToken, forgotPasswordTokenExpiry: Date.now() + 3600000})
         }
 
-        var transport = nodemailer.createTransport({
+        const transport = nodemailer.createTransport({
             host: "sandbox.smtp.mailtrap.io",
             port: 2525,
             auth: {
@@ -59,7 +59,8 @@ export const sendmail = async({email, emailType, userId}:any) => {
         (mailOptions);
         return mailresponse;
 
-    } catch (error:any) {
-        throw new Error(error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Mail sending failed';
+        throw new Error(errorMessage);
     }
 }
