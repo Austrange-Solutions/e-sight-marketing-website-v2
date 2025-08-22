@@ -45,16 +45,16 @@ export default function ProductsManagement({ products, setProducts, onRefresh }:
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    if (!newProduct.name || !newProduct.image || !newProduct.description || newProduct.price <= 0) {
-      toast.error('Please fill in all required fields');
+    // Validation (description is now optional)
+    if (!newProduct.name || !newProduct.image || newProduct.price <= 0) {
+      toast.error('Please fill in name, image, and price (description is optional)');
       return;
     }
 
-    // Filter out empty details and validate count
+    // Filter out empty details and validate count (details are now optional)
     const filteredDetails = newProduct.details.filter(detail => detail.trim() !== '');
-    if (filteredDetails.length < 4 || filteredDetails.length > 8) {
-      toast.error('Please provide between 4 and 8 product details');
+    if (filteredDetails.length > 8) {
+      toast.error('Please provide maximum 8 product details');
       return;
     }
 
@@ -116,16 +116,16 @@ export default function ProductsManagement({ products, setProducts, onRefresh }:
     
     if (!selectedProduct) return;
 
-    // Validation
-    if (!editProduct.name || !editProduct.image || !editProduct.description || editProduct.price <= 0) {
-      toast.error('Please fill in all required fields');
+    // Validation (description is now optional)
+    if (!editProduct.name || !editProduct.image || editProduct.price <= 0) {
+      toast.error('Please fill in name, image, and price (description is optional)');
       return;
     }
 
-    // Filter out empty details and validate count
+    // Filter out empty details and validate count (details are now optional)
     const filteredDetails = editProduct.details.filter(detail => detail.trim() !== '');
-    if (filteredDetails.length < 4 || filteredDetails.length > 8) {
-      toast.error('Please provide between 4 and 8 product details');
+    if (filteredDetails.length > 8) {
+      toast.error('Please provide maximum 8 product details');
       return;
     }
 

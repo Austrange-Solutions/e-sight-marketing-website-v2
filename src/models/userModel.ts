@@ -4,6 +4,8 @@ export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
+  phone?: string;
+  address?: string;
   isVerified: boolean;
   isAdmin: boolean;
   forgotPasswordToken?: string;

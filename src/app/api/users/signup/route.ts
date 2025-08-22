@@ -10,15 +10,33 @@ connect()
 export async function POST(request: NextRequest){
     try {
         const reqBody = await request.json()
-        const {username, email, password} = reqBody
+        const {username, email, password, phone} = reqBody
 
         console.log(reqBody);
 
-        //check if user already exists
-        const user = await User.findOne({email})
+        // Validate required fields
+        if (!username || !email || !password) {
+            return NextResponse.json({error: "Username, email, and password are required"}, {status: 400})
+        }
 
-        if(user){
-            return NextResponse.json({error: "User already exists"}, {status: 400})
+        // Check if user already exists with email
+        const existingUserByEmail = await User.findOne({email})
+        if(existingUserByEmail){
+            return NextResponse.json({error: "User with this email already exists"}, {status: 400})
+        }
+
+        // Check if user already exists with username
+        const existingUserByUsername = await User.findOne({username})
+        if(existingUserByUsername){
+            return NextResponse.json({error: "User with this username already exists"}, {status: 400})
+        }
+
+        // Check if user already exists with phone (if phone is provided)
+        if (phone) {
+            const existingUserByPhone = await User.findOne({phone})
+            if(existingUserByPhone){
+                return NextResponse.json({error: "User with this phone number already exists"}, {status: 400})
+            }
         }
 
         //hash password
@@ -28,7 +46,8 @@ export async function POST(request: NextRequest){
         const newUser = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            phone: phone || undefined
         })
 
         const savedUser = await newUser.save()

@@ -31,7 +31,8 @@ const productSchema = new mongoose.Schema<TProduct>({
   },
   description: {
     type: String,
-    required: [true, "Please provide a product description"],
+    required: false, // Made description optional
+    default: "", // Default to empty string if not provided
   },
   type: {
     type: String,
@@ -45,11 +46,8 @@ const productSchema = new mongoose.Schema<TProduct>({
   },
   details: {
     type: [String], // list of product feature points
-    required: [true, "Please provide 4 to 8 detailed points about the product"],
-    validate: {
-      validator: (v: string[]) => v.length >= 4 && v.length <= 8,
-      message: "A product must have between 4 and 8 detail points.",
-    },
+    required: false, // Made details optional
+    default: [], // Default to empty array if not provided
   },
   category: {
     type: String,

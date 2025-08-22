@@ -4,22 +4,110 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Phone, Mail } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignupPage() {
     const router = useRouter();
+    const { isAuthenticated, loading: authLoading } = useAuth();
     const [user, setUser] = React.useState({
         email: "",
         password: "",
         username: "",
+        phone: "",
     });
     const [buttonDisabled, setButtonDisabled] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+    const [isValidating, setIsValidating] = useState(false);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+            router.push("/profile");
+        }
+    }, [authLoading, isAuthenticated, router]);
+
+    // Debounced validation function
+    const validateField = async (field: string, value: string) => {
+        if (!value) {
+            setValidationErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+            return;
+        }
+
+        try {
+            setIsValidating(true);
+            const response = await axios.post("/api/users/validate", {
+                [field]: value
+            });
+
+            if (!response.data.isValid) {
+                const error = response.data.errors.find((err: { field: string; message: string }) => err.field === field);
+                if (error) {
+                    setValidationErrors(prev => ({
+                        ...prev,
+                        [field]: error.message
+                    }));
+                }
+            } else {
+                setValidationErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[field];
+                    return newErrors;
+                });
+            }
+        } catch (error) {
+            console.error("Validation error:", error);
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
+    // Debounce validation calls
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (user.email) validateField('email', user.email);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [user.email]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (user.username) validateField('username', user.username);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [user.username]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (user.phone) validateField('phone', user.phone);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [user.phone]);
 
     const onSignup = async () => {
         try {
             setLoading(true);
+            
+            // Final validation before signup
+            const validationResponse = await axios.post("/api/users/validate", {
+                email: user.email,
+                username: user.username,
+                phone: user.phone || undefined
+            });
+
+            if (!validationResponse.data.isValid) {
+                const errors = validationResponse.data.errors;
+                const errorMessages = errors.map((err: { message: string }) => err.message).join(', ');
+                toast.error(`Validation failed: ${errorMessages}`);
+                return;
+            }
+
             const response = await axios.post("/api/users/signup", user);
             console.log("Signup success", response.data);
             toast.success("Account created successfully!");
@@ -39,19 +127,17 @@ export default function SignupPage() {
     }
 
     useEffect(() => {
-        if (user.email.length > 0 && user.password.length > 0 && user.username.length > 0) {
-            setButtonDisabled(false);
-        } else {
-            setButtonDisabled(true);
-        }
-    }, [user]);
+        const hasValidationErrors = Object.keys(validationErrors).length > 0;
+        const hasRequiredFields = user.email.length > 0 && user.password.length > 0 && user.username.length > 0;
+        setButtonDisabled(!hasRequiredFields || hasValidationErrors || isValidating);
+    }, [user, validationErrors, isValidating]);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-6 sm:space-y-8">
                 {/* Header */}
                 <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
                         Create your account
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
@@ -60,8 +146,8 @@ export default function SignupPage() {
                 </div>
 
                 {/* Form */}
-                <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); onSignup(); }}>
-                    <div className="space-y-4">
+                <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={(e) => { e.preventDefault(); onSignup(); }}>
+                    <div className="space-y-3 sm:space-y-4">
                         {/* Username Field */}
                         <div>
                             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -76,12 +162,17 @@ export default function SignupPage() {
                                     name="username"
                                     type="text"
                                     required
-                                    className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
+                                        validationErrors.username ? 'border-red-300' : 'border-gray-300'
+                                    }`}
                                     placeholder="Enter your username"
                                     value={user.username}
                                     onChange={(e) => setUser({ ...user, username: e.target.value })}
                                 />
                             </div>
+                            {validationErrors.username && (
+                                <p className="mt-1 text-sm text-red-600">{validationErrors.username}</p>
+                            )}
                         </div>
 
                         {/* Email Field */}
@@ -98,12 +189,43 @@ export default function SignupPage() {
                                     name="email"
                                     type="email"
                                     required
-                                    className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
+                                        validationErrors.email ? 'border-red-300' : 'border-gray-300'
+                                    }`}
                                     placeholder="Enter your email"
                                     value={user.email}
                                     onChange={(e) => setUser({ ...user, email: e.target.value })}
                                 />
                             </div>
+                            {validationErrors.email && (
+                                <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+                            )}
+                        </div>
+
+                        {/* Phone Field */}
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                                Phone Number <span className="text-gray-400">(optional)</span>
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Phone className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
+                                        validationErrors.phone ? 'border-red-300' : 'border-gray-300'
+                                    }`}
+                                    placeholder="Enter your phone number"
+                                    value={user.phone}
+                                    onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                                />
+                            </div>
+                            {validationErrors.phone && (
+                                <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+                            )}
                         </div>
 
                         {/* Password Field */}
@@ -163,10 +285,22 @@ export default function SignupPage() {
 
                     {/* Submit Button */}
                     <div>
+                        {isValidating && (
+                            <p className="mb-2 text-sm text-yellow-600 text-center">
+                                Validating information...
+                            </p>
+                        )}
+                        {Object.keys(validationErrors).length > 0 && (
+                            <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                                <p className="text-sm text-red-600 text-center">
+                                    Please fix the validation errors above
+                                </p>
+                            </div>
+                        )}
                         <button
                             type="submit"
                             disabled={buttonDisabled || loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                            className="group relative w-full flex justify-center py-3 sm:py-2 px-4 border border-transparent text-base sm:text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 touch-manipulation"
                         >
                             {loading ? (
                                 <span className="flex items-center">
