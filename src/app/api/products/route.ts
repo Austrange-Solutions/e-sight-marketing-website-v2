@@ -25,18 +25,18 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { name, image, description, type, price, details, stock, category, tax } = reqBody;
 
-    // Validate required fields
-    if (!name || !image || !description || !type || !price || !details) {
+    // Validate required fields (description and details are now optional)
+    if (!name || !image || !type || !price) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "Name, image, type, and price are required" },
         { status: 400 }
       );
     }
 
-    // Validate details array
-    if (!Array.isArray(details) || details.length < 4 || details.length > 8) {
+    // Validate details array if provided
+    if (details && (!Array.isArray(details) || details.length > 8)) {
       return NextResponse.json(
-        { error: "Details must be an array with 4-8 items" },
+        { error: "Details must be an array with maximum 8 items" },
         { status: 400 }
       );
     }
@@ -70,18 +70,18 @@ export async function PUT(request: NextRequest) {
     const reqBody = await request.json();
     const { _id, name, image, description, type, price, details, stock, category, tax } = reqBody;
 
-    // Validate required fields
-    if (!_id || !name || !image || !description || !type || !price || !details) {
+    // Validate required fields (description and details are now optional)
+    if (!_id || !name || !image || !type || !price) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "ID, name, image, type, and price are required" },
         { status: 400 }
       );
     }
 
-    // Validate details array
-    if (!Array.isArray(details) || details.length < 4 || details.length > 8) {
+    // Validate details array if provided
+    if (details && (!Array.isArray(details) || details.length > 8)) {
       return NextResponse.json(
-        { error: "Details must be an array with 4-8 items" },
+        { error: "Details must be an array with maximum 8 items" },
         { status: 400 }
       );
     }

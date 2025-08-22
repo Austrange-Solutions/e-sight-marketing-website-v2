@@ -2,12 +2,13 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
     const router = useRouter();
+    const { login, isAuthenticated, loading: authLoading } = useAuth();
     const [user, setUser] = React.useState({
         email: "",
         password: "",
@@ -15,44 +16,118 @@ export default function LoginPage() {
     const [buttonDisabled, setButtonDisabled] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [errors, setErrors] = useState({
+        email: "",
+        password: "",
+        general: ""
+    });
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+            // Get redirect URL from query params or default to profile
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect') || '/profile';
+            router.push(redirectUrl);
+        }
+    }, [authLoading, isAuthenticated, router]);
+
+    // Validation function
+    const validateForm = () => {
+        const newErrors = { email: "", password: "", general: "" };
+        let isValid = true;
+
+        // Email validation
+        if (!user.email) {
+            newErrors.email = "Email is required";
+            isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
+            newErrors.email = "Please enter a valid email address";
+            isValid = false;
+        }
+
+        // Password validation
+        if (!user.password) {
+            newErrors.password = "Password is required";
+            isValid = false;
+        } else if (user.password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
 
     const onLogin = async () => {
+        // Clear previous errors
+        setErrors({ email: "", password: "", general: "" });
+        
+        // Validate form
+        if (!validateForm()) {
+            return;
+        }
+
         try {
             setLoading(true);
-            const response = await axios.post("/api/users/login", user);
-            console.log("Login success", response.data);
-            toast.success("Login successful!");
-            router.push("/profile");
+            const result = await login(user.email, user.password);
+            
+            if (result.success) {
+                // Store remember me preference
+                if (rememberMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                    localStorage.setItem('userEmail', user.email);
+                } else {
+                    localStorage.removeItem('rememberMe');
+                    localStorage.removeItem('userEmail');
+                }
+                
+                toast.success(result.message);
+                // Get redirect URL from query params or default to profile
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectUrl = urlParams.get('redirect') || '/profile';
+                router.push(redirectUrl);
+            } else {
+                setErrors({ ...errors, general: result.message });
+                toast.error(result.message);
+            }
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Login failed';
             console.log("Login failed", errorMessage);
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.error || "Login failed");
-            } else {
-                toast.error("Login failed");
-            }
+            setErrors({ ...errors, general: errorMessage });
+            toast.error("Login failed");
         } finally {
             setLoading(false);
         }
     };
 
+    // Load remembered email on component mount
     useEffect(() => {
-        if (user.email.length > 0 && user.password.length > 0) {
-            setButtonDisabled(false);
-        } else {
-            setButtonDisabled(true);
+        const remembered = localStorage.getItem('rememberMe');
+        const savedEmail = localStorage.getItem('userEmail');
+        
+        if (remembered === 'true' && savedEmail) {
+            setUser(prev => ({ ...prev, email: savedEmail }));
+            setRememberMe(true);
         }
+    }, []);
+
+    useEffect(() => {
+        const hasValidEmail = user.email.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email);
+        const hasValidPassword = user.password.length >= 6;
+        setButtonDisabled(!hasValidEmail || !hasValidPassword);
     }, [user]);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-6 sm:space-y-8">
                 {/* Header */}
                 <div>
                     {/* <div className="mx-auto h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center">
                         <LogIn className="h-8 w-8 text-indigo-600" />
                     </div> */}
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
                         Sign in to your account
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
@@ -61,8 +136,8 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form */}
-                <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
-                    <div className="space-y-4">
+                <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
+                    <div className="space-y-3 sm:space-y-4">
                         {/* Email Field */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -77,7 +152,7 @@ export default function LoginPage() {
                                     name="email"
                                     type="email"
                                     required
-                                    className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    className="appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm"
                                     placeholder="Enter your email"
                                     value={user.email}
                                     onChange={(e) => setUser({ ...user, email: e.target.value })}
@@ -148,7 +223,7 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={buttonDisabled || loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                            className="group relative w-full flex justify-center py-3 sm:py-2 px-4 border border-transparent text-base sm:text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 touch-manipulation"
                         >
                             {loading ? (
                                 <span className="flex items-center">

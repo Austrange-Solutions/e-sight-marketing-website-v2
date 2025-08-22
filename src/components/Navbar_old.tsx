@@ -64,6 +64,7 @@ const Navbar = () => {
           });
           const data = await res.json();
           
+          // Fix: Access the items array correctly
           setCartItems(data.cart?.items || []);
         } catch (err) {
           console.error("Error fetching cart:", err);
@@ -88,7 +89,6 @@ const Navbar = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include',
         body: JSON.stringify({
           itemId: id,
           quantity: item.quantity + 1,
@@ -96,6 +96,7 @@ const Navbar = () => {
       });
 
       if (res.ok) {
+        // Update local state
         setCartItems(cartItems.map(item => 
           item._id === id 
             ? { ...item, quantity: item.quantity + 1 }
@@ -119,6 +120,7 @@ const Navbar = () => {
       if (!item) return;
 
       if (item.quantity <= 1) {
+        // Remove item if quantity would become 0
         await removeItem(id);
         return;
       }
@@ -128,7 +130,6 @@ const Navbar = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include',
         body: JSON.stringify({
           itemId: id,
           quantity: item.quantity - 1,
@@ -136,6 +137,7 @@ const Navbar = () => {
       });
 
       if (res.ok) {
+        // Update local state
         setCartItems(cartItems.map(item => 
           item._id === id 
             ? { ...item, quantity: item.quantity - 1 }
@@ -160,11 +162,11 @@ const Navbar = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include',
         body: JSON.stringify({ itemId: id }),
       });
 
       if (res.ok) {
+        // Update local state
         setCartItems(cartItems.filter(item => item._id !== id));
       } else {
         const errorData = await res.json();
@@ -177,28 +179,20 @@ const Navbar = () => {
     }
   };
 
-  const handleCartCheckout = () => {
-    if (!isAuthenticated) {
-      router.push('/login?redirect=/checkout');
-      return;
-    }
-    setIsCartOpen(false);
-    router.push("/checkout");
-  };
+const totalPrice = Array.isArray(cartItems) ? cartItems.reduce(
+  (total, item) => {
+    // Add null/undefined checks to prevent NaN
+    const price = item?.productId?.price || 0;
+    const quantity = item?.quantity || 0;
+    return total + (price * quantity);
+  },
+  0
+) : 0;
 
-  const totalPrice = Array.isArray(cartItems) ? cartItems.reduce(
-    (total, item) => {
-      const price = item?.productId?.price || 0;
-      const quantity = item?.quantity || 0;
-      return total + (price * quantity);
-    },
-    0
-  ) : 0;
-
-  const totalQuantity = Array.isArray(cartItems) ? cartItems.reduce(
-    (total, item) => total + (item?.quantity || 0),
-    0
-  ) : 0;
+const totalQuantity = Array.isArray(cartItems) ? cartItems.reduce(
+  (total, item) => total + (item?.quantity || 0),
+  0
+) : 0;
 
   return (
     <>
@@ -240,15 +234,7 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              {/* Auth Status */}
-              {isAuthenticated && user && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <User className="w-4 h-4" />
-                  <span>Hi, {user.username}</span>
-                </div>
-              )}
-
-              {/* Cart Button */}
+              {/* My Cart Button */}
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition"
@@ -310,20 +296,14 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
-            
-            {/* Mobile Auth Status */}
-            {isAuthenticated && user && (
-              <div className="px-3 py-2 text-sm text-gray-600 border-t">
-                Welcome, {user.username}
-              </div>
-            )}
           </div>
         </motion.div>
       </nav>
 
-      {/* Cart Drawer */}
+      {/* My Cart Drawer */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Drawer without black overlay */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -343,20 +323,7 @@ const Navbar = () => {
 
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {!isAuthenticated ? (
-                <div className="text-center py-8">
-                  <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">Please login to view your cart</p>
-                  <Link
-                    href="/login"
-                    onClick={() => setIsCartOpen(false)}
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login
-                  </Link>
-                </div>
-              ) : loading ? (
+              {loading ? (
                 <p className="text-center text-gray-500">Loading...</p>
               ) : cartItems.length === 0 ? (
                 <p className="text-center text-gray-500">Your cart is empty</p>
@@ -364,7 +331,7 @@ const Navbar = () => {
                 cartItems.map((item) => (
                   <div
                     key={item._id}
-                    className="flex items-center gap-4 border rounded-lg p-2 relative"
+                    className="flex items-center gap-4 border rounded-lg p-2"
                   >
                     <img
                       src={item.productId?.image || '/placeholder-image.jpg'}
@@ -413,25 +380,26 @@ const Navbar = () => {
             </div>
 
             {/* Footer */}
-            {isAuthenticated && (
-              <div className="border-t p-4">
-                <div className="flex justify-between font-semibold mb-4">
-                  <span>Total:</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600 mb-4">
-                  <span>Items:</span>
-                  <span>{totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}</span>
-                </div>
-                <button 
-                  className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={cartItems.length === 0 || updating !== null}
-                  onClick={handleCartCheckout}
-                >
-                  Proceed to Pay
-                </button>
+            <div className="border-t p-4">
+              <div className="flex justify-between font-semibold mb-4">
+                <span>Total:</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
-            )}
+              <div className="flex justify-between text-sm text-gray-600 mb-4">
+                <span>Items:</span>
+                <span>{totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}</span>
+              </div>
+              <button 
+                className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={cartItems.length === 0 || updating !== null}
+                onClick={() => {
+                  setIsCartOpen(false);
+                  router.push("/checkout");
+                }}
+              >
+                Proceed to Pay
+              </button>
+            </div>
           </motion.div>
         </div>
       )}
