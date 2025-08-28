@@ -7,10 +7,14 @@ import RazorpayButton from "@/components/RazorpayButton";
 const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [codLoading, setCodLoading] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [cartData, setCartData] = useState<{ items: Array<{ _id: string, name: string, price: number, quantity: number, image: string }>, orderSummary: { subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } } | null>(null);
   const [calculatedCharges, setCalculatedCharges] = useState<{ subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } | null>(null);
   const [setAsDefault, setSetAsDefault] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [isFormValid, setIsFormValid] = useState(false);
   const router = useRouter();
 
   // Shipping form state
@@ -28,63 +32,120 @@ const CheckoutPage = () => {
     addressType: "Home",
   });
 
-  const fetchCartData = async () => {
-    try {
-      const res = await fetch("/api/checkout");
-      const data = await res.json();
-      setCartData(data);
-    } catch (error) {
-      console.error("Error fetching cart data:", error);
+  // Validation functions
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'name':
+        if (!value.trim()) return 'Full name is required';
+        if (value.trim().length < 2) return 'Name must be at least 2 characters';
+        if (!/^[a-zA-Z\s]+$/.test(value.trim())) return 'Name can only contain letters and spaces';
+        return '';
+        
+      case 'phone':
+        if (!value.trim()) return 'Phone number is required';
+        if (!/^\d{10}$/.test(value.trim())) return 'Phone number must be exactly 10 digits';
+        if (!/^[6-9]\d{9}$/.test(value.trim())) return 'Phone number must start with 6, 7, 8, or 9';
+        return '';
+        
+      case 'email':
+        if (!value.trim()) return 'Email address is required';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value.trim())) return 'Please enter a valid email address';
+        return '';
+        
+      case 'address':
+        if (!value.trim()) return 'Street address is required';
+        if (value.trim().length < 5) return 'Address must be at least 5 characters';
+        return '';
+        
+      case 'addressLine2':
+        if (!value.trim()) return 'Address line 2 is required';
+        if (value.trim().length < 2) return 'Address line 2 must be at least 2 characters';
+        return '';
+        
+      case 'city':
+        if (!value.trim()) return 'City is required';
+        if (value.trim().length < 2) return 'City must be at least 2 characters';
+        if (!/^[a-zA-Z\s]+$/.test(value.trim())) return 'City can only contain letters and spaces';
+        return '';
+        
+      case 'state':
+        if (!value.trim()) return 'State is required';
+        if (value.trim().length < 2) return 'State must be at least 2 characters';
+        if (!/^[a-zA-Z\s]+$/.test(value.trim())) return 'State can only contain letters and spaces';
+        return '';
+        
+      case 'pincode':
+        if (!value.trim()) return 'Pincode is required';
+        if (!/^\d{6}$/.test(value.trim())) return 'Pincode must be exactly 6 digits';
+        return '';
+        
+      default:
+        return '';
     }
   };
 
-  const calculateDynamicCharges = useCallback(() => {
-    if (!cartData) return;
-
-    const subtotal = cartData.orderSummary.subtotal;
-    const gst = subtotal * 0.18; // 18% GST
-    const transactionFee = subtotal * 0.02; // 2% transaction fee
+  const validateForm = useCallback(() => {
+    const errors: Record<string, string> = {};
+    const requiredFields = ['name', 'phone', 'email', 'address', 'addressLine2', 'city', 'state', 'pincode'];
     
-    // Check if city is Mumbai
-    const isMumbai = shippingForm.city.toLowerCase().includes('mumbai') || 
-                     shippingForm.city.toLowerCase().includes('bombay');
-    const deliveryCharges = isMumbai ? 500 : 1000;
-
-    const total = subtotal + gst + transactionFee + deliveryCharges;
-
-    setCalculatedCharges({
-      subtotal,
-      gst,
-      transactionFee,
-      deliveryCharges,
-      total,
+    requiredFields.forEach(field => {
+      const error = validateField(field, shippingForm[field as keyof typeof shippingForm]);
+      if (error) {
+        errors[field] = error;
+      }
     });
-  }, [cartData, shippingForm.city]);
-
-  // Fetch cart data on component mount
-  useEffect(() => {
-    fetchCartData();
-  }, []);
-
-  // Recalculate charges when city changes
-  useEffect(() => {
-    if (cartData && shippingForm.city) {
-      calculateDynamicCharges();
-    }
-  }, [shippingForm.city, cartData, calculateDynamicCharges]);
+    
+    setValidationErrors(errors);
+    const isValid = Object.keys(errors).length === 0;
+    setIsFormValid(isValid);
+    return isValid;
+  }, [shippingForm]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    // Handle specific field formatting
+    let formattedValue = value;
+    
+    if (name === 'phone') {
+      // Only allow digits and limit to 10 characters
+      formattedValue = value.replace(/\D/g, '').slice(0, 10);
+    } else if (name === 'pincode') {
+      // Only allow digits and limit to 6 characters
+      formattedValue = value.replace(/\D/g, '').slice(0, 6);
+    } else if (name === 'name' || name === 'city' || name === 'state') {
+      // Only allow letters and spaces
+      formattedValue = value.replace(/[^a-zA-Z\s]/g, '');
+    }
+    
     setShippingForm({
       ...shippingForm,
-      [e.target.name]: e.target.value,
+      [name]: formattedValue,
     });
+    
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors({
+        ...validationErrors,
+        [name]: ''
+      });
+    }
+    
+    // Real-time validation for the current field
+    const error = validateField(name, formattedValue);
+    if (error) {
+      setValidationErrors({
+        ...validationErrors,
+        [name]: error
+      });
+    }
   };
 
   const handleContinueToPayment = async () => {
-    if (!shippingForm.name || !shippingForm.phone || !shippingForm.email || 
-        !shippingForm.address || !shippingForm.city || !shippingForm.state || 
-        !shippingForm.pincode) {
-      alert("Please fill all required fields");
+    // Validate the entire form
+    if (!validateForm()) {
+      alert("Please fix all validation errors before continuing");
       return;
     }
 
@@ -114,6 +175,109 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+
+  const fetchCartData = async () => {
+    try {
+      const res = await fetch("/api/checkout");
+      const data = await res.json();
+      setCartData(data);
+    } catch (error) {
+      console.error("Error fetching cart data:", error);
+    }
+  };
+
+  const calculateDynamicCharges = useCallback(async () => {
+    if (!cartData) return;
+
+    const subtotal = cartData.orderSummary.subtotal;
+    const gst = subtotal * 0.18; // 18% GST
+    const transactionFee = subtotal * 0.02; // 2% transaction fee
+    
+    let deliveryCharges = 500; // Default charges for non-delivery zones
+    
+    // Enhanced pincode validation with strict digit-by-digit matching
+    if (shippingForm.pincode && shippingForm.pincode.trim().length >= 6) {
+      try {
+        const response = await fetch('/api/validate-pincode', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            pincode: shippingForm.pincode.trim(),
+            orderAmount: subtotal
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            deliveryCharges = result.data.deliveryCharges;
+            
+            // Log validation details for admin monitoring
+            console.log('Strict Pincode Validation:', {
+              pincode: shippingForm.pincode.trim(),
+              isValid: result.data.isValid,
+              exists: result.data.exists,
+              charges: result.data.deliveryCharges,
+              appliedRule: result.data.appliedRule,
+              validationErrors: result.data.validationErrors,
+              orderAmount: subtotal
+            });
+            
+            // Alert user if pincode validation failed
+            if (!result.data.isValid && result.data.validationErrors.length > 0) {
+              console.warn('Pincode Validation Failed:', result.data.validationErrors.join(', '));
+              // You can show user notification here if needed
+            }
+          } else {
+            console.error('Invalid API response structure');
+            deliveryCharges = 500; // Default for failed validation
+          }
+        } else {
+          console.error('Pincode validation API failed:', response.status);
+          deliveryCharges = 500; // Default charges
+        }
+      } catch (error) {
+        console.error('Error in strict pincode validation:', error);
+        // Final fallback - use city-based logic only if everything fails
+        const isMumbai = shippingForm.city.toLowerCase().includes('mumbai') || 
+                         shippingForm.city.toLowerCase().includes('bombay');
+        deliveryCharges = isMumbai ? 100 : 500;
+      }
+    } else if (shippingForm.pincode && shippingForm.pincode.trim().length > 0) {
+      // Invalid pincode length - apply default charges
+      console.warn('Invalid pincode length:', shippingForm.pincode.length, 'Expected: 6 digits');
+      deliveryCharges = 500;
+    }
+
+    const total = subtotal + gst + transactionFee + deliveryCharges;
+
+    setCalculatedCharges({
+      subtotal,
+      gst,
+      transactionFee,
+      deliveryCharges,
+      total,
+    });
+  }, [cartData, shippingForm.pincode, shippingForm.city]);
+
+  // Fetch cart data on component mount
+  useEffect(() => {
+    fetchCartData();
+  }, []);
+
+  // Recalculate charges when pincode or city changes
+  useEffect(() => {
+    if (cartData && (shippingForm.pincode || shippingForm.city)) {
+      calculateDynamicCharges();
+    }
+  }, [shippingForm.pincode, shippingForm.city, cartData, calculateDynamicCharges]);
+
+  // Validate form whenever form data changes
+  useEffect(() => {
+    validateForm();
+  }, [shippingForm, validateForm]);
 
   const calculateTotal = () => {
     if (!calculatedCharges && !cartData) return 0;
@@ -191,9 +355,14 @@ const CheckoutPage = () => {
                           name="name"
                           value={shippingForm.name}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                            validationErrors.name ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Enter your full name"
                         />
+                        {validationErrors.name && (
+                          <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -205,9 +374,18 @@ const CheckoutPage = () => {
                           name="phone"
                           value={shippingForm.phone}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Enter your phone number"
+                          maxLength={10}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                            validationErrors.phone ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                          }`}
+                          placeholder="Enter 10-digit phone number"
                         />
+                        {validationErrors.phone && (
+                          <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+                        )}
+                        {shippingForm.phone && !validationErrors.phone && shippingForm.phone.length === 10 && (
+                          <p className="mt-1 text-sm text-green-600">✓ Valid phone number</p>
+                        )}
                       </div>
                     </div>
 
@@ -220,9 +398,17 @@ const CheckoutPage = () => {
                         name="email"
                         value={shippingForm.email}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          validationErrors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter your email address"
                       />
+                      {validationErrors.email && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+                      )}
+                      {shippingForm.email && !validationErrors.email && shippingForm.email.includes('@') && (
+                        <p className="mt-1 text-sm text-green-600">✓ Valid email address</p>
+                      )}
                     </div>
                   </div>
 
@@ -240,9 +426,14 @@ const CheckoutPage = () => {
                           name="address"
                           value={shippingForm.address}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                            validationErrors.address ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="House no., Building name, Street"
                         />
+                        {validationErrors.address && (
+                          <p className="mt-1 text-sm text-red-600">{validationErrors.address}</p>
+                        )}
                       </div>
 
                       <div>
@@ -254,9 +445,14 @@ const CheckoutPage = () => {
                           name="addressLine2"
                           value={shippingForm.addressLine2}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                            validationErrors.addressLine2 ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Apartment, suite, floor"
                         />
+                        {validationErrors.addressLine2 && (
+                          <p className="mt-1 text-sm text-red-600">{validationErrors.addressLine2}</p>
+                        )}
                       </div>
 
                       <div>
@@ -283,9 +479,14 @@ const CheckoutPage = () => {
                             name="city"
                             value={shippingForm.city}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              validationErrors.city ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                            }`}
                             placeholder="Enter city"
                           />
+                          {validationErrors.city && (
+                            <p className="mt-1 text-sm text-red-600">{validationErrors.city}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -297,9 +498,14 @@ const CheckoutPage = () => {
                             name="state"
                             value={shippingForm.state}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              validationErrors.state ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                            }`}
                             placeholder="Enter state"
                           />
+                          {validationErrors.state && (
+                            <p className="mt-1 text-sm text-red-600">{validationErrors.state}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -311,9 +517,18 @@ const CheckoutPage = () => {
                             name="pincode"
                             value={shippingForm.pincode}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Enter pincode"
+                            maxLength={6}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              validationErrors.pincode ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                            }`}
+                            placeholder="Enter 6-digit pincode"
                           />
+                          {validationErrors.pincode && (
+                            <p className="mt-1 text-sm text-red-600">{validationErrors.pincode}</p>
+                          )}
+                          {shippingForm.pincode && !validationErrors.pincode && shippingForm.pincode.length === 6 && (
+                            <p className="mt-1 text-sm text-green-600">✓ Valid pincode format</p>
+                          )}
                         </div>
                       </div>
 
@@ -365,11 +580,43 @@ const CheckoutPage = () => {
 
                   <button
                     onClick={handleContinueToPayment}
-                    disabled={loading}
-                    className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:opacity-50 transition duration-200"
+                    disabled={loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])}
+                    className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${
+                      loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
                   >
                     {loading ? "Processing..." : "Continue to Payment"}
                   </button>
+                  
+                  {/* Validation Summary */}
+                  {Object.keys(validationErrors).some(key => validationErrors[key]) && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-center mb-2">
+                        <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <h4 className="text-sm font-medium text-red-800">Please fix the following errors:</h4>
+                      </div>
+                      <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+                        {Object.entries(validationErrors).map(([field, error]) => 
+                          error && <li key={field}>{error}</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {isFormValid && !Object.keys(validationErrors).some(key => validationErrors[key]) && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium text-green-800">All fields are valid. Ready to proceed!</span>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -430,16 +677,25 @@ const CheckoutPage = () => {
                             phone: shippingForm.phone
                           }}
                           checkoutId={checkoutId}
-                          buttonText="Pay Now"
-                          className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-200"
+                          buttonText={paymentProcessing ? "Processing..." : "Pay Now"}
+                          disabled={codLoading || paymentProcessing}
+                          className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${
+                            codLoading || paymentProcessing 
+                              ? 'bg-gray-400 text-white cursor-not-allowed' 
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                          onStart={() => {
+                            setPaymentProcessing(true);
+                          }}
                           onSuccess={(paymentResponse) => {
                             console.log("Payment successful:", paymentResponse);
-                            // Redirect to success page with order details
+                            // Keep processing state until redirect
                             router.push("/success?payment=completed");
                           }}
                           onFailure={(error) => {
                             console.error("Payment failed:", error);
                             alert("Payment failed. Please try again.");
+                            setPaymentProcessing(false);
                           }}
                         />
                       </div>
@@ -461,8 +717,14 @@ const CheckoutPage = () => {
                         </div>
                         <button
                           onClick={() => {
+                            // Prevent multiple clicks
+                            if (codLoading || paymentProcessing) return;
+                            
                             // Handle COD order placement
                             if (checkoutId) {
+                              setCodLoading(true);
+                              setPaymentProcessing(true);
+                              
                               fetch("/api/orders/create", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
@@ -485,19 +747,28 @@ const CheckoutPage = () => {
                                   router.push("/success?payment=cod");
                                 } else {
                                   alert("Failed to place order: " + data.error);
+                                  setCodLoading(false);
+                                  setPaymentProcessing(false);
                                 }
                               })
                               .catch(error => {
                                 console.error("COD order error:", error);
                                 alert("Failed to place order. Please try again.");
+                                setCodLoading(false);
+                                setPaymentProcessing(false);
                               });
                             } else {
                               alert("Please complete shipping information first.");
                             }
                           }}
-                          className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition duration-200"
+                          disabled={codLoading || paymentProcessing}
+                          className={`w-full text-white py-3 px-6 rounded-lg font-medium transition duration-200 ${
+                            codLoading || paymentProcessing 
+                              ? 'bg-gray-400 cursor-not-allowed' 
+                              : 'bg-green-600 hover:bg-green-700'
+                          }`}
                         >
-                          Place Order - COD
+                          {codLoading ? "Processing..." : "Place Order - COD"}
                         </button>
                       </div>
                     </div>
@@ -568,11 +839,13 @@ const CheckoutPage = () => {
                 
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">
-                    {shippingForm.city && !shippingForm.city.toLowerCase().includes('mumbai') 
-                      ? "Delivery Charges (Outside Mumbai)" 
-                      : "Delivery Charges"}
+                    {charges?.deliveryCharges === 100 
+                      ? "Delivery Charges (Mumbai Suburban)" 
+                      : charges?.deliveryCharges === 500
+                        ? "Delivery Charges (Outside Mumbai)"
+                        : "Delivery Charges"}
                   </span>
-                  <span className="font-medium">₹{charges?.deliveryCharges || 500}</span>
+                  <span className="font-medium">₹{charges?.deliveryCharges || 100}</span>
                 </div>
                 
                 <div className="border-t border-gray-200 pt-3">
@@ -584,13 +857,16 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Location-based message */}
-              {shippingForm.city && (
+              {/* Pincode-based delivery message */}
+              {shippingForm.pincode && shippingForm.pincode.length === 6 && (
                 <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    {shippingForm.city.toLowerCase().includes('mumbai') 
-                      ? "🏙️ Mumbai delivery: ₹500" 
-                      : "📦 Outside Mumbai delivery: ₹1000"}
+                    {charges?.deliveryCharges === 100 
+                      ? `🏙️ Mumbai Suburban (${shippingForm.pincode}): ₹100 delivery` 
+                      : `📦 Outside Mumbai (${shippingForm.pincode}): ₹500 delivery`}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Delivery charges calculated based on your pincode
                   </p>
                 </div>
               )}

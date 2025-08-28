@@ -1,30 +1,19 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, ShoppingCart, Plus, Minus, Trash2, User, LogIn, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, Plus, Minus, Trash2, User, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-
-interface CartItem {
-  _id: string;
-  productId: {
-    _id: string;
-    name: string;
-    price: number;
-    image: string;
-  };
-  quantity: number;
-}
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   
-  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { cart, cartCount, isLoading, removeFromCart, updateQuantity } = useCart();
   
   const pathname = usePathname();
   const router = useRouter();
@@ -53,98 +42,19 @@ const Navbar = () => {
 
   const navItems = getNavItems();
 
-  // Fetch cart from backend when drawer opens (only if authenticated)
-  useEffect(() => {
-    if (isCartOpen && isAuthenticated) {
-      const fetchCart = async () => {
-        try {
-          setLoading(true);
-          const res = await fetch("/api/cart", {
-            credentials: 'include',
-          });
-          const data = await res.json();
-          
-          setCartItems(data.cart?.items || []);
-        } catch (err) {
-          console.error("Error fetching cart:", err);
-          setCartItems([]);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchCart();
-    }
-  }, [isCartOpen, isAuthenticated]);
-
-  const increaseQty = async (id: string) => {
+  const increaseQty = async (productId: string) => {
     try {
-      setUpdating(id);
-      const item = cartItems.find(item => item._id === id);
+      setUpdating(productId);
+      const item = cart.find(item => item.productId === productId);
       if (!item) return;
 
-      const res = await fetch("/api/cart/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          itemId: id,
-          quantity: item.quantity + 1,
-        }),
-      });
-
-      if (res.ok) {
-        setCartItems(cartItems.map(item => 
-          item._id === id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        ));
-      } else {
-        const errorData = await res.json();
-        console.error("Error updating quantity:", errorData.error);
-      }
-    } catch (err) {
-      console.error("Error updating quantity:", err);
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  const decreaseQty = async (id: string) => {
-    try {
-      setUpdating(id);
-      const item = cartItems.find(item => item._id === id);
-      if (!item) return;
-
-      if (item.quantity <= 1) {
-        await removeItem(id);
+      // Check if we can increase quantity (don't exceed stock)
+      if (item.quantity >= item.stock) {
+        console.log(`Cannot increase quantity for ${productId}: at stock limit ${item.stock}`);
         return;
       }
 
-      const res = await fetch("/api/cart/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          itemId: id,
-          quantity: item.quantity - 1,
-        }),
-      });
-
-      if (res.ok) {
-        setCartItems(cartItems.map(item => 
-          item._id === id 
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        ));
-      } else {
-        const errorData = await res.json();
-        console.error("Error updating quantity:", errorData.error);
-      }
+      await updateQuantity(productId, item.quantity + 1);
     } catch (err) {
       console.error("Error updating quantity:", err);
     } finally {
@@ -152,24 +62,29 @@ const Navbar = () => {
     }
   };
 
-  const removeItem = async (id: string) => {
+  const decreaseQty = async (productId: string) => {
     try {
-      setUpdating(id);
-      const res = await fetch("/api/cart/remove", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
-        body: JSON.stringify({ itemId: id }),
-      });
+      setUpdating(productId);
+      const item = cart.find(item => item.productId === productId);
+      if (!item) return;
 
-      if (res.ok) {
-        setCartItems(cartItems.filter(item => item._id !== id));
-      } else {
-        const errorData = await res.json();
-        console.error("Error removing item:", errorData.error);
+      if (item.quantity <= 1) {
+        await removeFromCart(productId);
+        return;
       }
+
+      await updateQuantity(productId, item.quantity - 1);
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const removeItem = async (productId: string) => {
+    try {
+      setUpdating(productId);
+      await removeFromCart(productId);
     } catch (err) {
       console.error("Error removing item:", err);
     } finally {
@@ -182,23 +97,51 @@ const Navbar = () => {
       router.push('/login?redirect=/checkout');
       return;
     }
-    setIsCartOpen(false);
+    closeCart();
     router.push("/checkout");
   };
 
-  const totalPrice = Array.isArray(cartItems) ? cartItems.reduce(
+  // Enhanced cart functions
+  const openCart = () => {
+    setIsCartOpen(true);
+  };
+
+  const closeCart = () => {
+    setIsCartOpen(false);
+  };
+
+  // Auto-close cart when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isCartOpen && !target.closest('.cart-drawer') && !target.closest('.cart-button')) {
+        closeCart();
+      }
+    };
+
+    if (isCartOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isCartOpen]);
+
+  const totalPrice = Array.isArray(cart) ? cart.reduce(
     (total, item) => {
-      const price = item?.productId?.price || 0;
+      const price = item?.price || 0;
       const quantity = item?.quantity || 0;
       return total + (price * quantity);
     },
     0
   ) : 0;
 
-  const totalQuantity = Array.isArray(cartItems) ? cartItems.reduce(
-    (total, item) => total + (item?.quantity || 0),
-    0
-  ) : 0;
+  const totalQuantity = cartCount;
 
   return (
     <>
@@ -250,14 +193,18 @@ const Navbar = () => {
 
               {/* Cart Button */}
               <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition"
+                onClick={() => openCart()}
+                className="cart-button relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ShoppingCart size={22} />
                 {totalQuantity > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center">
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center"
+                  >
                     {totalQuantity}
-                  </span>
+                  </motion.span>
                 )}
               </button>
             </div>
@@ -265,14 +212,18 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-2">
               <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition"
+                onClick={() => openCart()}
+                className="cart-button relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ShoppingCart size={22} />
                 {totalQuantity > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center">
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center"
+                  >
                     {totalQuantity}
-                  </span>
+                  </motion.span>
                 )}
               </button>
               <button
@@ -321,119 +272,313 @@ const Navbar = () => {
         </motion.div>
       </nav>
 
-      {/* Cart Drawer */}
+      {/* Enhanced Cart Drawer with Transparent Background */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-50 flex justify-end"
+        >
+          {/* Enhanced Transparent Background Overlay */}
           <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative w-full sm:w-96 bg-white h-full shadow-lg flex flex-col"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 backdrop-blur-md cursor-pointer"
+            onClick={closeCart}
+            style={{
+              background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%)',
+              backdropFilter: 'blur(12px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(12px) saturate(180%)', // Safari support
+            }}
+          />
+          
+          {/* Cart Drawer */}
+          <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30,
+              opacity: { duration: 0.2 }
+            }}
+            className="cart-drawer relative w-full sm:w-96 bg-white h-full shadow-2xl flex flex-col z-10"
           >
-            <div className="p-4 flex justify-between items-center border-b">
-              <h2 className="text-lg font-semibold">My Cart</h2>
-              <button
-                onClick={() => setIsCartOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+            {/* Header with Enhanced Close Button */}
+            <div className="p-4 flex justify-between items-center border-b bg-gray-50">
+              <motion.h2 
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="text-lg font-semibold text-gray-800"
+              >
+                My Cart ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})
+              </motion.h2>
+              <motion.button
+                onClick={closeCart}
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 transition-all"
               >
                 <X size={24} />
-              </button>
+              </motion.button>
             </div>
 
-            {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Enhanced Cart Items with Stagger Animation */}
+            <div className="flex-1 overflow-y-auto p-4">
               {!isAuthenticated ? (
-                <div className="text-center py-8">
-                  <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <motion.div 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-center py-8"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                  >
+                    <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  </motion.div>
                   <p className="text-gray-500 mb-4">Please login to view your cart</p>
                   <Link
                     href="/login"
-                    onClick={() => setIsCartOpen(false)}
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    onClick={closeCart}
+                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all hover:scale-105"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
                     Login
                   </Link>
-                </div>
-              ) : loading ? (
-                <p className="text-center text-gray-500">Loading...</p>
-              ) : cartItems.length === 0 ? (
-                <p className="text-center text-gray-500">Your cart is empty</p>
-              ) : (
-                cartItems.map((item) => (
-                  <div
-                    key={item._id}
-                    className="flex items-center gap-4 border rounded-lg p-2 relative"
+                </motion.div>
+              ) : isLoading ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-8"
+                >
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading your cart...</p>
+                </motion.div>
+              ) : cart.length === 0 ? (
+                <motion.div 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-center py-8"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
                   >
-                    <img
-                      src={item.productId?.image || '/placeholder-image.jpg'}
-                      alt={item.productId?.name || 'Product'}
-                      className="w-16 h-16 object-cover rounded"
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder-image.jpg';
+                    <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  </motion.div>
+                  <p className="text-gray-500">Your cart is empty</p>
+                  <motion.button
+                    onClick={closeCart}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="mt-4 px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                  >
+                    Continue Shopping
+                  </motion.button>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: {},
+                    visible: {
+                      transition: {
+                        staggerChildren: 0.1
+                      }
+                    }
+                  }}
+                  className="space-y-4"
+                >
+                  {cart.map((item) => (
+                    <motion.div
+                      key={item.productId}
+                      variants={{
+                        hidden: { y: 20, opacity: 0 },
+                        visible: { y: 0, opacity: 1 }
                       }}
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-medium">{item.productId?.name || 'Unknown Product'}</h3>
-                      <p className="text-sm text-gray-600">₹{item.productId?.price || 0}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <button
-                          onClick={() => decreaseQty(item._id)}
-                          disabled={updating === item._id}
-                          className="p-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className="min-w-8 text-center">{item.quantity || 0}</span>
-                        <button
-                          onClick={() => increaseQty(item._id)}
-                          disabled={updating === item._id}
-                          className="p-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeItem(item._id)}
-                      disabled={updating === item._id}
-                      className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      layout
+                      className="relative"
                     >
-                      <Trash2 size={16} />
-                    </button>
-                    {updating === item._id && (
-                      <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-                      </div>
-                    )}
-                  </div>
-                ))
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="flex items-center gap-4 border rounded-lg p-3 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden"
+                      >
+                        {/* Product Image */}
+                        <div className="relative">
+                          <img
+                            src={item.image || '/placeholder-image.jpg'}
+                            alt={item.name || 'Product'}
+                            className="w-16 h-16 object-cover rounded-lg"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-image.jpg';
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Product Info */}
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900 line-clamp-1">
+                            {item.name || 'Unknown Product'}
+                          </h3>
+                          <p className="text-sm text-gray-600">₹{item.price || 0}</p>
+                          
+                          {/* Stock Information */}
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.stock <= 5 ? (
+                              <span className="text-orange-600 font-medium">
+                                Only {item.stock} left in stock
+                              </span>
+                            ) : (
+                              <span>{item.stock} in stock</span>
+                            )}
+                          </div>
+                          
+                          {/* Enhanced Quantity Controls */}
+                          <div className="flex items-center gap-3 mt-2">
+                            <motion.button
+                              onClick={() => decreaseQty(item.productId)}
+                              disabled={updating === item.productId}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                              <Minus size={14} />
+                            </motion.button>
+                            
+                            <motion.span 
+                              key={item.quantity}
+                              initial={{ scale: 1.2 }}
+                              animate={{ scale: 1 }}
+                              className="min-w-8 text-center font-medium"
+                            >
+                              {item.quantity || 0}
+                            </motion.span>
+                            
+                            <motion.button
+                              onClick={() => increaseQty(item.productId)}
+                              disabled={updating === item.productId || item.quantity >= item.stock}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                              title={item.quantity >= item.stock ? `Stock limit reached (${item.stock})` : ''}
+                            >
+                              <Plus size={14} />
+                            </motion.button>
+                          </div>
+                        </div>
+                        
+                        {/* Enhanced Delete Button */}
+                        <motion.button
+                          onClick={() => removeItem(item.productId)}
+                          disabled={updating === item.productId}
+                          whileHover={{ scale: 1.1, rotate: 10 }}
+                          whileTap={{ scale: 0.9 }}
+                          className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded-full hover:bg-red-50 transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </motion.button>
+                        
+                        {/* Loading Overlay */}
+                        {updating === item.productId && (
+                          <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg"
+                          >
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    </motion.div>
+                  ))}
+                </motion.div>
               )}
             </div>
 
-            {/* Footer */}
-            {isAuthenticated && (
-              <div className="border-t p-4">
-                <div className="flex justify-between font-semibold mb-4">
-                  <span>Total:</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
+            {/* Enhanced Footer with Proceed to Pay Animation */}
+            {isAuthenticated && cart.length > 0 && (
+              <motion.div 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="border-t bg-gray-50 p-4"
+              >
+                {/* Price Summary */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Items ({totalQuantity}):</span>
+                    <span>₹{totalPrice.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-lg">
+                    <span>Total:</span>
+                    <motion.span
+                      key={totalPrice}
+                      initial={{ scale: 1.1, color: "#10b981" }}
+                      animate={{ scale: 1, color: "#374151" }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      ₹{totalPrice.toFixed(2)}
+                    </motion.span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600 mb-4">
-                  <span>Items:</span>
-                  <span>{totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}</span>
-                </div>
-                <button 
-                  className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={cartItems.length === 0 || updating !== null}
+                
+                {/* Enhanced Proceed to Pay Button */}
+                <motion.button 
                   onClick={handleCartCheckout}
+                  disabled={cart.length === 0 || updating !== null}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
                 >
-                  Proceed to Pay
-                </button>
-              </div>
+                  <motion.div
+                    className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity"
+                    whileHover={{ opacity: 0.1 }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center">
+                    {updating !== null ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <motion.span
+                          initial={{ x: 0 }}
+                          whileHover={{ x: 5 }}
+                          className="flex items-center"
+                        >
+                          Proceed to Pay
+                          <motion.svg 
+                            className="w-5 h-5 ml-2" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            whileHover={{ x: 3 }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </motion.svg>
+                        </motion.span>
+                      </>
+                    )}
+                  </span>
+                </motion.button>
+              </motion.div>
             )}
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </>
   );

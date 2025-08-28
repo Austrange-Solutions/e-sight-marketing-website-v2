@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import Order from "@/models/orderModel";
-import Checkout from "@/models/checkoutModel";
 import { connect } from "@/dbConfig/dbConfig";
 import jwt from "jsonwebtoken";
 
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get checkout data
-    const checkout = await Checkout.findById(checkoutId);
+    const checkout = await Order.findById(checkoutId);
     if (!checkout) {
       return NextResponse.json(
         { error: "Checkout not found" },
@@ -78,7 +77,7 @@ export async function POST(request: NextRequest) {
     await order.save();
 
     // Update checkout status
-    await Checkout.findByIdAndUpdate(checkoutId, {
+    await Order.findByIdAndUpdate(checkoutId, {
       status: 'confirmed',
       paymentStatus: 'paid',
       razorpayOrderId: paymentInfo.razorpayOrderId,

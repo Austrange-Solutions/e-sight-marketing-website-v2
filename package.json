@@ -10,15 +10,11 @@
   },
   "dependencies": {
     "axios": "^1.11.0",
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
-    "e-sight-marketing-website-v2": ".",
     "framer-motion": "^12.23.12",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.536.0",
     "mongoose": "^8.17.1",
     "next": "15.4.5",
-    "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
     "razorpay": "^2.9.6",
     "react": "19.1.0",
@@ -28,7 +24,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.17",

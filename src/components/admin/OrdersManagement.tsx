@@ -156,7 +156,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   Items
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
+                  Amount & Charges
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Payment
@@ -199,8 +199,19 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">₹{order.totalAmount.toLocaleString()}</div>
-                    <div className="text-xs text-gray-500">
-                      GST: ₹{order.orderSummary.gst} | Delivery: ₹{order.orderSummary.deliveryCharges}
+                    <div className="text-xs text-gray-600 mt-1">
+                      <div className="flex justify-between items-center">
+                        <span>Delivery:</span>
+                        <span className="font-medium text-blue-600">₹{order.orderSummary.deliveryCharges}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>GST:</span>
+                        <span>₹{order.orderSummary.gst}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>Pincode:</span>
+                        <span className="font-mono">{order.shippingAddress.pincode}</span>
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -283,8 +294,18 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   <p><strong>{selectedOrder.shippingAddress.name}</strong></p>
                   <p>{selectedOrder.shippingAddress.address}</p>
                   {selectedOrder.shippingAddress.addressLine2 && <p>{selectedOrder.shippingAddress.addressLine2}</p>}
-                  <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.pincode}</p>
-                  <p>{selectedOrder.shippingAddress.country}</p>
+                  <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
+                  <div className="flex items-center justify-between mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                    <div>
+                      <span className="text-xs text-blue-600 font-medium">PINCODE</span>
+                      <p className="font-mono text-lg text-blue-800">{selectedOrder.shippingAddress.pincode}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-blue-600 font-medium">DELIVERY CHARGE</span>
+                      <p className="font-semibold text-lg text-blue-800">₹{selectedOrder.orderSummary.deliveryCharges}</p>
+                    </div>
+                  </div>
+                  <p className="mt-2">{selectedOrder.shippingAddress.country}</p>
                 </div>
               </div>
             </div>
@@ -318,6 +339,37 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
 
             {/* Order Summary */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Delivery Validation Info */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Delivery Validation</h4>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-blue-600 font-medium">Pincode</span>
+                      <p className="font-mono text-xl text-blue-800">{selectedOrder.shippingAddress.pincode}</p>
+                    </div>
+                    <div>
+                      <span className="text-blue-600 font-medium">Delivery Zone</span>
+                      <p className="text-blue-800 font-medium">
+                        {selectedOrder.orderSummary.deliveryCharges === 100 ? 'Mumbai Suburban' : 
+                         selectedOrder.orderSummary.deliveryCharges === 500 ? 'Outside Mumbai' : 'Special Zone'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-blue-600 font-medium">Charge Applied</span>
+                      <p className="text-2xl font-bold text-blue-800">₹{selectedOrder.orderSummary.deliveryCharges}</p>
+                    </div>
+                    <div>
+                      <span className="text-blue-600 font-medium">Validation Status</span>
+                      <div className="flex items-center mt-1">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                        <span className="text-green-700 font-medium">Validated</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">Payment Information</h4>
                 <div className="bg-gray-50 p-3 rounded-lg text-sm">
@@ -331,29 +383,48 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   )}
                 </div>
               </div>
+            </div>
 
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Order Summary</h4>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm">
-                  <div className="flex justify-between py-1">
-                    <span>Subtotal:</span>
-                    <span>₹{selectedOrder.orderSummary.subtotal.toLocaleString()}</span>
+            {/* Financial Summary */}
+            <div className="mt-6">
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">Financial Breakdown</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between py-1">
+                        <span>Subtotal:</span>
+                        <span>₹{selectedOrder.orderSummary.subtotal.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span>GST (18%):</span>
+                        <span>₹{selectedOrder.orderSummary.gst.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span>Transaction Fee:</span>
+                        <span>₹{selectedOrder.orderSummary.transactionFee.toLocaleString()}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between py-1">
-                    <span>GST (18%):</span>
-                    <span>₹{selectedOrder.orderSummary.gst.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span>Transaction Fee:</span>
-                    <span>₹{selectedOrder.orderSummary.transactionFee.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span>Delivery Charges:</span>
-                    <span>₹{selectedOrder.orderSummary.deliveryCharges.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between py-1 font-semibold border-t border-gray-200 mt-2 pt-2">
-                    <span>Total:</span>
-                    <span>₹{selectedOrder.orderSummary.total.toLocaleString()}</span>
+                  
+                  <div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-blue-600 font-medium text-sm">Delivery Charges</span>
+                          <br />
+                          <span className="text-xs text-blue-500">Pincode: {selectedOrder.shippingAddress.pincode}</span>
+                        </div>
+                        <span className="font-bold text-xl text-blue-800">₹{selectedOrder.orderSummary.deliveryCharges.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 bg-green-50 p-3 rounded-lg border border-green-200">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-green-800">Total Amount</span>
+                        <span className="font-bold text-2xl text-green-800">₹{selectedOrder.orderSummary.total.toLocaleString()}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

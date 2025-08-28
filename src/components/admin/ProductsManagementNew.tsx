@@ -10,7 +10,6 @@ interface Product extends Omit<TProduct, '_id'> {
 
 interface ProductsManagementProps {
   products: Product[];
-  setProducts: (products: Product[]) => void;
   onRefresh: () => void;
 }
 
@@ -22,7 +21,7 @@ const taxOptions = [
   { value: 28, label: "Luxury Tax (28%)" },
 ];
 
-export default function ProductsManagement({ products, setProducts, onRefresh }: ProductsManagementProps) {
+export default function ProductsManagement({ products, onRefresh }: ProductsManagementProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -390,7 +389,7 @@ export default function ProductsManagement({ products, setProducts, onRefresh }:
               <img
                 src={product.image || '/assets/images/e-sight-logo.png'}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 onError={(e) => {
                   e.currentTarget.src = '/assets/images/e-sight-logo.png';
                 }}

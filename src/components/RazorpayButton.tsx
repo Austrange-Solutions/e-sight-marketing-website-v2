@@ -58,6 +58,8 @@ type Props = {
   checkoutId?: string;
   buttonText?: string;
   className?: string;
+  disabled?: boolean;
+  onStart?: () => void;
   onSuccess: (paymentResponse: RazorpayResponse & PaymentResponse) => void;
   onFailure: (err: Error) => void;
 };
@@ -68,6 +70,8 @@ const RazorpayButton: React.FC<Props> = ({
   checkoutId,
   buttonText = "Pay Now",
   className = "",
+  disabled = false,
+  onStart,
   onSuccess,
   onFailure,
 }) => {
@@ -85,7 +89,11 @@ const RazorpayButton: React.FC<Props> = ({
     });
 
   const handlePayment = async () => {
+    // Prevent payment if disabled or already loading
+    if (disabled || loading) return;
+    
     setLoading(true);
+    onStart?.(); // Notify parent that payment processing started
     
     try {
       // Load Razorpay script
@@ -208,8 +216,8 @@ const RazorpayButton: React.FC<Props> = ({
     <button
       type="button"
       onClick={handlePayment}
-      disabled={loading}
-      className={`${className} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+      disabled={loading || disabled}
+      className={`${className} ${(loading || disabled) ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       {loading ? "Processing..." : buttonText}
     </button>
