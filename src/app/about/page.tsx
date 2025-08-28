@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-// import Image from "next/image"; // Commented out as it's not being used
 
 // CEO data that will always be displayed first
 const ceoData = {
