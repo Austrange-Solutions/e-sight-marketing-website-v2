@@ -8,10 +8,9 @@ interface User {
 
 interface UsersManagementProps {
   users: User[];
-  onRefresh: () => void;
 }
 
-export default function UsersManagement({ users, onRefresh }: UsersManagementProps) {
+export default function UsersManagement({ users }: UsersManagementProps) {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+// import Image from "next/image"; // Commented out as it's not being used
 
 // CEO data that will always be displayed first
 const ceoData = {
@@ -48,22 +48,19 @@ const About = () => {
     // State to hold the randomized team members
     const [randomizedTeam, setRandomizedTeam] = useState<TeamMember[]>([]);
   
-    // Function to shuffle array
-    const shuffleArray = (array: TeamMember[]) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
   // Randomize team members on component mount
   useEffect(() => {
+    const shuffleArray = (array: TeamMember[]) => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+    
     setRandomizedTeam(shuffleArray(otherTeamMembers));
-  }, []);
-
-  // Combine CEO with randomized team members
+  }, []); // Empty dependency array since we only want this to run once  // Combine CEO with randomized team members
   const displayTeam = [ceoData, ...randomizedTeam];
 
   return (

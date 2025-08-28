@@ -1,5 +1,5 @@
 import { connect } from "@/dbConfig/dbConfig";
-import Checkout from "@/models/checkoutModel";
+import Order from "@/models/orderModel";
 import Cart from "@/models/cartModel";
 import { getUserFromToken } from "@/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -79,9 +79,22 @@ export async function POST(request: NextRequest) {
       image: item.productId.image,
     }));
 
-    // Create checkout record with ALL shipping address fields
-    const checkout = new Checkout({
+    // Generate unique order number
+    const orderNumber = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+    // Create checkout record with ALL required fields
+    const checkout = new Order({
       userId: userData.id,
+      orderNumber: orderNumber,
+      
+      // Customer Information (required)
+      customerInfo: {
+        name: shippingAddress.name,
+        email: shippingAddress.email,
+        phone: shippingAddress.phone,
+      },
+      
+      // Shipping Address
       shippingAddress: {
         name: shippingAddress.name,
         phone: shippingAddress.phone,
@@ -95,7 +108,10 @@ export async function POST(request: NextRequest) {
         country: shippingAddress.country || "India",
         addressType: shippingAddress.addressType || "Home",
       },
+      
       items: checkoutItems,
+      
+      // Order Summary
       orderSummary: {
         subtotal,
         gst,
@@ -103,7 +119,18 @@ export async function POST(request: NextRequest) {
         deliveryCharges,
         total,
       },
-      paymentMethod,
+      
+      // Total Amount (required)
+      totalAmount: total,
+      
+      // Payment Information (required)
+      paymentInfo: {
+        method: paymentMethod,
+        status: 'pending',
+      },
+      
+      // Order Status
+      status: 'pending',
     });
 
     await checkout.save();

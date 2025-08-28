@@ -6,6 +6,7 @@ import DashboardOverview from '@/components/admin/DashboardOverview';
 import UsersManagement from '@/components/admin/UsersManagement';
 import ProductsManagement from '@/components/admin/ProductsManagementNew';
 import OrdersManagement from '@/components/admin/OrdersManagement';
+import DeliveryAreasManagement from '@/components/admin/DeliveryAreasManagement';
 import { TProduct } from '@/models/productModel';
 
 // Serialized version for client components
@@ -102,7 +103,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas'>('overview');
   const [loading, setLoading] = useState(true);
   
   const router = useRouter();
@@ -211,10 +212,11 @@ export default function AdminDashboard() {
                 { key: 'users', label: 'Users' },
                 { key: 'products', label: 'Products' },
                 { key: 'orders', label: 'Orders' },
+                { key: 'delivery-areas', label: 'Delivery Areas' },
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders')}
+                  onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.key
                       ? 'border-indigo-500 text-indigo-600'
@@ -233,19 +235,22 @@ export default function AdminDashboard() {
             )}
 
             {activeTab === 'users' && (
-              <UsersManagement users={users} onRefresh={fetchDashboardData} />
+              <UsersManagement users={users} />
             )}
 
             {activeTab === 'products' && (
               <ProductsManagement 
                 products={products} 
-                setProducts={setProducts}
                 onRefresh={fetchDashboardData} 
               />
             )}
 
             {activeTab === 'orders' && (
               <OrdersManagement orders={orders} onRefresh={fetchDashboardData} />
+            )}
+
+            {activeTab === 'delivery-areas' && (
+              <DeliveryAreasManagement onRefresh={fetchDashboardData} />
             )}
           </div>
         </div>

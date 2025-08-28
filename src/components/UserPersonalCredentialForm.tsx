@@ -1,9 +1,7 @@
-"use client";
 import React, { useState } from "react";
 
 type Props = {
-  userId: string;
-  onSuccess: (cred: {
+  onSuccess: (data: {
     fullName: string;
     email: string;
     phoneNumber: string;
@@ -11,7 +9,7 @@ type Props = {
   }) => void;
 };
 
-const UserPersonalCredentialForm: React.FC<Props> = ({ userId, onSuccess }) => {
+const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");

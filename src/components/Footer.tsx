@@ -9,7 +9,7 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image"; // Removed unused import
 
 const Footer = () => {
   return (

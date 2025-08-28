@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+// import { Schema } from 'mongoose'; // Commented out as it's not being used
 
 export interface UserDocument extends Document {
   username: string;
