@@ -23,7 +23,7 @@ const HomeHero = () => {
               Empowering Vision Through Innovation
             </h1>
             <p className="text-xl mb-8">
-              Experience independence with e-Sight&apos;s revolutionary smart blind
+              Experience independence with e-kaathi&apos;s revolutionary smart blind
               stick, combining AI technology with intuitive navigation.
             </p>
             <Link
@@ -41,7 +41,7 @@ const HomeHero = () => {
           >
             <img
               src="/assets/images/blind-person.png"
-              alt="Person using e-Sight smart blind stick"
+              alt="Person using e-Kaathi smart blind stick"
               className="rounded-lg max-md:w-[100px]"
             />
           </motion.div>

@@ -8,8 +8,8 @@ import { getServerUser } from "@/lib/server/auth";
 import { getServerCart } from "@/lib/server/cart";
 
 export const metadata: Metadata = {
-  title: "E-sight, Your Path, Your Freedom",
-  description: "Experience independence with e-Sight's revolutionary smart blind stick.",
+  title: "E-Kaathi, Your Path, Your Freedom",
+  description: "Experience independence with e-Kaathi's revolutionary smart blind stick.",
 };
 
 export default async function RootLayout({

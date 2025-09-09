@@ -23,7 +23,7 @@ const PricingCards = () => {
       features: [
         "Obstacle detection",
         "35+ hour battery life",
-        "e-Sight App Connectivity",
+        "e-Kaathi App Connectivity",
         "App based navigation",
         "App based Emergency Alert System",
         "18-months warranty",

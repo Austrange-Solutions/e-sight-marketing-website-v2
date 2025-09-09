@@ -73,7 +73,7 @@ const About = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-8">
-              About e-Sight
+              About e-Kaathi
             </h1>
             <p className="text-xl max-w-3xl mx-auto">
               Improving the lives of the blind individuals living in darkness.
