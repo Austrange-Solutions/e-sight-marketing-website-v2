@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connect();
 
-    const products = await Product.find({}).lean();
+    const products = await Product.find();
 
     return NextResponse.json(products);
   } catch (error) {

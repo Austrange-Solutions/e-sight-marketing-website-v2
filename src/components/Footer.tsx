@@ -21,10 +21,10 @@ const Footer = () => {
             <div className="flex items-center">
               <img
                 src="/assets/images/e-sight-logo.png"
-                alt="e-Sight Logo"
+                alt="e-Kaathi Logo"
                 className="h-8 w-8"
               />
-              <span className="ml-2 text-xl font-bold">e-Sight</span>
+              <span className="ml-2 text-xl font-bold">e-Kaathi</span>
             </div>
             <p className="text-gray-400">
               Improving the lives of the people living in darkness.
@@ -53,10 +53,26 @@ const Footer = () => {
               </li>
               <li>
                 <Link
+                  href="/products"
+                  className="text-gray-400 hover:text-white transition-colors duration-200"
+                >
+                  Products
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/contact"
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-gray-400 hover:text-white transition-colors duration-200"
+                >
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
@@ -118,7 +134,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} e-Sight. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} e-Kaathi. All rights reserved.</p>
         </div>
       </div>
     </footer>
