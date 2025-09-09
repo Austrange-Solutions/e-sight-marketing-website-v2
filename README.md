@@ -2,6 +2,16 @@
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+
+- **Modern Next.js 15** with App Router
+- **Responsive Design** with Tailwind CSS
+- **Interactive UI** with Framer Motion animations  
+- **E-commerce Features** with cart functionality
+- **User Authentication** and profile management
+- **Privacy Policy** - Comprehensive privacy protection for e-Kaathi app users
+- **Accessibility Focused** - Designed for visually impaired users and assistive technologies
+
 ## Getting Started
 
 First, run the development server:
