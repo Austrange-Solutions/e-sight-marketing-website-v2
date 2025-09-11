@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
   try {
     await connect();
     
-    const userData = await getUserFromToken(request);
-    if (!userData) {
+    const adminData = getAdminFromRequest(request);
+    if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -114,8 +114,8 @@ export async function PUT(request: NextRequest) {
   try {
     await connect();
     
-    const userData = await getUserFromToken(request);
-    if (!userData) {
+    const adminData = getAdminFromRequest(request);
+    if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -157,8 +157,8 @@ export async function DELETE(request: NextRequest) {
   try {
     await connect();
     
-    const userData = await getUserFromToken(request);
-    if (!userData) {
+    const adminData = getAdminFromRequest(request);
+    if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

@@ -160,6 +160,61 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
     reader.readAsDataURL(file);
   };
 
+  // Single-click disable product
+  const disableProduct = async (productId: string) => {
+    setUpdating(productId);
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'inactive' }),
+      });
+      if (!response.ok) throw new Error('Failed to disable product');
+      toast.success('Product disabled');
+      onRefresh();
+    } catch (error) {
+      toast.error('Failed to disable product');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Single-click update product
+  const singleClickUpdateProduct = async (product: Product) => {
+    setUpdating(product._id);
+    try {
+      const response = await fetch(`/api/admin/products/${product._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+      if (!response.ok) throw new Error('Failed to update product');
+      toast.success('Product updated');
+      onRefresh();
+    } catch (error) {
+      toast.error('Failed to update product');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Single-click delete product
+  const singleClickDeleteProduct = async (productId: string) => {
+    setUpdating(productId);
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete product');
+      toast.success('Product deleted');
+      onRefresh();
+    } catch (error) {
+      toast.error('Failed to delete product');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const createProduct = async (productData: Omit<Product, '_id'>) => {
     try {
       const createData = {

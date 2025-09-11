@@ -272,87 +272,93 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
         </div>
       </div>
 
-      {/* Add/Edit Form */}
+      {/* Add/Edit Modal */}
       {showAddForm && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingArea ? 'Edit Delivery Area' : 'Add New Delivery Area'}
-          </h3>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
-              <input
-                type="text"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                value={formData.pincode}
-                onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Area Name</label>
-              <input
-                type="text"
-                value={formData.areaName}
-                onChange={(e) => setFormData({ ...formData, areaName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
-              <input
-                type="text"
-                value={formData.district}
-                onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Charges (₹)</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.deliveryCharges}
-                onChange={(e) => setFormData({ ...formData, deliveryCharges: parseInt(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isActive"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-                Active
-              </label>
-            </div>
-            <div className="flex space-x-3">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-              >
-                {editingArea ? 'Update' : 'Add'} Area
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setEditingArea(null);
-                }}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg border border-gray-200 max-w-lg w-full mx-4 relative">
+            <button
+              onClick={() => { setShowAddForm(false); setEditingArea(null); }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              title="Close"
+            >
+              <X size={24} />
+            </button>
+            <h3 className="text-lg font-semibold mb-4">
+              {editingArea ? 'Edit Delivery Area' : 'Add New Delivery Area'}
+            </h3>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                  value={formData.pincode}
+                  onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Area Name</label>
+                <input
+                  type="text"
+                  value={formData.areaName}
+                  onChange={(e) => setFormData({ ...formData, areaName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+                <input
+                  type="text"
+                  value={formData.district}
+                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Charges (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.deliveryCharges}
+                  onChange={(e) => setFormData({ ...formData, deliveryCharges: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                  Active
+                </label>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                >
+                  {editingArea ? 'Update' : 'Add'} Area
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowAddForm(false); setEditingArea(null); }}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

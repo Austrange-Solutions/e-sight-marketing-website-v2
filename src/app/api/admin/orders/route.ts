@@ -1,5 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Order from "@/models/orderModel";
+import Product from "@/models/productModel";
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
 const jwt = require("jsonwebtoken");
