@@ -43,53 +43,27 @@ const Navbar = () => {
   const navItems = getNavItems();
 
   const increaseQty = async (productId: string) => {
-    try {
-      setUpdating(productId);
-      const item = cart.find(item => item.productId === productId);
-      if (!item) return;
-
-      // Check if we can increase quantity (don't exceed stock)
-      if (item.quantity >= item.stock) {
-        console.log(`Cannot increase quantity for ${productId}: at stock limit ${item.stock}`);
-        return;
-      }
-
-      await updateQuantity(productId, item.quantity + 1);
-    } catch (err) {
-      console.error("Error updating quantity:", err);
-    } finally {
-      setUpdating(null);
+    const item = cart.find(item => item.productId === productId);
+    if (!item) return;
+    if (item.quantity >= item.stock) {
+      console.log(`Cannot increase quantity for ${productId}: at stock limit ${item.stock}`);
+      return;
     }
+    updateQuantity(productId, item.quantity + 1);
   };
 
   const decreaseQty = async (productId: string) => {
-    try {
-      setUpdating(productId);
-      const item = cart.find(item => item.productId === productId);
-      if (!item) return;
-
-      if (item.quantity <= 1) {
-        await removeFromCart(productId);
-        return;
-      }
-
-      await updateQuantity(productId, item.quantity - 1);
-    } catch (err) {
-      console.error("Error updating quantity:", err);
-    } finally {
-      setUpdating(null);
+    const item = cart.find(item => item.productId === productId);
+    if (!item) return;
+    if (item.quantity <= 1) {
+      removeFromCart(productId);
+      return;
     }
+    updateQuantity(productId, item.quantity - 1);
   };
 
   const removeItem = async (productId: string) => {
-    try {
-      setUpdating(productId);
-      await removeFromCart(productId);
-    } catch (err) {
-      console.error("Error removing item:", err);
-    } finally {
-      setUpdating(null);
-    }
+  removeFromCart(productId);
   };
 
   const handleCartCheckout = () => {
@@ -450,10 +424,9 @@ const Navbar = () => {
                           <div className="flex items-center gap-3 mt-2">
                             <motion.button
                               onClick={() => decreaseQty(item.productId)}
-                              disabled={updating === item.productId}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
                             >
                               <Minus size={14} />
                             </motion.button>
@@ -469,10 +442,9 @@ const Navbar = () => {
                             
                             <motion.button
                               onClick={() => increaseQty(item.productId)}
-                              disabled={updating === item.productId || item.quantity >= item.stock}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
                               title={item.quantity >= item.stock ? `Stock limit reached (${item.stock})` : ''}
                             >
                               <Plus size={14} />
@@ -483,24 +455,14 @@ const Navbar = () => {
                         {/* Enhanced Delete Button */}
                         <motion.button
                           onClick={() => removeItem(item.productId)}
-                          disabled={updating === item.productId}
                           whileHover={{ scale: 1.1, rotate: 10 }}
                           whileTap={{ scale: 0.9 }}
-                          className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded-full hover:bg-red-50 transition-all"
+                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all"
                         >
                           <Trash2 size={16} />
                         </motion.button>
                         
-                        {/* Loading Overlay */}
-                        {updating === item.productId && (
-                          <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg"
-                          >
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-                          </motion.div>
-                        )}
+                        {/* ...existing code... */}
                       </motion.div>
                     </motion.div>
                   ))}

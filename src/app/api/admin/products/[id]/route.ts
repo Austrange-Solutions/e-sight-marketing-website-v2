@@ -1,7 +1,7 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Product from "@/models/productModel";
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminFromToken } from "@/middleware/adminAuth";
+import { getAdminFromRequest } from "@/middleware/adminAuth";
 
 export async function PUT(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function PUT(
   try {
     await connect();
     
-    const adminData = getAdminFromToken(request);
+  const adminData = getAdminFromRequest(request);
     if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -120,7 +120,7 @@ export async function DELETE(
   try {
     await connect();
     
-    const adminData = getAdminFromToken(request);
+  const adminData = getAdminFromRequest(request);
     if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

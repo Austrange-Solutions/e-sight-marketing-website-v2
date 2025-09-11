@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminFromToken } from "@/middleware/adminAuth";
+import { getAdminFromRequest } from "@/middleware/adminAuth";
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const adminData = getAdminFromToken(request);
-    
+    const adminData = getAdminFromRequest(req);
+
     if (!adminData) {
+      console.log("[ADMIN VERIFY] Unauthorized");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
       admin: adminData,
     });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

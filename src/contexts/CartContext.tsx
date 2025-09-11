@@ -415,7 +415,7 @@ export function CartProvider({ children, initialCart = [] }: CartProviderProps) 
       return removeFromCart(productId);
     }
 
-    setIsLoading(true);
+  // Do not set global loading for quantity update
     
     // Store old quantity for potential rollback
     const cartItem = cart.find(item => item.productId === productId);
@@ -424,7 +424,7 @@ export function CartProvider({ children, initialCart = [] }: CartProviderProps) 
     // STRICT STOCK VALIDATION
     if (cartItem && quantity > cartItem.stock) {
       toast.error(`Only ${cartItem.stock} items available in stock`);
-      setIsLoading(false);
+  // No global loading
       return;
     }
     
@@ -465,7 +465,7 @@ export function CartProvider({ children, initialCart = [] }: CartProviderProps) 
       const errorMessage = error instanceof Error ? error.message : 'Failed to update quantity';
       toast.error(errorMessage);
     } finally {
-      setIsLoading(false);
+  // No global loading
     }
   };
 

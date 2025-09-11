@@ -2,13 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Product from "@/models/productModel";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await connect();
 
-    const products = await Product.find({}).lean();
+    // Get pagination params
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1', 10);
+    const limit = parseInt(url.searchParams.get('limit') || '10', 10);
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json(products);
+    const products = await Product.find({})
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    return NextResponse.json({ products });
   } catch (error) {
     console.error("[GET_PRODUCTS_ERROR]", error);
     return NextResponse.json(

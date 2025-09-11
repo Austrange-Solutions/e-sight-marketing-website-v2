@@ -1,7 +1,22 @@
+import User from '@/models/userModel';
+
+// Update user's verification code and expiry
+export async function updateUserVerificationCode(email: string, code: string): Promise<void> {
+  const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+  await User.findOneAndUpdate(
+    { email },
+    { verifyCode: code, verifyCodeExpiry: expiry }
+  );
+}
+// Finds a user by email (stub)
+export async function getUserByEmail(email: string): Promise<{ email: string } | null> {
+  // TODO: Replace with actual DB lookup
+  // Example: return await db.users.findOne({ email });
+  return { email };
+}
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { connect } from "@/dbConfig/dbConfig";
-import User from "@/models/userModel";
 
 export interface ServerUser {
   _id: string;

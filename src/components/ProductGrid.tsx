@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,19 +23,24 @@ interface Product {
 
 interface ProductGridProps {
   products: Product[];
+  pageSize?: number;
   title?: string;
   showFilters?: boolean;
 }
 
 export default function ProductGrid({ 
-  products, 
+  products,
   title = "Our Products",
-  showFilters = true 
+  showFilters = true,
+  pageSize = 12
 }: ProductGridProps) {
   const { addToCart, isLoading } = useCart();
   
   // State for filtering and searching
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
@@ -46,7 +52,7 @@ export default function ProductGrid({
 
   // Filter and sort products
   React.useEffect(() => {
-    let filtered = products.filter(product => {
+  let filtered = products.filter(product => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            product.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -72,8 +78,32 @@ export default function ProductGrid({
     });
 
     setFilteredProducts(filtered);
+    setPage(1);
+    setVisibleProducts(filtered.slice(0, pageSize));
   }, [products, selectedCategory, searchTerm, priceRange, sortBy]);
 
+  // Lazy loading: load more products when scrolling near bottom
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!loaderRef.current) return;
+    const handleScroll = () => {
+      if (loading) return;
+      const rect = loaderRef.current!.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        setLoading(true);
+        setTimeout(() => {
+          setPage(prev => {
+            const nextPage = prev + 1;
+            setVisibleProducts(filteredProducts.slice(0, nextPage * pageSize));
+            setLoading(false);
+            return nextPage;
+          });
+        }, 800); // simulate network delay
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [filteredProducts, loading, pageSize]);
   // Handle add to cart with error handling
   const handleAddToCart = useCallback(async (product: Product) => {
     try {
@@ -216,7 +246,7 @@ export default function ProductGrid({
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
           >
-            {filteredProducts.map((product, index) => (
+            {visibleProducts.map((product, index) => (
               <ProductCard
                 key={product._id}
                 product={product}
@@ -225,9 +255,35 @@ export default function ProductGrid({
                 isAddingToCart={isLoading}
               />
             ))}
+            {/* Skeletons for loading */}
+            {loading && Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </motion.div>
         )}
+        {/* Loader div for intersection */}
+        <div ref={loaderRef} style={{ height: 1 }} />
       </AnimatePresence>
+
+    </div>
+  );
+}
+
+
+// Skeleton Card Component
+export function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+      <div className="aspect-square bg-gray-200" />
+      <div className="p-4">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+        <div className="h-3 bg-gray-200 rounded w-1/2 mb-2" />
+        <div className="h-3 bg-gray-200 rounded w-1/3 mb-2" />
+        <div className="flex items-center justify-between mt-4">
+          <div className="h-4 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 w-8 bg-gray-200 rounded" />
+        </div>
+      </div>
     </div>
   );
 }

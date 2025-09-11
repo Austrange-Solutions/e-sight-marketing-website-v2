@@ -48,11 +48,11 @@ export default function VerifyEmailPage() {
     try {
       setMessage('🔄 Resending verification code...');
       // Add your resend code API call here
-      // const res = await fetch('/api/users/resend-code', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email })
-      // });
+      const res = await fetch('/api/users/resend-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
       
       setMessage('✅ Verification code resent successfully!');
     } catch (error: unknown) {

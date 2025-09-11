@@ -7,8 +7,12 @@ export async function POST() {
       success: true,
     });
 
-    // Clear the token cookie
+    // Clear both user and admin tokens
     response.cookies.set("token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    response.cookies.set("admin-token", "", {
       httpOnly: true,
       expires: new Date(0),
     });

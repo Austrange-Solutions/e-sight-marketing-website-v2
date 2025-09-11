@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 export function middleware(req: NextRequest) {
-  // Example: Log the request URL
-  console.log('Request URL:', req.url);
-
-  // Continue to the next middleware or route handler
+  const { pathname } = req.nextUrl;
+  // Protect admin dashboard and other admin pages
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+    const token = req.cookies.get('admin-token')?.value;
+    if (!token) {
+      // Redirect to admin login if not authenticated
+      return NextResponse.redirect(new URL('/admin/login', req.url));
+    }
+  }
   return NextResponse.next();
 }

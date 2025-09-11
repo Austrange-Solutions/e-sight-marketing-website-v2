@@ -39,17 +39,25 @@ export async function POST(request: NextRequest) {
 
     // Create token
     const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
-      expiresIn: "1d",
+      expiresIn: "2h", // Session lasts 2 hours
     });
+
+    console.log("[ADMIN LOGIN] Token generated:", token);
 
     const response = NextResponse.json({
       message: "Admin login successful",
       success: true,
     });
 
-    response.cookies.set("token", token, {
+    response.cookies.set("admin-token", token, {
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
+      maxAge: 60 * 60 * 2, // 2 hours in seconds
     });
+
+    console.log("[ADMIN LOGIN] Cookie set:", response.cookies.get("admin-token"));
 
     return response;
   } catch (error: unknown) {

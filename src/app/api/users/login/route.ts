@@ -1,6 +1,7 @@
 import {connect} from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -8,9 +9,17 @@ connect()
 
 export async function POST(request: NextRequest){
     try {
+        const bodySchema = z.object({
+            email: z.string().email("Invalid email address"),
+            password: z.string().min(6, "Password must be at least 6 characters"),
+        });
 
-        const reqBody = await request.json()
-        const {email, password} = reqBody;
+        const reqBody = await request.json();
+        const parseResult = bodySchema.safeParse(reqBody);
+        if (!parseResult.success) {
+            return NextResponse.json({ error: parseResult.error.issues.map((e: { message: string }) => e.message).join(", ") }, { status: 400 });
+        }
+        const { email, password } = parseResult.data;
         console.log(reqBody);
 
         //check if user exists

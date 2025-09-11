@@ -1,23 +1,28 @@
 import {connect} from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import bcryptjs from "bcryptjs";
-import { sendEmail } from "@/helpers/mailer";
+import { sendVerificationEmail } from "@/helpers/resendEmail";
 
 connect()
 
 
 export async function POST(request: NextRequest){
     try {
-        const reqBody = await request.json()
-        const {username, email, password, phone} = reqBody
+        const bodySchema = z.object({
+            username: z.string().min(3, "Username must be at least 3 characters"),
+            email: z.string().email("Invalid email address"),
+            password: z.string().min(6, "Password must be at least 6 characters"),
+            phone: z.string().optional()
+        });
 
-        console.log(reqBody);
-
-        // Validate required fields
-        if (!username || !email || !password) {
-            return NextResponse.json({error: "Username, email, and password are required"}, {status: 400})
+        const reqBody = await request.json();
+        const parseResult = bodySchema.safeParse(reqBody);
+        if (!parseResult.success) {
+            return NextResponse.json({ error: parseResult.error.issues.map((e: { message: string }) => e.message).join(", ") }, { status: 400 });
         }
+        const { username, email, password, phone } = parseResult.data;
 
         // Check if user already exists with email
         const existingUserByEmail = await User.findOne({email})
@@ -53,9 +58,8 @@ export async function POST(request: NextRequest){
         const savedUser = await newUser.save()
         console.log(savedUser);
 
-        //send verification email
 
-        // generate a 6-digit code
+        // Generate a 6-digit code
         const code = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Save to user
@@ -63,17 +67,24 @@ export async function POST(request: NextRequest){
         savedUser.verifyCodeExpiry = Date.now() + 3600000; // 1 hour
         await savedUser.save();
 
-        // Send email with code
-        await sendEmail({
-        email,
-        code, // pass the code to your mailer
-        });
+        // Send email using Resend
+        try {
+            const { sendVerificationEmail } = await import("@/helpers/resendEmail");
+            await sendVerificationEmail(
+  email,
+  "Verify your email",
+  code // just the code, not HTML
+);
+        } catch (err) {
+            return NextResponse.json({ error: "Failed to send verification email" }, { status: 500 });
+        }
 
+        // Redirect to login page after successful signup and email
         return NextResponse.json({
-            message: "User created successfully",
+            message: "User created successfully. Verification email sent.",
             success: true,
-            savedUser
-        })
+            redirect: "/login"
+        });
         
         
 

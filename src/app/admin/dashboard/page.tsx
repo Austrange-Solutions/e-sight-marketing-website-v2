@@ -29,14 +29,6 @@ interface User {
   createdAt: string;
 }
 
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  isVerified: boolean;
-  createdAt: string;
-}
-
 interface Order {
   _id: string;
   orderNumber: string;
@@ -93,6 +85,36 @@ interface Order {
   };
 }
 
+// Skeleton loader component
+function SkeletonTable({ rows = 5, cols = 4 }) {
+  return (
+    <div className="animate-pulse">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            {[...Array(cols)].map((_, i) => (
+              <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-300 bg-gray-100">
+                <div className="h-4 bg-gray-200 rounded w-3/4" />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {[...Array(rows)].map((_, i) => (
+            <tr key={i}>
+              {[...Array(cols)].map((_, j) => (
+                <td key={j} className="px-6 py-4 whitespace-nowrap">
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -100,18 +122,22 @@ export default function AdminDashboard() {
     totalOrders: 0,
     totalRevenue: 0,
   });
+  // Separate loading states and data for each tab
   const [users, setUsers] = useState<User[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas'>('overview');
   const [loading, setLoading] = useState(true);
-  
   const router = useRouter();
 
   useEffect(() => {
     checkAdminAuth();
     fetchDashboardData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAdminAuth = async () => {
@@ -120,7 +146,7 @@ export default function AdminDashboard() {
       if (!res.ok) {
         router.push('/admin/login');
       }
-    } catch {
+    } catch (err) {
       router.push('/admin/login');
     }
   };
@@ -128,54 +154,79 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
       // Fetch stats
       const statsRes = await fetch('/api/admin/stats');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
-
-      // Fetch users
-      const usersRes = await fetch('/api/admin/users');
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        setUsers(usersData.users || []);
-      }
-
-      // Fetch products
-      const productsRes = await fetch('/api/products');
-      if (productsRes.ok) {
-        const productsData = await productsRes.json();
-        setProducts(productsData || []);
-      }
-
-      // Fetch orders
-      const ordersRes = await fetch('/api/admin/orders');
-      if (ordersRes.ok) {
-        const ordersData = await ordersRes.json();
-        setOrders(ordersData.orders || []);
-      }
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
       setLoading(false);
     }
   };
+
+  // Tab-specific data fetchers
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    const usersRes = await fetch('/api/admin/users');
+    if (usersRes.ok) {
+      const usersData = await usersRes.json();
+      setUsers(usersData.users || []);
+    }
+    setUsersLoading(false);
+  };
+  const loadOrders = async () => {
+    setOrdersLoading(true);
+    const ordersRes = await fetch('/api/admin/orders');
+    if (ordersRes.ok) {
+      const ordersData = await ordersRes.json();
+      setOrders(ordersData.orders || []);
+    }
+    setOrdersLoading(false);
+  };
+  const loadProducts = async () => {
+    setProductsLoading(true);
+    const productsRes = await fetch('/api/admin/products');
+    if (productsRes.ok) {
+      const productsData = await productsRes.json();
+      setProducts(productsData.products || []);
+    }
+    setProductsLoading(false);
+  };
+  const loadDeliveryAreas = async () => {
+    setDeliveryLoading(true);
+    setTimeout(() => setDeliveryLoading(false), 1000);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'users' && users.length === 0 && !usersLoading) {
+      loadUsers();
+    }
+    if (activeTab === 'orders' && orders.length === 0 && !ordersLoading) {
+      loadOrders();
+    }
+    if (activeTab === 'products' && products.length === 0 && !productsLoading) {
+      loadProducts();
+    }
+    if (activeTab === 'delivery-areas' && !deliveryLoading) {
+      loadDeliveryAreas();
+    }
+  }, [activeTab]);
 
   const handleLogout = async () => {
     try {
       await fetch('/api/users/logout', { method: 'POST' });
       router.push('/admin/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    } catch (error) {}
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-8">
+        <SkeletonTable rows={5} cols={4} /> {/* Users */}
+        <SkeletonTable rows={5} cols={6} /> {/* Orders */}
+        <SkeletonTable rows={5} cols={5} /> {/* Delivery Areas */}
       </div>
     );
   }
@@ -226,6 +277,15 @@ export default function AdminDashboard() {
                   {tab.label}
                 </button>
               ))}
+              <div className="flex items-center space-x-4">
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                <LogOut size={16} className="mr-2" />
+                Logout
+              </button>
+            </div>
             </nav>
           </div>
 
@@ -233,24 +293,17 @@ export default function AdminDashboard() {
             {activeTab === 'overview' && (
               <DashboardOverview stats={stats} />
             )}
-
             {activeTab === 'users' && (
-              <UsersManagement users={users} />
+              usersLoading ? <SkeletonTable rows={5} cols={4} /> : <UsersManagement users={users} />
             )}
-
             {activeTab === 'products' && (
-              <ProductsManagement 
-                products={products} 
-                onRefresh={fetchDashboardData} 
-              />
+              productsLoading ? <SkeletonTable rows={5} cols={4} /> : <ProductsManagement products={products} onRefresh={loadProducts} />
             )}
-
             {activeTab === 'orders' && (
-              <OrdersManagement orders={orders} onRefresh={fetchDashboardData} />
+              ordersLoading ? <SkeletonTable rows={5} cols={6} /> : <OrdersManagement orders={orders} onRefresh={loadOrders} />
             )}
-
             {activeTab === 'delivery-areas' && (
-              <DeliveryAreasManagement onRefresh={fetchDashboardData} />
+              deliveryLoading ? <SkeletonTable rows={5} cols={5} /> : <DeliveryAreasManagement onRefresh={loadDeliveryAreas} />
             )}
           </div>
         </div>
@@ -258,3 +311,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

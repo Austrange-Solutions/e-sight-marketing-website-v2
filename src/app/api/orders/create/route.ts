@@ -36,6 +36,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Prevent saving order if payment status is pending
+    if (paymentInfo.status === 'pending') {
+      return NextResponse.json(
+        { error: "Payment is pending. Order will not be saved." },
+        { status: 400 }
+      );
+    }
+
+    // Prevent duplicate orders for same payment
+    if (paymentInfo.razorpayPaymentId) {
+      const existingOrder = await Order.findOne({
+        'paymentInfo.razorpayPaymentId': paymentInfo.razorpayPaymentId
+      });
+      if (existingOrder) {
+        return NextResponse.json(
+          { error: "Order already exists for this payment." },
+          { status: 409 }
+        );
+      }
+    }
+
     // Get checkout data
     const checkout = await Order.findById(checkoutId);
     if (!checkout) {

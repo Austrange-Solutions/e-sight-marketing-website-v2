@@ -3,13 +3,13 @@ import User from "@/models/userModel";
 import Product from "@/models/productModel";
 import Order from "@/models/orderModel";
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminFromToken } from "@/middleware/adminAuth";
+import { getAdminFromRequest } from "@/middleware/adminAuth";
 
 export async function GET(request: NextRequest) {
   try {
     await connect();
     
-    const adminData = getAdminFromToken(request);
+  const adminData = getAdminFromRequest(request);
     if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

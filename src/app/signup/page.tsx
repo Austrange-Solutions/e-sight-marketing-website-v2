@@ -202,31 +202,6 @@ export default function SignupPage() {
                             )}
                         </div>
 
-                        {/* Phone Field */}
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                                Phone Number <span className="text-gray-400">(optional)</span>
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Phone className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="phone"
-                                    name="phone"
-                                    type="tel"
-                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
-                                        validationErrors.phone ? 'border-red-300' : 'border-gray-300'
-                                    }`}
-                                    placeholder="Enter your phone number"
-                                    value={user.phone}
-                                    onChange={(e) => setUser({ ...user, phone: e.target.value })}
-                                />
-                            </div>
-                            {validationErrors.phone && (
-                                <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
-                            )}
-                        </div>
 
                         {/* Password Field */}
                         <div>

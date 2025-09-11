@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,6 +68,11 @@ interface Order {
 }
 
 export default function ProfilePage() {
+  const [ordersLoading, setOrdersLoading] = useState(false);
+const [ordersPage, setOrdersPage] = useState(1);
+const [hasMoreOrders, setHasMoreOrders] = useState(true);
+const ORDERS_PAGE_SIZE = 5;
+const ordersLoaderRef = useRef<HTMLDivElement | null>(null);
   const { user, loading: authLoading, logout, refreshUser, isAuthenticated } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,41 +87,67 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!authLoading) {
-      if (!isAuthenticated) {
-        router.push('/login');
-        return;
-      }
-      
-      // Initialize form data with user data
-      if (user) {
-        setFormData({
-          username: user.username || '',
-          phone: user.phone || '',
-          address: user.address || ''
-        });
-      }
-      
-      fetchOrders();
+useEffect(() => {
+  if (!authLoading) {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
     }
-  }, [authLoading, isAuthenticated, user, router]);
-
-  const fetchOrders = async () => {
-    try {
-      const res = await fetch('/api/orders', {
-        credentials: 'include',
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        phone: user.phone || '',
+        address: user.address || ''
       });
-      if (res.ok) {
-        const data = await res.json();
-        setOrders(data.orders || []);
-      }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    } finally {
-      setLoading(false);
+    }
+    setOrders([]);
+    setOrdersPage(1);
+    setHasMoreOrders(true);
+    fetchOrders(1, true);
+  }
+}, [authLoading, isAuthenticated, user, router]);
+
+useEffect(() => {
+  if (activeTab !== 'orders' || !hasMoreOrders || ordersLoading) return;
+  const handleScroll = () => {
+    if (!ordersLoaderRef.current) return;
+    const rect = ordersLoaderRef.current.getBoundingClientRect();
+    if (rect.top < window.innerHeight) {
+      setOrdersPage(prev => prev + 1);
     }
   };
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [activeTab, hasMoreOrders, ordersLoading]);
+
+useEffect(() => {
+  if (ordersPage > 1) fetchOrders(ordersPage);
+}, [ordersPage]);
+
+const fetchOrders = async (page = 1, reset = false) => {
+  setOrdersLoading(true);
+  try {
+    const res = await fetch(`/api/orders?page=${page}&limit=${ORDERS_PAGE_SIZE}`, { credentials: 'include' });
+    if (res.ok) {
+      const data = await res.json();
+      if (reset) {
+        setOrders(data.orders || []);
+      } else {
+        setOrders(prev => {
+          const existingIds = new Set(prev.map(o => o._id));
+          const newOrders = (data.orders || []).filter((o: Order) => !existingIds.has(o._id));
+          return [...prev, ...newOrders];
+        });
+      }
+      setHasMoreOrders((data.orders || []).length === ORDERS_PAGE_SIZE);
+    }
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+  } finally {
+    setOrdersLoading(false);
+    setLoading(false);
+  }
+};
 
   const handleLogout = async () => {
     setLogoutLoading(true);
@@ -214,13 +246,33 @@ export default function ProfilePage() {
     });
   };
 
+  // if (authLoading || loading) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  //       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  //     </div>
+  //   );
+  // }
+
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  return (
+    <div className="mt-[4%] min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="border border-gray-200 rounded-lg p-6 animate-pulse bg-gray-100">
+              <div className="h-6 w-1/3 bg-gray-300 rounded mb-2" />
+              <div className="h-4 w-1/4 bg-gray-300 rounded mb-2" />
+              <div className="h-4 w-1/2 bg-gray-300 rounded mb-2" />
+              <div className="h-12 w-full bg-gray-200 rounded mb-2" />
+            </div>
+          ))}
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+  
 
   if (!isAuthenticated) {
     return null; // Will redirect in useEffect
@@ -481,6 +533,15 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   ))}
+                  {ordersLoading && Array.from({ length: ORDERS_PAGE_SIZE }).map((_, i) => (
+  <div key={i} className="border border-gray-200 rounded-lg p-6 animate-pulse bg-gray-100">
+    <div className="h-6 w-1/3 bg-gray-300 rounded mb-2" />
+    <div className="h-4 w-1/4 bg-gray-300 rounded mb-2" />
+    <div className="h-4 w-1/2 bg-gray-300 rounded mb-2" />
+    <div className="h-12 w-full bg-gray-200 rounded mb-2" />
+  </div>
+))}
+<div ref={ordersLoaderRef} style={{ height: 1 }} />
                 </div>
               )}
             </div>

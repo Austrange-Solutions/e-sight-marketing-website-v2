@@ -1,9 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLogin() {
+  const router = useRouter();
+  // Allow all users to access the login page. Only redirect after successful login.
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -11,8 +13,6 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +31,7 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push('/admin/dashboard');
+  window.location.href = '/admin/dashboard';
       } else {
         setError(data.error || 'Login failed');
       }

@@ -1,3 +1,4 @@
+import Product from '@/models/productModel';
 import { connect } from "@/dbConfig/dbConfig";
 import Cart from "@/models/cartModel";
 
@@ -13,9 +14,9 @@ export interface ServerCartItem {
 export async function getServerCart(userId: string): Promise<ServerCartItem[]> {
   try {
     await connect();
-    
+
     const cart = await Cart.findOne({ userId }).populate('items.productId').lean();
-    
+
     if (!cart) {
       return [];
     }

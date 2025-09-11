@@ -22,6 +22,7 @@ export default function LoginPage() {
         password: "",
         general: ""
     });
+    const [backendErrors, setBackendErrors] = useState<{ email?: string; password?: string }>({});
 
     // Redirect if already authenticated
     useEffect(() => {
@@ -119,6 +120,38 @@ export default function LoginPage() {
         setButtonDisabled(!hasValidEmail || !hasValidPassword);
     }, [user]);
 
+    // Live backend validation
+    useEffect(() => {
+        const validate = async () => {
+            if (!user.email && !user.password) {
+                setBackendErrors({});
+                return;
+            }
+            try {
+                const res = await fetch('/api/users/login/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: user.email, password: user.password })
+                });
+                const data = await res.json();
+                if (data.errors) {
+                    const errorObj: { email?: string; password?: string } = {};
+                    data.errors.forEach((err: { field: string; message: string }) => {
+                        if (err.field === "email" || err.field === "password") {
+                            errorObj[err.field] = err.message;
+                        }
+                    });
+                    setBackendErrors(errorObj);
+                } else {
+                    setBackendErrors({});
+                }
+            } catch {
+                setBackendErrors({});
+            }
+        };
+        validate();
+    }, [user.email, user.password]);
+
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-6 sm:space-y-8">
@@ -158,6 +191,8 @@ export default function LoginPage() {
                                     onChange={(e) => setUser({ ...user, email: e.target.value })}
                                 />
                             </div>
+                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                            {backendErrors.email && <p className="text-red-500 text-xs mt-1">{backendErrors.email}</p>}
                         </div>
 
                         {/* Password Field */}
@@ -191,6 +226,8 @@ export default function LoginPage() {
                                     )}
                                 </button>
                             </div>
+                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                            {backendErrors.password && <p className="text-red-500 text-xs mt-1">{backendErrors.password}</p>}
                         </div>
                     </div>
 

@@ -2,6 +2,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import DeliveryArea from "@/models/deliveryAreaModel";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromToken } from "@/middleware/auth";
+import { getAdminFromRequest } from "@/middleware/adminAuth";
 
 // GET: Fetch all delivery areas or check specific pincode
 export async function GET(request: NextRequest) {
@@ -44,8 +45,8 @@ export async function GET(request: NextRequest) {
     }
 
     // For admin: get all areas
-    const userData = await getUserFromToken(request);
-    if (!userData) {
+    const adminData = getAdminFromRequest(request);
+    if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Only allow order creation if status is 'created'
+    if (order.status !== 'created') {
+      return NextResponse.json(
+        { error: 'Order not created. Payment status is not created.' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       amount: order.amount,

@@ -1,13 +1,29 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Product from "@/models/productModel";
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminFromToken } from "@/middleware/adminAuth";
+import { getAdminFromRequest } from "@/middleware/adminAuth";
+
+export async function GET(request: NextRequest) {
+  try {
+    await connect();
+    const adminData = getAdminFromRequest(request);
+    if (!adminData) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const products = await Product.find({});
+    return NextResponse.json({ products }, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Product fetch error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch products";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     await connect();
     
-    const adminData = getAdminFromToken(request);
+  const adminData = getAdminFromRequest(request);
     if (!adminData) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
