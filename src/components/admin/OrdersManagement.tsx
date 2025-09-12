@@ -121,27 +121,99 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
         <h3 className="text-lg font-medium text-gray-900">Orders Management</h3>
         <div className="text-sm text-gray-500">
-          Total Orders: {orders.length}
+          Total: {orders.length}
         </div>
       </div>
 
       {/* Orders Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-4 sm:mb-6">
         {orderStatuses.map(status => {
           const count = orders.filter(order => order.status === status).length;
           return (
-            <div key={status} className="bg-white p-3 rounded-lg border border-gray-200">
+            <div key={status} className="bg-white p-2 sm:p-3 rounded-lg border border-gray-200">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{status}</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">{count}</p>
+              <p className="mt-1 text-lg sm:text-2xl font-semibold text-gray-900">{count}</p>
             </div>
           );
         })}
       </div>
       
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-4">
+        {orders.map((order) => (
+          <div key={order._id} className="bg-white border rounded-lg p-4 shadow-sm">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h4 className="font-medium text-gray-900">#{order.orderNumber}</h4>
+                <p className="text-xs text-gray-500">
+                  {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setSelectedOrder(order)}
+                  className="text-indigo-600 hover:text-indigo-900"
+                >
+                  <Eye size={16} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="font-medium text-gray-700">Customer:</span>
+                <div className="text-gray-600">
+                  {order.customer.username} - {order.customer.phone}
+                </div>
+              </div>
+              
+              <div>
+                <span className="font-medium text-gray-700">Items:</span>
+                <div className="text-gray-600">
+                  {order.items.length} item{order.items.length > 1 ? 's' : ''} - ₹{order.totalAmount.toLocaleString()}
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-medium text-gray-700">Payment:</span>
+                  <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                    order.paymentInfo.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {order.paymentInfo.status}
+                  </span>
+                </div>
+                <select
+                  value={order.status}
+                  onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                  disabled={updating === order._id}
+                  className={`text-xs px-2 py-1 rounded-full font-medium border-0 ${getStatusColor(order.status)} ${
+                    updating === order._id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
+                >
+                  {orderStatuses.map(status => (
+                    <option key={status} value={status} className="bg-white text-gray-900">
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

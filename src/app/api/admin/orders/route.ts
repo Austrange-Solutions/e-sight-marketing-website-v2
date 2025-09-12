@@ -1,9 +1,8 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Order from "@/models/orderModel";
-import Product from "@/models/productModel";
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 export async function GET(request: NextRequest) {
   try {
@@ -215,21 +214,31 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// Extracts and verifies admin token from request headers
+// Extracts and verifies admin token from request cookies
 function getAdminFromToken(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return null;
-  }
-  const token = authHeader.replace("Bearer ", "");
   try {
-    // Replace with your JWT secret or verification logic
-    const decoded = jwt.verify(token, process.env.ADMIN_JWT_SECRET as string);
-    if (decoded && decoded.isAdmin) {
+    const token = request.cookies.get("admin-token")?.value;
+    
+    if (!token) {
+      // Also check for Authorization header as fallback
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const headerToken = authHeader.replace("Bearer ", "");
+        const decoded = jwt.verify(headerToken, process.env.TOKEN_SECRET!);
+        if (decoded && typeof decoded === 'object' && 'isAdmin' in decoded && decoded.isAdmin) {
+          return decoded;
+        }
+      }
+      return null;
+    }
+
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET!);
+    if (decoded && typeof decoded === 'object' && 'isAdmin' in decoded && decoded.isAdmin) {
       return decoded;
     }
     return null;
-  } catch {
+  } catch (error) {
+    console.error("Admin token verification failed:", error);
     return null;
   }
 }

@@ -3,12 +3,23 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ProductCard from '@/components/ProductCard';
 
+export const dynamic = 'force-dynamic';
+
 const PAGE_SIZE = 9;
 
 type Product = {
   _id: string;
-  // add other product fields as needed, e.g. name, price, etc.
-  [key: string]: any;
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  image: string;
+  stock: number;
+  status: 'active' | 'inactive' | 'out_of_stock';
+  type?: 'basic' | 'pro' | 'max';
+  details?: string[];
+  // add other product fields as needed
+  [key: string]: unknown;
 };
 
 export default function ProductsPage() {
@@ -60,7 +71,7 @@ export default function ProductsPage() {
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 md:mb-12 text-center text-gray-900">Our Products</h1>
         <div className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
-            {products.map((product: any) => (
+            {products.map((product: Product) => (
               <ProductCard 
                 key={product._id} 
                 product={product} 

@@ -6,6 +6,8 @@ import { toast } from "react-hot-toast";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
     const router = useRouter();
     const { login, isAuthenticated, loading: authLoading } = useAuth();

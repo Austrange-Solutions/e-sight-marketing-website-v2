@@ -1,0 +1,38 @@
+{
+    "Version": "2008-10-17",
+    "Id": "PolicyForCloudFrontPrivateContent",
+    "Statement": [
+        {
+            "Sid": "AllowCloudFrontServicePrincipal",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "cloudfront.amazonaws.com"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::austrange-storage/*",
+            "Condition": {
+                "StringEquals": {
+                    "AWS:SourceArn": "arn:aws:cloudfront::329103132361:distribution/E1FWS1RY001H1T"
+                }
+            }
+        },
+        {
+            "Sid": "AllowApplicationUploadsAndDeletes",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::329103132361:root"
+            },
+            "Action": [
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::austrange-storage/*",
+                "arn:aws:s3:::austrange-storage"
+            ]
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 
@@ -31,7 +31,7 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (res.ok) {
-  window.location.href = '/admin/dashboard';
+        router.push('/admin/dashboard');
       } else {
         setError(data.error || 'Login failed');
       }

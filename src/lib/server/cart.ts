@@ -1,6 +1,5 @@
-import Product from '@/models/productModel';
 import { connect } from "@/dbConfig/dbConfig";
-import Cart from "@/models/cartModel";
+import { initializeModels } from "@/lib/initModels";
 
 export interface ServerCartItem {
   productId: string;
@@ -14,6 +13,11 @@ export interface ServerCartItem {
 export async function getServerCart(userId: string): Promise<ServerCartItem[]> {
   try {
     await connect();
+    await initializeModels();
+    
+    // Import models after ensuring connection and initialization
+    const Product = (await import('@/models/productModel')).default;
+    const Cart = (await import('@/models/cartModel')).default;
 
     const cart = await Cart.findOne({ userId }).populate('items.productId').lean();
 

@@ -4,6 +4,10 @@ import Cart from "@/models/cartModel";
 import { getUserFromToken } from "@/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
 
+// Force Node.js runtime to avoid Edge Runtime crypto issues
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 connect();
 
 // Helper function to calculate charges
@@ -24,11 +28,21 @@ const calculateCharges = (subtotal: number, city: string) => {
 };
 
 export async function POST(request: NextRequest) {
+  console.log("🛒 [CHECKOUT] Starting checkout process...");
+  
   try {
     await connect();
+    console.log("✅ [CHECKOUT] Database connected");
     
     const userData = await getUserFromToken(request);
+    console.log("🔐 [CHECKOUT] User token verification:", { 
+      hasUser: !!userData, 
+      userId: userData?.id,
+      runtime: process.env.NEXT_RUNTIME || 'nodejs'
+    });
+    
     if (!userData) {
+      console.log("❌ [CHECKOUT] Unauthorized - No valid user token");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

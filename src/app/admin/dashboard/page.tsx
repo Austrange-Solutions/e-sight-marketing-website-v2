@@ -9,6 +9,8 @@ import OrdersManagement from '@/components/admin/OrdersManagement';
 import DeliveryAreasManagement from '@/components/admin/DeliveryAreasManagement';
 import { TProduct } from '@/models/productModel';
 
+export const dynamic = 'force-dynamic';
+
 // Serialized version for client components
 interface Product extends Omit<TProduct, '_id'> {
   _id: string;
@@ -89,28 +91,42 @@ interface Order {
 function SkeletonTable({ rows = 5, cols = 4 }) {
   return (
     <div className="animate-pulse">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            {[...Array(cols)].map((_, i) => (
-              <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-300 bg-gray-100">
-                <div className="h-4 bg-gray-200 rounded w-3/4" />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {[...Array(rows)].map((_, i) => (
-            <tr key={i}>
-              {[...Array(cols)].map((_, j) => (
-                <td key={j} className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-4 bg-gray-200 rounded w-full" />
-                </td>
+      {/* Mobile skeleton - card format */}
+      <div className="block sm:hidden space-y-4">
+        {[...Array(rows)].map((_, i) => (
+          <div key={i} className="bg-white border rounded-lg p-4 space-y-3">
+            <div className="h-4 bg-gray-200 rounded w-3/4" />
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-3 bg-gray-200 rounded w-2/3" />
+          </div>
+        ))}
+      </div>
+      
+      {/* Desktop skeleton - table format */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              {[...Array(cols)].map((_, i) => (
+                <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-300 bg-gray-100">
+                  <div className="h-4 bg-gray-200 rounded w-3/4" />
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {[...Array(rows)].map((_, i) => (
+              <tr key={i}>
+                {[...Array(cols)].map((_, j) => (
+                  <td key={j} className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-gray-200 rounded w-full" />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -236,60 +252,69 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Admin Dashboard</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-2 border border-transparent text-xs sm:text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
               >
-                <LogOut size={16} className="mr-2" />
-                Logout
+                <LogOut size={14} className="mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
-              {[
-                { key: 'overview', label: 'Overview' },
-                { key: 'users', label: 'Users' },
-                { key: 'products', label: 'Products' },
-                { key: 'orders', label: 'Orders' },
-                { key: 'delivery-areas', label: 'Delivery Areas' },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.key
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-              <div className="flex items-center space-x-4">
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            {/* Mobile Tab Navigation */}
+            <div className="sm:hidden">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
+                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
               >
-                <LogOut size={16} className="mr-2" />
-                Logout
-              </button>
+                <option value="overview">Overview</option>
+                <option value="users">Users</option>
+                <option value="products">Products</option>
+                <option value="orders">Orders</option>
+                <option value="delivery-areas">Delivery Areas</option>
+              </select>
             </div>
+            
+            {/* Desktop Tab Navigation */}
+            <nav className="hidden sm:flex -mb-px px-4 sm:px-6 overflow-x-auto">
+              <div className="flex space-x-4 sm:space-x-8 min-w-max">
+                {[
+                  { key: 'overview', label: 'Overview' },
+                  { key: 'users', label: 'Users' },
+                  { key: 'products', label: 'Products' },
+                  { key: 'orders', label: 'Orders' },
+                  { key: 'delivery-areas', label: 'Delivery Areas' },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                      activeTab === tab.key
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             {activeTab === 'overview' && (
               <DashboardOverview stats={stats} />
             )}

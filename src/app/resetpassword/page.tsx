@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage() {
+export const dynamic = 'force-dynamic';
+
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
@@ -33,8 +35,8 @@ export default function ResetPasswordPage() {
       if (!res.ok) throw new Error(data.error || "Failed to reset password");
       setMessage("✅ Password reset successfully! Redirecting to login...");
       setTimeout(() => router.push("/login"), 2000);
-    } catch (error: any) {
-      setMessage(`❌ ${error.message}`);
+    } catch (error: unknown) {
+      setMessage(`❌ ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -80,5 +82,13 @@ export default function ResetPasswordPage() {
         {message && <div className="mt-4 text-center">{message}</div>}
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-100"><div>Loading...</div></div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

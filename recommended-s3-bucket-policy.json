@@ -1,0 +1,53 @@
+{
+    "Version": "2012-10-17",
+    "Id": "PolicyForCloudFrontAndUploads",
+    "Statement": [
+        {
+            "Sid": "AllowCloudFrontServicePrincipal",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "cloudfront.amazonaws.com"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::austrange-storage/*",
+            "Condition": {
+                "StringEquals": {
+                    "AWS:SourceArn": "arn:aws:cloudfront::329103132361:distribution/E1FWS1RY001H1T"
+                }
+            }
+        },
+        {
+            "Sid": "AllowSignedURLUploads",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::austrange-storage/e-sight-commerce-product-images/*",
+            "Condition": {
+                "StringLike": {
+                    "s3:x-amz-content-sha256": "*"
+                },
+                "DateGreaterThan": {
+                    "aws:TokenIssueTime": "2024-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "Sid": "AllowIAMUserFullAccess",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::329103132361:root"
+            },
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::austrange-storage",
+                "arn:aws:s3:::austrange-storage/*"
+            ]
+        }
+    ]
+}

@@ -36,8 +36,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prevent saving order if payment status is pending
-    if (paymentInfo.status === 'pending') {
+    // Prevent saving order if payment status is pending for online payments only
+    // Allow pending status for cash on delivery
+    if (paymentInfo.status === 'pending' && paymentInfo.method !== 'cod') {
       return NextResponse.json(
         { error: "Payment is pending. Order will not be saved." },
         { status: 400 }

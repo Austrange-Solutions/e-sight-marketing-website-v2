@@ -180,17 +180,17 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Delivery Areas Management</h2>
-          <p className="text-gray-600">Manage pincode-based delivery charges</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Delivery Areas Management</h2>
+          <p className="text-gray-600 text-sm">Manage pincode-based delivery charges</p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
           <button
             onClick={handleBulkImport}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            className="inline-flex items-center justify-center px-3 py-2 sm:px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
           >
             <Upload size={16} className="mr-2" />
             Bulk Import Mumbai
@@ -201,7 +201,7 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
               setEditingArea(null);
               setFormData({ pincode: '', areaName: '', district: '', deliveryCharges: 100, isActive: true });
             }}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            className="inline-flex items-center justify-center px-3 py-2 sm:px-4 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
           >
             <Plus size={16} className="mr-2" />
             Add New Area
@@ -210,16 +210,16 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
       </div>
 
       {/* Search and Filter Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Search Input */}
-        <div className="relative">
+        <div className="relative sm:col-span-2 lg:col-span-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search by pincode or area name..."
+            placeholder="Search by pincode or area..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
           />
         </div>
 
@@ -227,7 +227,7 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
         <select
           value={filterDistrict}
           onChange={(e) => setFilterDistrict(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="px-3 py-2 sm:px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
         >
           <option value="">All Districts</option>
           {uniqueDistricts.map(district => (
@@ -239,7 +239,7 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="px-3 py-2 sm:px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -247,7 +247,7 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
         </select>
 
         {/* Results Count */}
-        <div className="flex items-center text-gray-600">
+        <div className="flex items-center text-gray-600 sm:col-span-2 lg:col-span-1">
           <span className="text-sm">
             Showing {filteredAreas.length} of {areas.length} areas
           </span>
@@ -255,18 +255,18 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-          <h3 className="text-lg font-semibold text-green-800">Active Areas</h3>
-          <p className="text-2xl font-bold text-green-900">{areas.filter(a => a.isActive).length}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
+          <h3 className="text-sm sm:text-lg font-semibold text-green-800">Active Areas</h3>
+          <p className="text-xl sm:text-2xl font-bold text-green-900">{areas.filter(a => a.isActive).length}</p>
         </div>
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <h3 className="text-lg font-semibold text-blue-800">Total Areas</h3>
-          <p className="text-2xl font-bold text-blue-900">{areas.length}</p>
+        <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200">
+          <h3 className="text-sm sm:text-lg font-semibold text-blue-800">Total Areas</h3>
+          <p className="text-xl sm:text-2xl font-bold text-blue-900">{areas.length}</p>
         </div>
-        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-          <h3 className="text-lg font-semibold text-purple-800">Avg. Charges</h3>
-          <p className="text-2xl font-bold text-purple-900">
+        <div className="bg-purple-50 p-3 sm:p-4 rounded-lg border border-purple-200">
+          <h3 className="text-sm sm:text-lg font-semibold text-purple-800">Avg. Charges</h3>
+          <p className="text-xl sm:text-2xl font-bold text-purple-900">
             ₹{areas.length > 0 ? Math.round(areas.reduce((acc, a) => acc + a.deliveryCharges, 0) / areas.length) : 0}
           </p>
         </div>
@@ -274,62 +274,68 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
 
       {/* Add/Edit Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg border border-gray-200 max-w-lg w-full mx-4 relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 max-w-lg w-full mx-4 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => { setShowAddForm(false); setEditingArea(null); }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600"
               title="Close"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-lg font-semibold mb-4 pr-8">
               {editingArea ? 'Edit Delivery Area' : 'Add New Delivery Area'}
             </h3>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
-                <input
-                  type="text"
-                  maxLength={6}
-                  pattern="[0-9]{6}"
-                  value={formData.pincode}
-                  onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    pattern="[0-9]{6}"
+                    value={formData.pincode}
+                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Area Name</label>
+                  <input
+                    type="text"
+                    value={formData.areaName}
+                    onChange={(e) => setFormData({ ...formData, areaName: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    required
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Area Name</label>
-                <input
-                  type="text"
-                  value={formData.areaName}
-                  onChange={(e) => setFormData({ ...formData, areaName: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+                  <input
+                    type="text"
+                    value={formData.district}
+                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Charges (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.deliveryCharges}
+                    onChange={(e) => setFormData({ ...formData, deliveryCharges: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    required
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
-                <input
-                  type="text"
-                  value={formData.district}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Charges (₹)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.deliveryCharges}
-                  onChange={(e) => setFormData({ ...formData, deliveryCharges: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
+              
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -342,17 +348,18 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
                   Active
                 </label>
               </div>
-              <div className="flex space-x-3">
+              
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-3 pt-4">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium"
                 >
                   {editingArea ? 'Update' : 'Add'} Area
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowAddForm(false); setEditingArea(null); }}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                  className="w-full sm:w-auto px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm font-medium"
                 >
                   Cancel
                 </button>
@@ -362,8 +369,72 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
         </div>
       )}
 
-      {/* Areas Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-3">
+        {filteredAreas.map((area) => (
+          <div key={area._id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h4 className="font-medium text-gray-900">{area.pincode}</h4>
+                <p className="text-sm text-gray-600">{area.areaName}</p>
+              </div>
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                area.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {area.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">District:</span>
+                <span className="text-gray-900">{area.district}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Charges:</span>
+                <span className="text-gray-900 font-medium">₹{area.deliveryCharges}</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-3 pt-3 border-t border-gray-100">
+              <button
+                onClick={() => setViewingArea(area)}
+                className="text-blue-600 hover:text-blue-900 p-1"
+                title="View Details"
+              >
+                <Eye size={16} />
+              </button>
+              <button
+                onClick={() => {
+                  setEditingArea(area);
+                  setFormData({
+                    pincode: area.pincode,
+                    areaName: area.areaName,
+                    district: area.district,
+                    deliveryCharges: area.deliveryCharges,
+                    isActive: area.isActive
+                  });
+                  setShowAddForm(true);
+                }}
+                className="text-indigo-600 hover:text-indigo-900 p-1"
+                title="Edit"
+              >
+                <Edit size={16} />
+              </button>
+              <button
+                onClick={() => handleDelete(area._id)}
+                className="text-red-600 hover:text-red-900 p-1"
+                title="Delete"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -463,8 +534,8 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
 
       {/* Viewing Modal */}
       {viewingArea && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Area Details</h3>
               <button
@@ -521,7 +592,7 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
               )}
             </div>
             
-            <div className="mt-6 flex space-x-3">
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => {
                   setViewingArea(null);
@@ -535,13 +606,13 @@ export default function DeliveryAreasManagement({ onRefresh }: DeliveryAreasMana
                   });
                   setShowAddForm(true);
                 }}
-                className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="w-full sm:flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
               >
                 Edit Area
               </button>
               <button
                 onClick={() => setViewingArea(null)}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+                className="w-full sm:flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
               >
                 Close
               </button>

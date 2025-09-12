@@ -21,10 +21,10 @@ const Footer = () => {
             <div className="flex items-center">
               <img
                 src="/assets/images/e-sight-logo.png"
-                alt="e-Sight Logo"
+                alt="E-Kaathi Logo"
                 className="h-8 w-8"
               />
-              <span className="ml-2 text-xl font-bold">e-Sight</span>
+              <span className="ml-2 text-xl font-bold">E-Kaathi</span>
             </div>
             <p className="text-gray-400">
               Improving the lives of the people living in darkness.
@@ -118,7 +118,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} e-Sight. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} E-Kaathi. All rights reserved.</p>
         </div>
       </div>
     </footer>

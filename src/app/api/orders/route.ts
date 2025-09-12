@@ -3,6 +3,9 @@ import Order from "@/models/orderModel";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromToken } from "@/middleware/auth";
 
+// Force Node.js runtime to avoid Edge Runtime crypto issues
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     await connect();
