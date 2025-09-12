@@ -701,7 +701,7 @@ const CheckoutPage = () => {
                       </div>
 
                       {/* Cash on Delivery Option */}
-                      <div className="bg-white rounded-lg border p-4">
+                      {/* <div className="bg-white rounded-lg border p-4">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center">
                             <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white mr-3">
@@ -770,7 +770,7 @@ const CheckoutPage = () => {
                         >
                           {codLoading ? "Processing..." : "Place Order - COD"}
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
 
