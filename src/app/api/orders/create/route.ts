@@ -3,6 +3,10 @@ import Order from "@/models/orderModel";
 import { connect } from "@/dbConfig/dbConfig";
 import jwt from "jsonwebtoken";
 
+// Force Node.js runtime to avoid Edge Runtime issues
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 interface DecodedToken {
   id: string;
   email: string;
@@ -12,6 +16,12 @@ connect();
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("🛍️ [ORDER CREATE] Starting order creation...");
+    
+    // Ensure database connection
+    await connect();
+    console.log("✅ [ORDER CREATE] Database connected");
+    
     // Get user from token
     const token = request.cookies.get("token")?.value || "";
     if (!token) {
@@ -22,6 +32,8 @@ export async function POST(request: NextRequest) {
     const userId = decodedToken.id;
 
     const body = await request.json();
+    console.log("📦 [ORDER CREATE] Request body:", JSON.stringify(body, null, 2));
+    
     const {
       checkoutId,
       paymentInfo,
@@ -59,8 +71,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Get checkout data
+    console.log("🔍 Looking for checkout with ID:", checkoutId);
+    console.log("🔍 checkoutId type:", typeof checkoutId);
+    
+    // Ensure we have a valid ObjectId
+    if (!checkoutId || typeof checkoutId !== 'string') {
+      console.log("❌ Invalid checkoutId:", checkoutId);
+      return NextResponse.json(
+        { error: "Invalid checkout ID" },
+        { status: 400 }
+      );
+    }
+    
     const checkout = await Order.findById(checkoutId);
+    console.log("📋 Checkout found:", !!checkout, checkout ? "with items:" + checkout.items?.length : "null");
+    
     if (!checkout) {
+      console.log("❌ Checkout not found in database");
+      
+      // Let's try to find any pending orders for this user
+      const pendingOrders = await Order.find({ userId, status: 'pending' }).limit(5);
+      console.log("🔍 Found pending orders for user:", pendingOrders.length);
+      pendingOrders.forEach((order, index) => {
+        console.log(`📋 Pending order ${index + 1}:`, order._id.toString(), "items:", order.items?.length);
+      });
+      
       return NextResponse.json(
         { error: "Checkout not found" },
         { status: 404 }

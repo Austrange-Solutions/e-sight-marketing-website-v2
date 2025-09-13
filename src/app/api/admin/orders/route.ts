@@ -27,16 +27,7 @@ export async function GET(request: NextRequest) {
 
     console.log('Orders fetched:', orders.length);
 
-    // Delete invalid orders from DB
-    const invalidOrders = orders.filter(order => order.status !== 'confirmed' || order.paymentInfo?.status !== 'paid');
-    for (const invalidOrder of invalidOrders) {
-      await Order.deleteOne({ _id: invalidOrder._id });
-    }
-
-    // Filter out deleted orders for response
-    const validOrders = orders.filter(order => order.status === 'confirmed' && order.paymentInfo?.status === 'paid');
-
-    if (validOrders.length === 0) {
+    if (orders.length === 0) {
       return NextResponse.json({ 
         success: true,
         orders: [],

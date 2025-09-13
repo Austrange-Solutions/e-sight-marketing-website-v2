@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
 import { getServerUser } from "@/lib/server/auth";
-import { getServerCart } from "@/lib/server/cart";
+import { getServerCart, ServerCartItem } from "@/lib/server/cart";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
@@ -20,7 +20,7 @@ export default async function RootLayout({
 }>) {
   // Fetch initial server data with error handling
   let user = null;
-  let cart: any[] = [];
+  let cart: ServerCartItem[] = [];
   
   try {
     user = await getServerUser();

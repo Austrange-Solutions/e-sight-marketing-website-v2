@@ -16,7 +16,7 @@ const VideoSection = () => {
             See More Info on Youtube
           </h2>
           <p className="text-xl text-gray-600">
-            Watch our informational video to learn more about e-Sight
+            Watch our informational video to learn more about e-Kaathi
           </p>
         </motion.div>
 
@@ -34,7 +34,7 @@ const VideoSection = () => {
         >
           <iframe
             src="https://www.youtube.com/embed/uCmFiOVW0A8"
-            title="e-Sight Informational Video"
+            title="e-Kaathi Informational Video"
             className="absolute top-0 left-0 w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

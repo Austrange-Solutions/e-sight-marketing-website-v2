@@ -51,13 +51,9 @@ export async function POST(request: NextRequest){
             success: true,
         })
         response.cookies.set("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 60 * 60 * 24, // 1 day in seconds
-            path: "/",
+            httpOnly: true, 
+            
         })
-        console.log("🍪 User token cookie set successfully");
         return response;
 
     } catch (error: unknown) {

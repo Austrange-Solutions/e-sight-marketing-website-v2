@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 
 // Edge-compatible JWT verification using Web Crypto API
 export async function getUserFromTokenEdge(req: NextRequest) {
@@ -21,7 +22,6 @@ export async function getUserFromTokenEdge(req: NextRequest) {
 // Node.js compatible JWT verification (original implementation)
 export async function getUserFromTokenNode(req: NextRequest) {
   try {
-    const jwt = require("jsonwebtoken");
     const token = req.cookies.get("token")?.value;
 
     if (!token) return null;
@@ -36,8 +36,8 @@ export async function getUserFromTokenNode(req: NextRequest) {
 
 // Auto-detect runtime and use appropriate method
 export async function getUserFromToken(req: NextRequest) {
-  // Check if we're in Edge Runtime
-  if (typeof EdgeRuntime !== 'undefined') {
+  // Check if we're in Edge Runtime by checking global variables
+  if (typeof process === 'undefined' || process.env.NEXT_RUNTIME === 'edge') {
     return getUserFromTokenEdge(req);
   }
   
