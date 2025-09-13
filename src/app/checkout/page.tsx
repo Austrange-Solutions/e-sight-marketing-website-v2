@@ -668,7 +668,7 @@ const CheckoutPage = () => {
 
                         <RazorpayButton
                           product={{
-                            name: `E-Sight Order (${cartData?.items?.length || 0} items)`,
+                            name: `E-Kaathi Order (${cartData?.items?.length || 0} items)`,
                             price: calculateTotal()
                           }}
                           userDetails={{

@@ -3,15 +3,15 @@ import { Metadata } from "next";
 import HomeHero from "@/components/HomePage/HomeHero";
 import FeatureCards from "@/components/HomePage/FeatureCards";
 import VideoSection from "@/components/HomePage/VideoSection";
-import PricingCards from "@/components/HomePage/PricingCards";
+import HomeProductsSection from "@/components/HomePage/HomeProductsSection";
 
 // Generate metadata for SEO
 export const metadata: Metadata = {
-  title: "E-sight - Your Path, Your Freedom | Smart Blind Stick Technology",
-  description: "Experience independence with e-Sight's revolutionary smart blind stick, combining AI technology with intuitive navigation. Advanced obstacle detection, GPS navigation, and long battery life.",
-  keywords: "smart blind stick, AI navigation, obstacle detection, assistive technology, e-sight, independence, GPS navigation, blind assistance",
+  title: "E-Kaathi - Your Path, Your Freedom | Smart Blind Stick Technology",
+  description: "Experience independence with E-Kaathi's revolutionary smart blind stick, combining AI technology with intuitive navigation. Advanced obstacle detection, GPS navigation, and long battery life.",
+  keywords: "smart blind stick, AI navigation, obstacle detection, assistive technology, E-Kaathi, independence, GPS navigation, blind assistance",
   openGraph: {
-    title: "E-sight - Your Path, Your Freedom",
+    title: "E-Kaathi - Your Path, Your Freedom",
     description: "Revolutionary smart blind stick with AI technology for enhanced mobility and independence.",
     type: "website",
     images: [
@@ -19,13 +19,13 @@ export const metadata: Metadata = {
         url: "/assets/images/blind-person.png",
         width: 1200,
         height: 630,
-        alt: "Person using e-Sight smart blind stick",
+        alt: "Person using E-Kaathi smart blind stick",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "E-sight - Your Path, Your Freedom",
+    title: "E-Kaathi - Your Path, Your Freedom",
     description: "Revolutionary smart blind stick with AI technology for enhanced mobility and independence.",
     images: ["/assets/images/blind-person.png"],
   },
@@ -43,9 +43,9 @@ const Home = () => {
       {/* YouTube Video Section - Client Component with animations */}
       <VideoSection />
 
-      {/* Pricing Section - Client Component with animations */}
-      <PricingCards />
-    </div>
+      {/* Products Section - Dynamic products from database */}
+      <HomeProductsSection />
+    </div>  
   );
 };
 

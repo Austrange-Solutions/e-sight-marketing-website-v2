@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import * as React from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface User {
@@ -36,9 +37,9 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = React.useState<User | null>(null);
+  const [loading, setLoading] = React.useState(true);
   const router = useRouter();
 
   // Check if user is authenticated and fetch user data
@@ -115,7 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Check authentication on component mount
-  useEffect(() => {
+  React.useEffect(() => {
     checkAuth();
   }, []);
 

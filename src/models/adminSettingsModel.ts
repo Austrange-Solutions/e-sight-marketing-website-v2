@@ -34,8 +34,7 @@ const adminSettingsSchema = new mongoose.Schema<TAdminSettings>({
   timestamps: true
 });
 
-// Create indexes for faster queries
-adminSettingsSchema.index({ settingKey: 1 });
+// Create indexes for faster queries (settingKey index is created by unique: true)
 adminSettingsSchema.index({ isActive: 1 });
 
 const AdminSettings = mongoose.models.AdminSettings || mongoose.model<TAdminSettings>("AdminSettings", adminSettingsSchema);

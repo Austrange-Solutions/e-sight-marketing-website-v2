@@ -1,7 +1,6 @@
-import User from '@/models/userModel';
-
 // Update user's verification code and expiry
 export async function updateUserVerificationCode(email: string, code: string): Promise<void> {
+  const User = (await import('@/models/userModel')).default;
   const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
   await User.findOneAndUpdate(
     { email },
@@ -17,6 +16,7 @@ export async function getUserByEmail(email: string): Promise<{ email: string } |
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { connect } from "@/dbConfig/dbConfig";
+import { initializeModels } from "@/lib/initModels";
 
 export interface ServerUser {
   _id: string;
@@ -44,6 +44,10 @@ export async function getServerUser(): Promise<ServerUser | null> {
     }
 
     await connect();
+    await initializeModels();
+    
+    // Import User model after ensuring connection and initialization
+    const User = (await import('@/models/userModel')).default;
     const user = await User.findById(decoded.id).select('-password').lean();
     
     if (!user) {

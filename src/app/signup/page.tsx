@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { Eye, EyeOff, User, Lock, Phone, Mail } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+
+export const dynamic = 'force-dynamic';
 
 export default function SignupPage() {
     const router = useRouter();

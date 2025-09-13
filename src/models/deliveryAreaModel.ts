@@ -18,7 +18,6 @@ const deliveryAreaSchema = new mongoose.Schema<TDeliveryArea>({
     unique: true,
     trim: true,
     match: [/^\d{6}$/, "Pincode must be 6 digits"]
-    // index: true, // Removed to avoid duplicate index warning
   },
   areaName: {
     type: String,
@@ -43,8 +42,7 @@ const deliveryAreaSchema = new mongoose.Schema<TDeliveryArea>({
   timestamps: true
 });
 
-// Create indexes for faster queries
-deliveryAreaSchema.index({ pincode: 1 }); // Only one index definition for pincode
+// Create indexes for faster queries (pincode index is created by unique: true)
 deliveryAreaSchema.index({ isActive: 1 });
 
 const DeliveryArea = mongoose.models.DeliveryArea || mongoose.model<TDeliveryArea>("DeliveryArea", deliveryAreaSchema);

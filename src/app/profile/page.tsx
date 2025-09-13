@@ -6,6 +6,8 @@ import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X } from 'luc
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+export const dynamic = 'force-dynamic';
+
 interface Order {
   _id: string;
   orderNumber: string;

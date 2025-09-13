@@ -126,11 +126,11 @@ const Navbar = () => {
               <Link href="/" className="flex items-center">
                 <img
                   src="/assets/images/e-sight-logo.png"
-                  alt="e-Sight Logo"
+                  alt="e-Kaathi Logo"
                   className="ml-2 h-8"
                 />
                 <span className="ml-2 text-xl font-bold text-gray-900">
-                  e-Sight
+                  e-Kaathi
                 </span>
               </Link>
             </div>

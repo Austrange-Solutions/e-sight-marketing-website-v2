@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 
+export const dynamic = 'force-dynamic';
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -19,8 +21,8 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send reset link");
       setMessage("✅ Password reset link sent to your email.");
-    } catch (error: any) {
-      setMessage(`❌ ${error.message}`);
+    } catch (error: unknown) {
+      setMessage(`❌ ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }

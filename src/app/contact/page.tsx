@@ -6,12 +6,12 @@ import ContactForm from "@/components/ContactForm";
 
 // Generate metadata for SEO
 export const metadata: Metadata = {
-  title: "Contact Us - E-sight",
-  description: "Get in touch with E-sight. Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
-  keywords: "contact, e-sight, support, inquiry, business partnership",
+  title: "Contact Us - E-Kaathi",
+  description: "Get in touch with E-Kaathi. Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+  keywords: "contact, e-Kaathi, support, inquiry, business partnership",
   openGraph: {
-    title: "Contact Us - E-sight",
-    description: "Get in touch with E-sight. Have questions? We'd love to hear from you.",
+    title: "Contact Us - E-Kaathi",
+    description: "Get in touch with E-Kaathi. Have questions? We'd love to hear from you.",
     type: "website",
   },
 };

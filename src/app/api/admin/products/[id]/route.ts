@@ -73,6 +73,9 @@ export async function PUT(
       );
     }
 
+    // Note: Image deletion is now handled by dedicated /image endpoint during file uploads
+    // This PUT endpoint only handles manual image URL changes and other field updates
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       {
@@ -135,18 +138,59 @@ export async function DELETE(
       );
     }
 
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
+    // First, get the product to check if it has an image
+    const productToDelete = await Product.findById(id);
+    
+    if (!productToDelete) {
       return NextResponse.json(
         { error: "Product not found" },
         { status: 404 }
       );
     }
 
+    // Delete the product from database
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return NextResponse.json(
+        { error: "Failed to delete product from database" },
+        { status: 500 }
+      );
+    }
+
+    // If product had an image, delete it from S3
+    if (productToDelete.image && productToDelete.image.includes('cloudfront.net')) {
+      try {
+        console.log('Deleting associated image from S3:', productToDelete.image);
+        
+        // Call the S3 delete endpoint internally
+        const deleteImageResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/aws/delete`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            cloudFrontUrl: productToDelete.image,
+          }),
+        });
+
+        if (deleteImageResponse.ok) {
+          console.log('Successfully deleted associated image from S3');
+        } else {
+          const errorData = await deleteImageResponse.json();
+          console.error('Failed to delete image from S3:', errorData);
+          // Don't fail the whole operation if image deletion fails
+        }
+      } catch (imageError) {
+        console.error('Error deleting associated image:', imageError);
+        // Don't fail the whole operation if image deletion fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      message: "Product deleted successfully",
+      message: "Product and associated image deleted successfully",
+      deletedImage: productToDelete.image ? true : false
     });
 
   } catch (error: unknown) {

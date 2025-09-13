@@ -5,6 +5,10 @@ import Product from "@/models/productModel";
 import { getUserFromToken } from "@/middleware/auth";
 import mongoose from "mongoose";
 
+// Force Node.js runtime to avoid Edge Runtime crypto issues
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // Type definitions for better TypeScript support
 interface CartItem {
   productId: {
