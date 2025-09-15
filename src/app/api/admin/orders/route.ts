@@ -20,12 +20,21 @@ export async function GET(request: NextRequest) {
     console.log("Fetching orders from database...");
     
     // Get all orders with user details and populate product information
-    const orders = await Order.find({})
+    let orders = await Order.find({})
       .populate('userId', 'username email phone isAdmin')
       .sort({ createdAt: -1 })
       .lean();
 
     console.log('Orders fetched:', orders.length);
+
+    // Delete orders where paymentInfo.status !== 'paid'
+    const toDelete = orders.filter(order => order.paymentInfo?.status !== 'paid');
+    for (const order of toDelete) {
+      await Order.deleteOne({ _id: order._id });
+    }
+
+    // Only keep orders with paymentInfo.status === 'paid'
+    orders = orders.filter(order => order.paymentInfo?.status === 'paid');
 
     if (orders.length === 0) {
       return NextResponse.json({ 
@@ -44,94 +53,94 @@ export async function GET(request: NextRequest) {
       });
     }
 
-        // Transform the data to include better structure for admin dashboard
-        const transformedOrders = orders.map(order => {
-          try {
-            return {
-              _id: order._id,
-              orderNumber: order.orderNumber || 'N/A',
-              status: order.status || 'pending',
-              totalAmount: order.totalAmount || 0,
-              createdAt: order.createdAt,
-              updatedAt: order.updatedAt,
-              // Customer Information
-              customer: {
-                userId: order.userId?._id || 'unknown',
-                username: order.userId?.username || order.customerInfo?.name || 'Unknown',
-                email: order.userId?.email || order.customerInfo?.email || 'Unknown',
-                phone: order.userId?.phone || order.customerInfo?.phone || 'Unknown',
-                isAdmin: order.userId?.isAdmin || false,
-              },
-              // Order Items
-              items: (order.items || []).map((item: {
-                productId?: { _id?: string; name?: string; image?: string };
-                name: string;
-                price: number;
-                quantity: number;
-                image?: string;
-              }) => ({
-                productId: item.productId?._id || 'unknown',
-                name: item.productId?.name || item.name || 'Unknown Product',
-                price: item.price || 0,
-                quantity: item.quantity || 0,
-                image: item.productId?.image || item.image || '',
-                subtotal: (item.price || 0) * (item.quantity || 0),
-              })),
-              // Shipping Address
-              shippingAddress: order.shippingAddress || {
-                name: 'N/A',
-                address: 'N/A',
-                city: 'N/A',
-                state: 'N/A',
-                pincode: 'N/A',
-              },
-              // Payment Information
-              paymentInfo: {
-                method: order.paymentInfo?.method || 'unknown',
-                status: order.paymentInfo?.status || 'unknown',
-                razorpayOrderId: order.paymentInfo?.razorpayOrderId || '',
-                razorpayPaymentId: order.paymentInfo?.razorpayPaymentId || '',
-                paidAt: order.paymentInfo?.paidAt || null,
-              },
-              // Order Summary
-              orderSummary: order.orderSummary || {
-                subtotal: 0,
-                gst: 0,
-                transactionFee: 0,
-                deliveryCharges: 0,
-                total: 0,
-              },
-              // Cancellation Info
-              cancellation: order.cancellation || { isCancelled: false },
-            };
-          } catch (err) {
-            console.error('Error transforming order:', order._id, err);
-            return null;
-          }
-        }).filter(order => order !== null);
-
-        // Get order statistics
-        const stats = {
-          total: orders.length,
-          pending: orders.filter(o => o.status === 'pending').length,
-          confirmed: orders.filter(o => o.status === 'confirmed').length,
-          processing: orders.filter(o => o.status === 'processing').length,
-          shipped: orders.filter(o => o.status === 'shipped').length,
-          delivered: orders.filter(o => o.status === 'delivered').length,
-          cancelled: orders.filter(o => o.status === 'cancelled').length,
-          totalRevenue: orders
-            .filter(o => o.status !== 'cancelled')
-            .reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+    // Transform the data to include better structure for admin dashboard
+    const transformedOrders = orders.map(order => {
+      try {
+        return {
+          _id: order._id,
+          orderNumber: order.orderNumber || 'N/A',
+          status: order.status || 'pending',
+          totalAmount: order.totalAmount || 0,
+          createdAt: order.createdAt,
+          updatedAt: order.updatedAt,
+          // Customer Information
+          customer: {
+            userId: order.userId?._id || 'unknown',
+            username: order.userId?.username || order.customerInfo?.name || 'Unknown',
+            email: order.userId?.email || order.customerInfo?.email || 'Unknown',
+            phone: order.userId?.phone || order.customerInfo?.phone || 'Unknown',
+            isAdmin: order.userId?.isAdmin || false,
+          },
+          // Order Items
+          items: (order.items || []).map((item: {
+            productId?: { _id?: string; name?: string; image?: string };
+            name: string;
+            price: number;
+            quantity: number;
+            image?: string;
+          }) => ({
+            productId: item.productId?._id || 'unknown',
+            name: item.productId?.name || item.name || 'Unknown Product',
+            price: item.price || 0,
+            quantity: item.quantity || 0,
+            image: item.productId?.image || item.image || '',
+            subtotal: (item.price || 0) * (item.quantity || 0),
+          })),
+          // Shipping Address
+          shippingAddress: order.shippingAddress || {
+            name: 'N/A',
+            address: 'N/A',
+            city: 'N/A',
+            state: 'N/A',
+            pincode: 'N/A',
+          },
+          // Payment Information
+          paymentInfo: {
+            method: order.paymentInfo?.method || 'unknown',
+            status: order.paymentInfo?.status || 'unknown',
+            razorpayOrderId: order.paymentInfo?.razorpayOrderId || '',
+            razorpayPaymentId: order.paymentInfo?.razorpayPaymentId || '',
+            paidAt: order.paymentInfo?.paidAt || null,
+          },
+          // Order Summary
+          orderSummary: order.orderSummary || {
+            subtotal: 0,
+            gst: 0,
+            transactionFee: 0,
+            deliveryCharges: 0,
+            total: 0,
+          },
+          // Cancellation Info
+          cancellation: order.cancellation || { isCancelled: false },
         };
+      } catch (err) {
+        console.error('Error transforming order:', order._id, err);
+        return null;
+      }
+    }).filter(order => order !== null);
 
-        console.log('Transformed orders:', transformedOrders.length);
-        console.log('Stats:', stats);
+    // Get order statistics
+    const stats = {
+      total: orders.length,
+      pending: orders.filter(o => o.status === 'pending').length,
+      confirmed: orders.filter(o => o.status === 'confirmed').length,
+      processing: orders.filter(o => o.status === 'processing').length,
+      shipped: orders.filter(o => o.status === 'shipped').length,
+      delivered: orders.filter(o => o.status === 'delivered').length,
+      cancelled: orders.filter(o => o.status === 'cancelled').length,
+      totalRevenue: orders
+        .filter(o => o.status !== 'cancelled')
+        .reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+    };
 
-        return NextResponse.json({ 
-          success: true,
-          orders: transformedOrders,
-          stats 
-        });
+    console.log('Transformed orders:', transformedOrders.length);
+    console.log('Stats:', stats);
+
+    return NextResponse.json({ 
+      success: true,
+      orders: transformedOrders,
+      stats 
+    });
   } catch (error: unknown) {
     console.error("Admin orders API error:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch orders";

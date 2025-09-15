@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRef } from 'react';
 import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSession, signOut } from 'next-auth/react';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,7 +75,10 @@ const [ordersPage, setOrdersPage] = useState(1);
 const [hasMoreOrders, setHasMoreOrders] = useState(true);
 const ORDERS_PAGE_SIZE = 5;
 const ordersLoaderRef = useRef<HTMLDivElement | null>(null);
-  const { user, loading: authLoading, logout, refreshUser, isAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const authLoading = status === 'loading';
+  const isAuthenticated = !!session;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -97,9 +100,9 @@ useEffect(() => {
     }
     if (user) {
       setFormData({
-        username: user.username || '',
-        phone: user.phone || '',
-        address: user.address || ''
+  username: user.name || '',
+  phone: '',
+  address: ''
       });
     }
     setOrders([]);
@@ -154,7 +157,7 @@ const fetchOrders = async (page = 1, reset = false) => {
   const handleLogout = async () => {
     setLogoutLoading(true);
     try {
-      await logout();
+      await signOut();
     } catch (error) {
       console.error("Logout error:", error);
       alert("Error logging out. Please try again.");
@@ -166,23 +169,9 @@ const fetchOrders = async (page = 1, reset = false) => {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
-
-      if (res.ok) {
-        await refreshUser(); // Refresh user data from context
-        setEditMode(false);
-        alert('Profile updated successfully!');
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to update profile');
-      }
+      // TODO: Implement profile update via NextAuth backend or custom API if needed
+      setEditMode(false);
+      alert('Profile updated (mock)!');
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Error updating profile. Please try again.');
@@ -292,7 +281,7 @@ const fetchOrders = async (page = 1, reset = false) => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Welcome back, {user?.username || 'User'}!
+                  Welcome back, {user?.name || user?.email || 'User'}!
                 </h1>
                 <p className="text-gray-600">{user?.email}</p>
               </div>
@@ -400,9 +389,9 @@ const fetchOrders = async (page = 1, reset = false) => {
                       onClick={() => {
                         setEditMode(false);
                         setFormData({
-                          username: user?.username || '',
-                          phone: user?.phone || '',
-                          address: user?.address || ''
+                          username: user?.name || '',
+                          phone: '',
+                          address: ''
                         });
                       }}
                       disabled={saving}
@@ -420,7 +409,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                       <User className="w-5 h-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">Username</p>
-                        <p className="font-medium">{user?.username || 'Not provided'}</p>
+                        <p className="font-medium">{user?.name || user?.email || 'Not provided'}</p>
                       </div>
                     </div>
                     
@@ -436,7 +425,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                       <Phone className="w-5 h-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
-                        <p className="font-medium">{user?.phone || 'Not provided'}</p>
+                        <p className="font-medium">{'Not provided'}</p>
                       </div>
                     </div>
                   </div>
@@ -446,7 +435,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                       <MapPin className="w-5 h-5 text-gray-400 mt-1" />
                       <div>
                         <p className="text-sm text-gray-500">Address</p>
-                        <p className="font-medium">{user?.address || 'Not provided'}</p>
+                        <p className="font-medium">{'Not provided'}</p>
                       </div>
                     </div>
                     

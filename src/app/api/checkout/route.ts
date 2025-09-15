@@ -1,7 +1,9 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Order from "@/models/orderModel";
 import Cart from "@/models/cartModel";
-import { getUserFromToken } from "@/middleware/auth";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/authOptions";
 import { NextRequest, NextResponse } from "next/server";
 
 // Force Node.js runtime to avoid Edge Runtime crypto issues
@@ -34,15 +36,9 @@ export async function POST(request: NextRequest) {
     await connect();
     console.log("✅ [CHECKOUT] Database connected");
     
-    const userData = await getUserFromToken(request);
-    console.log("🔐 [CHECKOUT] User token verification:", { 
-      hasUser: !!userData, 
-      userId: userData?.id,
-      runtime: process.env.NEXT_RUNTIME || 'nodejs'
-    });
-    
-    if (!userData) {
-      console.log("❌ [CHECKOUT] Unauthorized - No valid user token");
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) {
+      console.log("❌ [CHECKOUT] Unauthorized - No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -62,7 +58,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user's cart
-    const cart = await Cart.findOne({ userId: userData.id }).populate('items.productId');
+    let userObjectId;
+    if (mongoose.Types.ObjectId.isValid(session.user.id)) {
+      userObjectId = new mongoose.Types.ObjectId(session.user.id);
+    } else if (session.user.email) {
+      // Try to look up user by email
+      const User = (await import("@/models/userModel")).default;
+      const userDoc = await User.findOne({ email: session.user.email });
+      if (!userDoc) {
+        return NextResponse.json({ error: "User not found" }, { status: 400 });
+      }
+      userObjectId = userDoc._id;
+    } else {
+      return NextResponse.json({ error: "Invalid user ID format" }, { status: 400 });
+    }
+    const cart = await Cart.findOne({ userId: userObjectId }).populate('items.productId');
     if (!cart || cart.items.length === 0) {
       return NextResponse.json(
         { error: "Cart is empty" },
@@ -98,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     // Create checkout record with ALL required fields
     const checkout = new Order({
-      userId: userData.id,
+      userId: userObjectId,
       orderNumber: orderNumber,
       
       // Customer Information (required)
@@ -162,6 +172,7 @@ export async function POST(request: NextRequest) {
         total,
       },
       shippingAddress: checkout.shippingAddress, // Return saved address for verification
+      items: checkoutItems, // Include purchased items in the response
     });
 
   } catch (error: unknown) {
@@ -178,14 +189,28 @@ export async function GET(request: NextRequest) {
   try {
     await connect();
     
-    const userData = await getUserFromToken(request);
-    if (!userData) {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Get user's cart for checkout preview
-    const cart = await Cart.findOne({ userId: userData.id }).populate('items.productId');
-    
+    let userObjectId;
+    if (mongoose.Types.ObjectId.isValid(session.user.id)) {
+      userObjectId = new mongoose.Types.ObjectId(session.user.id);
+    } else if (session.user.email) {
+      const User = (await import("@/models/userModel")).default;
+      const userDoc = await User.findOne({ email: session.user.email });
+      if (!userDoc) {
+        return NextResponse.json({ error: "User not found" }, { status: 401 });
+      }
+      userObjectId = userDoc._id;
+    } else {
+      return NextResponse.json({ error: "Invalid user ID format" }, { status: 401 });
+    }
+
+    const cart = await Cart.findOne({ userId: userObjectId }).populate('items.productId');
+
     if (!cart || cart.items.length === 0) {
       return NextResponse.json({ 
         items: [], 

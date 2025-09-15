@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Menu, X, ShoppingCart, Plus, Minus, Trash2, User, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
@@ -12,7 +12,9 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   
-  const { user, isAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session;
+  const user = session?.user;
   const { cart, cartCount, isLoading, removeFromCart, updateQuantity } = useCart();
   
   const pathname = usePathname();
@@ -161,7 +163,8 @@ const Navbar = () => {
               {isAuthenticated && user && (
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <User className="w-4 h-4" />
-                  <span>Hi, {user.username}</span>
+                  <span>Hi, {user.name || user.email}</span>
+                  {/* <button onClick={() => signOut()} className="ml-2 text-xs text-indigo-600 underline">Logout</button> */}
                 </div>
               )}
 
@@ -239,7 +242,8 @@ const Navbar = () => {
             {/* Mobile Auth Status */}
             {isAuthenticated && user && (
               <div className="px-3 py-2 text-sm text-gray-600 border-t">
-                Welcome, {user.username}
+                Welcome, {user.name || user.email}
+                <button onClick={() => signOut()} className="ml-2 text-xs text-indigo-600 underline">Logout</button>
               </div>
             )}
           </div>
@@ -320,14 +324,13 @@ const Navbar = () => {
                     <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   </motion.div>
                   <p className="text-gray-500 mb-4">Please login to view your cart</p>
-                  <Link
-                    href="/login"
-                    onClick={closeCart}
+                  <button
+                    onClick={() => { signIn(); closeCart(); }}
                     className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all hover:scale-105"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
                     Login
-                  </Link>
+                  </button>
                 </motion.div>
               ) : isLoading ? (
                 <motion.div 

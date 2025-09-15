@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
-import { useAuth } from './AuthContext';
+import { useSession } from 'next-auth/react';
 
 interface CartItem {
   productId: string;
@@ -37,7 +37,8 @@ export function CartProvider({ children, initialCart = [] }: CartProviderProps) 
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasInitialFetch, setHasInitialFetch] = useState(!!initialCart.length);
   const [isFetching, setIsFetching] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { status } = useSession();
+  const isAuthenticated = status === 'authenticated';
   const [pendingSync, setPendingSync] = useState<Array<{
     id: string;
     action: 'add' | 'remove' | 'update';

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Order from "@/models/orderModel";
 import { connect } from "@/dbConfig/dbConfig";
-import jwt from "jsonwebtoken";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/authOptions";
 
 // Force Node.js runtime to avoid Edge Runtime issues
 export const runtime = 'nodejs';
@@ -22,14 +23,26 @@ export async function POST(request: NextRequest) {
     await connect();
     console.log("✅ [ORDER CREATE] Database connected");
     
-    // Get user from token
-    const token = request.cookies.get("token")?.value || "";
-    if (!token) {
+    // Get user from NextAuth session
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET!) as DecodedToken;
-    const userId = decodedToken.id;
+    let userObjectId;
+    // Use dynamic import for mongoose
+    const mongooseModule = await import('mongoose');
+    if (typeof session.user.id === 'string' && mongooseModule.Types.ObjectId.isValid(session.user.id)) {
+      userObjectId = new mongooseModule.Types.ObjectId(session.user.id);
+    } else if (session.user.email) {
+      const User = (await import("@/models/userModel")).default;
+      const userDoc = await User.findOne({ email: session.user.email });
+      if (!userDoc) {
+        return NextResponse.json({ error: "User not found" }, { status: 401 });
+      }
+      userObjectId = userDoc._id;
+    } else {
+      return NextResponse.json({ error: "Invalid user ID format" }, { status: 401 });
+    }
 
     const body = await request.json();
     console.log("📦 [ORDER CREATE] Request body:", JSON.stringify(body, null, 2));
@@ -48,11 +61,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prevent saving order if payment status is pending for online payments only
-    // Allow pending status for cash on delivery
-    if (paymentInfo.status === 'pending' && paymentInfo.method !== 'cod') {
+    // Only allow order creation if payment is successful (paid), or if COD and pending
+    if (
+      (paymentInfo.method === 'cod' && paymentInfo.status !== 'pending' && paymentInfo.status !== 'paid') ||
+      (paymentInfo.method !== 'cod' && paymentInfo.status !== 'paid')
+    ) {
       return NextResponse.json(
-        { error: "Payment is pending. Order will not be saved." },
+        { error: "Order can only be created if payment is successful (paid)." },
         { status: 400 }
       );
     }
@@ -90,7 +105,7 @@ export async function POST(request: NextRequest) {
       console.log("❌ Checkout not found in database");
       
       // Let's try to find any pending orders for this user
-      const pendingOrders = await Order.find({ userId, status: 'pending' }).limit(5);
+  const pendingOrders = await Order.find({ userId: userObjectId, status: 'pending' }).limit(5);
       console.log("🔍 Found pending orders for user:", pendingOrders.length);
       pendingOrders.forEach((order, index) => {
         console.log(`📋 Pending order ${index + 1}:`, order._id.toString(), "items:", order.items?.length);
@@ -107,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     // Create order data
     const orderData = {
-      userId,
+      userId: userObjectId,
       orderNumber,
       items: checkout.items,
       customerInfo: customerInfo || {
@@ -165,14 +180,12 @@ export async function POST(request: NextRequest) {
 // Cancel order endpoint
 export async function PATCH(request: NextRequest) {
   try {
-    // Get user from token
-    const token = request.cookies.get("token")?.value || "";
-    if (!token) {
+    // Get user from NextAuth session
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET!) as DecodedToken;
-    const userId = decodedToken.id;
+    const userId = session.user.id;
 
     const body = await request.json();
     const { orderId, cancelReason } = body;

@@ -2,7 +2,7 @@
 
 import { useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSession } from 'next-auth/react';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -10,7 +10,9 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, redirectTo = '/login' }: ProtectedRouteProps) {
-  const { isAuthenticated, loading } = useAuth();
+  const { data: session, status } = useSession();
+  const loading = status === 'loading';
+  const isAuthenticated = !!session;
   const router = useRouter();
 
   useEffect(() => {

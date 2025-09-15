@@ -1,22 +1,14 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+
+import { ReactNode } from 'react';
+
 
 interface AuthHydrationProps {
   children: ReactNode;
-  isAuthenticated: boolean;
 }
 
-export default function AuthHydration({ children, isAuthenticated }: AuthHydrationProps) {
-  const { refreshUser, user } = useAuth();
-
-  useEffect(() => {
-    // If server says user is authenticated but client doesn't know yet, refresh
-    if (isAuthenticated && !user) {
-      refreshUser();
-    }
-  }, [isAuthenticated, refreshUser, user]);
-
+// This component is now a passthrough since session hydration is handled by NextAuth's SessionProvider
+export default function AuthHydration({ children }: AuthHydrationProps) {
   return <>{children}</>;
 }
