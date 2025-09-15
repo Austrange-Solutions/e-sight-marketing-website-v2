@@ -51,8 +51,10 @@ export async function POST(request: NextRequest){
             success: true,
         })
         response.cookies.set("token", token, {
-            httpOnly: true, 
-            
+            httpOnly: true,
+            path: '/',
+            sameSite: 'lax', // Use 'none' if testing with HTTPS and cross-site
+            secure: false,   // Set to true in production with HTTPS
         })
         return response;
 

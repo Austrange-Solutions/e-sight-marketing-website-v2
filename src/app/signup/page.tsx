@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Eye, EyeOff, User, Lock, Mail } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "next-auth/react";
 
 export const dynamic = 'force-dynamic';
 
 export default function SignupPage() {
     const router = useRouter();
-    const { isAuthenticated, loading: authLoading } = useAuth();
+    const { status } = useSession();
+    const isAuthenticated = status === 'authenticated';
+    const authLoading = status === 'loading';
     const [user, setUser] = React.useState({
         email: "",
         password: "",

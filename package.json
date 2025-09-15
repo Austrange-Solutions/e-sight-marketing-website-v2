@@ -19,6 +19,7 @@
     "lucide-react": "^0.536.0",
     "mongoose": "^8.17.1",
     "next": "15.4.5",
+    "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
     "razorpay": "^2.9.6",
     "react": "19.1.0",
@@ -39,6 +40,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   }
 }

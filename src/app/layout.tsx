@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SessionProvider } from "next-auth/react"
 import Providers from "@/components/Providers";
+import { Provider } from "./provider"
 import { getServerUser } from "@/lib/server/auth";
 import { getServerCart, ServerCartItem } from "@/lib/server/cart";
 
@@ -38,7 +40,7 @@ export default async function RootLayout({
         <Providers initialCart={cart}>
           <div className="flex flex-col min-h-screen">
             <Navbar />
-            <main className="flex-grow">{children}</main>
+            <main className="flex-grow"><Provider>{children}</Provider></main>
             <Footer />
           </div>
         </Providers>

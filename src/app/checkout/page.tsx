@@ -165,6 +165,7 @@ const CheckoutPage = () => {
         setStep(2);
         setCheckoutId(data.checkoutId);
         sessionStorage.setItem("checkoutId", data.checkoutId);
+        setCartData(data); // Update cartData with POST response so items show in summary
       } else {
         alert(data.error || "Error creating checkout");
       }
@@ -187,9 +188,9 @@ const CheckoutPage = () => {
   };
 
   const calculateDynamicCharges = useCallback(async () => {
-    if (!cartData) return;
+  if (!cartData || !cartData.orderSummary) return;
 
-    const subtotal = cartData.orderSummary.subtotal;
+  const subtotal = cartData.orderSummary.subtotal;
     const gst = subtotal * 0.18; // 18% GST
     const transactionFee = subtotal * 0.02; // 2% transaction fee
     
@@ -790,11 +791,11 @@ const CheckoutPage = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-4">
               <h2 className="text-xl font-bold text-gray-900 mb-2">Order Summary</h2>
-              <p className="text-gray-500 text-sm mb-6">{cartData.items.length} item(s) in your cart</p>
+              <p className="text-gray-500 text-sm mb-6">{cartData && cartData.items ? cartData.items.length : 0} item(s) in your cart</p>
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cartData.items.map((item: { _id: string, name: string, price: number, quantity: number, image: string }, index: number) => (
+                {cartData && cartData.items && cartData.items.map((item: { _id: string, name: string, price: number, quantity: number, image: string }, index: number) => (
                   <div key={index} className="flex items-start space-x-4">
                     <div className="relative">
                       <Image
@@ -823,7 +824,7 @@ const CheckoutPage = () => {
               {/* Order Summary Details */}
               <div className="border-t border-gray-200 pt-4 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal ({cartData.items.length} items)</span>
+                  <span className="text-gray-600">Subtotal ({cartData && cartData.items ? cartData.items.length : 0} items)</span>
                   <span className="font-medium">₹{charges?.subtotal?.toFixed(2) || 0}</span>
                 </div>
                 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSession } from 'next-auth/react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'react-hot-toast';
 import LoginModal from './LoginModal';
@@ -30,7 +30,9 @@ export default function AddToCartButton({
   const [loginMessage, setLoginMessage] = useState('');
   const [showQuantityControls, setShowQuantityControls] = useState(false);
   
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { status } = useSession();
+  const isAuthenticated = status === 'authenticated';
+  const authLoading = status === 'loading';
   const { addToCart, cart } = useCart();
   
   // Get current quantity of this item in cart
@@ -78,13 +80,11 @@ export default function AddToCartButton({
       toast.error('Please wait...');
       return;
     }
-    
     if (!isAuthenticated) {
       setLoginMessage(`Please login to ${actionName.toLowerCase()}`);
       setShowLoginModal(true);
       return;
     }
-    
     action();
   };
 
