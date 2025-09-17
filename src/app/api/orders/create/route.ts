@@ -8,11 +8,6 @@ import { authOptions } from "@/app/api/auth/authOptions";
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-interface DecodedToken {
-  id: string;
-  email: string;
-}
-
 connect();
 
 export async function POST(request: NextRequest) {

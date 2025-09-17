@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log("🧪 [TEST] Runtime check endpoint called");
     console.log("🔧 [TEST] Runtime environment:", {

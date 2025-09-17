@@ -16,7 +16,6 @@ export async function getServerCart(userId: string): Promise<ServerCartItem[]> {
     await initializeModels();
     
     // Import models after ensuring connection and initialization
-    const Product = (await import('@/models/productModel')).default;
     const Cart = (await import('@/models/cartModel')).default;
 
     const cart = await Cart.findOne({ userId }).populate('items.productId').lean();

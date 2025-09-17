@@ -5,9 +5,9 @@ interface SignedUrlUploaderProps {
   onError?: (error: string) => void;
 }
 
-const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({ 
-  onUploadComplete, 
-  onError 
+const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
+  onUploadComplete,
+  onError
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -22,7 +22,7 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
     try {
       // Step 1: Get signed URL from our API
       console.log('Requesting signed URL for:', file.name);
-      
+
       const signedUrlResponse = await fetch('/api/aws/signed-upload', {
         method: 'POST',
         headers: {
@@ -39,14 +39,14 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
         throw new Error(errorData.error || 'Failed to get signed URL');
       }
 
-      const { signedUrl, viewUrl, filename } = await signedUrlResponse.json();
+      const { signedUrl, viewUrl } = await signedUrlResponse.json();
       console.log('Signed URL received:', { signedUrl: signedUrl.substring(0, 100) + '...', viewUrl });
 
       setUploadProgress(25);
 
       // Step 2: Upload file directly to S3 using signed URL
       console.log('Uploading file to S3...');
-      
+
       const uploadResponse = await fetch(signedUrl, {
         method: 'PUT',
         body: file,
@@ -65,7 +65,7 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
 
       setUploadProgress(100);
       setUploadedUrl(viewUrl);
-      
+
       console.log('File uploaded successfully:', viewUrl);
       onUploadComplete?.(viewUrl);
 
@@ -87,7 +87,7 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h3 className="text-lg font-semibold mb-4">Upload with Signed URL</h3>
-      
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -108,7 +108,7 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
               Uploading... {uploadProgress}%
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
@@ -121,9 +121,9 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
             <div className="text-sm font-medium text-green-600">
               ✅ Upload successful!
             </div>
-            <img 
-              src={uploadedUrl} 
-              alt="Uploaded" 
+            <img
+              src={uploadedUrl}
+              alt="Uploaded"
               className="w-full h-32 object-cover rounded-md border"
             />
             <div className="text-xs text-gray-500 break-all">

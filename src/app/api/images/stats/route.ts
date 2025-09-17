@@ -3,7 +3,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import UploadedImage from "@/models/UploadedImage";
 
 // GET /api/images/stats - Get upload statistics
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         await connect();
 

@@ -10,7 +10,6 @@ import {
   Calendar, 
   FileImage,
   Search,
-  Filter,
   RefreshCw,
   AlertCircle
 } from 'lucide-react';

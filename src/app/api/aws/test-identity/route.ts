@@ -3,7 +3,7 @@ import { S3Client, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/cl
 import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
 
 // GET: Test AWS credentials and S3 delete permissions
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         // Create STS client to get caller identity
         const stsClient = new STSClient({
