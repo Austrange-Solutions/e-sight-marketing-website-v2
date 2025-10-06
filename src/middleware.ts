@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  
+
   // Skip middleware for API routes to avoid Edge Runtime issues
   if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
-  
+
+  if (pathname === "/ciel-video") return NextResponse.redirect("https://youtube.com/shorts/uREbbhqztMs?feature=share", 307)
+
   // Protect admin dashboard and other admin pages
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const token = req.cookies.get('admin-token')?.value;
