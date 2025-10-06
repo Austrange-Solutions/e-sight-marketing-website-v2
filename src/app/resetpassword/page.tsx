@@ -43,29 +43,29 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded shadow">
+    <div className="min-h-screen flex items-center justify-center bg-accent">
+      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded shadow">
         <h2 className="text-2xl font-bold text-center">Reset Password</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">New Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-foreground">New Password</label>
             <input
               id="password"
               type="password"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded"
+              className="mt-1 block w-full px-3 py-2 border border-border rounded"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Enter new password"
             />
           </div>
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">Confirm New Password</label>
             <input
               id="confirmPassword"
               type="password"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded"
+              className="mt-1 block w-full px-3 py-2 border border-border rounded"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
@@ -74,7 +74,7 @@ function ResetPasswordForm() {
           <button
             type="submit"
             disabled={isLoading || !password || !confirmPassword}
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full py-2 px-4 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading ? "Resetting..." : "Reset Password"}
           </button>
@@ -87,7 +87,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-100"><div>Loading...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-accent"><div>Loading...</div></div>}>
       <ResetPasswordForm />
     </Suspense>
   );

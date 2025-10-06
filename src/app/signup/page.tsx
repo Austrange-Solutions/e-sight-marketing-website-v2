@@ -137,14 +137,14 @@ export default function SignupPage() {
     }, [user, validationErrors, isValidating]);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="min-h-screen bg-accent flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-6 sm:space-y-8">
                 {/* Header */}
                 <div>
-                    <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-foreground">
                         Create your account
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
+                    <p className="mt-2 text-center text-sm text-muted-foreground">
                         Join us and start your journey
                     </p>
                 </div>
@@ -154,20 +154,20 @@ export default function SignupPage() {
                     <div className="space-y-3 sm:space-y-4">
                         {/* Username Field */}
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="username" className="block text-sm font-medium text-foreground mb-1">
                                 Username
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-gray-400" />
+                                    <User className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <input
                                     id="username"
                                     name="username"
                                     type="text"
                                     required
-                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
-                                        validationErrors.username ? 'border-red-300' : 'border-gray-300'
+                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
+                                        validationErrors.username ? 'border-red-300' : 'border-border'
                                     }`}
                                     placeholder="Enter your username"
                                     value={user.username}
@@ -175,26 +175,26 @@ export default function SignupPage() {
                                 />
                             </div>
                             {validationErrors.username && (
-                                <p className="mt-1 text-sm text-red-600">{validationErrors.username}</p>
+                                <p className="mt-1 text-sm text-destructive">{validationErrors.username}</p>
                             )}
                         </div>
 
                         {/* Email Field */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
                                 Email Address
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
+                                    <Mail className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <input
                                     id="email"
                                     name="email"
                                     type="email"
                                     required
-                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
-                                        validationErrors.email ? 'border-red-300' : 'border-gray-300'
+                                    className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
+                                        validationErrors.email ? 'border-red-300' : 'border-border'
                                     }`}
                                     placeholder="Enter your email"
                                     value={user.email}
@@ -202,26 +202,26 @@ export default function SignupPage() {
                                 />
                             </div>
                             {validationErrors.email && (
-                                <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+                                <p className="mt-1 text-sm text-destructive">{validationErrors.email}</p>
                             )}
                         </div>
 
 
                         {/* Password Field */}
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
                                 Password
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
+                                    <Lock className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <input
                                     id="password"
                                     name="password"
                                     type={showPassword ? 'text' : 'password'}
                                     required
-                                    className="appearance-none relative block w-full px-3 py-2 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    className="appearance-none relative block w-full px-3 py-2 pl-10 pr-10 border border-border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 sm:text-sm"
                                     placeholder="Create a strong password"
                                     value={user.password}
                                     onChange={(e) => setUser({ ...user, password: e.target.value })}
@@ -232,9 +232,9 @@ export default function SignupPage() {
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? (
-                                        <EyeOff className="h-5 w-5 text-gray-400" />
+                                        <EyeOff className="h-5 w-5 text-muted-foreground" />
                                     ) : (
-                                        <Eye className="h-5 w-5 text-gray-400" />
+                                        <Eye className="h-5 w-5 text-muted-foreground" />
                                     )}
                                 </button>
                             </div>
@@ -248,15 +248,15 @@ export default function SignupPage() {
                             name="agree-terms"
                             type="checkbox"
                             required
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                         />
-                        <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-900">
+                        <label htmlFor="agree-terms" className="ml-2 block text-sm text-foreground">
                             I agree to the{' '}
-                            <Link href="/terms" className="text-indigo-600 hover:text-indigo-500">
+                            <Link href="/terms" className="text-primary hover:text-primary/90">
                                 Terms and Conditions
                             </Link>{' '}
                             and{' '}
-                            <Link href="/privacy" className="text-indigo-600 hover:text-indigo-500">
+                            <Link href="/privacy" className="text-primary hover:text-primary/90">
                                 Privacy Policy
                             </Link>
                         </label>
@@ -271,7 +271,7 @@ export default function SignupPage() {
                         )}
                         {Object.keys(validationErrors).length > 0 && (
                             <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-md">
-                                <p className="text-sm text-red-600 text-center">
+                                <p className="text-sm text-destructive text-center">
                                     Please fix the validation errors above
                                 </p>
                             </div>
@@ -279,7 +279,7 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={buttonDisabled || loading}
-                            className="group relative w-full flex justify-center py-3 sm:py-2 px-4 border border-transparent text-base sm:text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 touch-manipulation"
+                            className="group relative w-full flex justify-center py-3 sm:py-2 px-4 border border-transparent text-base sm:text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 touch-manipulation"
                         >
                             {loading ? (
                                 <span className="flex items-center">
@@ -299,10 +299,10 @@ export default function SignupPage() {
                     <div className="mt-6">
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300" />
+                                <div className="w-full border-t border-border" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-gray-100 text-gray-500">
+                                <span className="px-2 bg-accent text-muted-foreground">
                                     Already have an account?
                                 </span>
                             </div>
@@ -313,7 +313,7 @@ export default function SignupPage() {
                     <div className="text-center">
                         <Link
                             href="/login"
-                            className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+                            className="font-medium text-primary hover:text-primary/90 transition-colors duration-200"
                         >
                             Sign in to your account
                         </Link>

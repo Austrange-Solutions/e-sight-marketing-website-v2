@@ -59,7 +59,7 @@ const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
       {error && <div className="text-red-600">{error}</div>}
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded font-bold"
+        className="w-full bg-primary text-white py-2 rounded font-bold"
       >
         Continue to Payment
       </button>

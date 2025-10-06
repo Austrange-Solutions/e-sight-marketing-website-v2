@@ -37,16 +37,16 @@ const otherTeamMembers = [
 
 const About = () => {
   // Define team member interface
-    interface TeamMember {
-      name: string;
-      position: string;
-      image: string;
-      description: string;
-    }
-  
-    // State to hold the randomized team members
-    const [randomizedTeam, setRandomizedTeam] = useState<TeamMember[]>([]);
-  
+  interface TeamMember {
+    name: string;
+    position: string;
+    image: string;
+    description: string;
+  }
+
+  // State to hold the randomized team members
+  const [randomizedTeam, setRandomizedTeam] = useState<TeamMember[]>([]);
+
   // Randomize team members on component mount
   useEffect(() => {
     const shuffleArray = (array: TeamMember[]) => {
@@ -57,7 +57,7 @@ const About = () => {
       }
       return shuffled;
     };
-    
+
     setRandomizedTeam(shuffleArray(otherTeamMembers));
   }, []); // Empty dependency array since we only want this to run once  // Combine CEO with randomized team members
   const displayTeam = [ceoData, ...randomizedTeam];
@@ -65,7 +65,7 @@ const About = () => {
   return (
     <div className="pt-16">
       {/* Company Overview */}
-      <section className="py-24 bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+      <section className="py-24 bg-gradient-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -73,9 +73,9 @@ const About = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-8">
-              About e-Kaathi
+              About Maceazy
             </h1>
-            <p className="text-xl max-w-3xl mx-auto">
+            <p className="text-xl max-w-3xl mx-auto text-white/90">
               Improving the lives of the blind individuals living in darkness.
             </p>
           </motion.div>
@@ -83,7 +83,7 @@ const About = () => {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
@@ -92,8 +92,8 @@ const About = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
-              <p className="text-lg text-gray-600">
+              <h2 className="text-3xl font-bold text-foreground">Our Mission</h2>
+              <p className="text-lg text-muted-foreground">
                 To improve the life of the blind individuals by giving them a
                 better way to navigate their life.
               </p>
@@ -104,8 +104,8 @@ const About = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-3xl font-bold text-gray-900">Our Vision</h2>
-              <p className="text-lg text-gray-600">
+              <h2 className="text-3xl font-bold text-foreground">Our Vision</h2>
+              <p className="text-lg text-muted-foreground">
                 To be the global leader in creating transformative technology
                 solutions that shape the way of living of blind individuals.
               </p>
@@ -115,7 +115,7 @@ const About = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-accent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -123,10 +123,10 @@ const About = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Meet Our Founders
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground">
               The brilliant minds behind our success
             </p>
           </motion.div>
@@ -139,7 +139,7 @@ const About = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                className="bg-card rounded-xl shadow-lg overflow-hidden hover:shadow-xl border border-border hover:border-primary transition-all duration-300"
               >
                 <div className="aspect-w-1 aspect-h-1">
                   <img
@@ -149,13 +149,13 @@ const About = () => {
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-foreground mb-2">
                     {member.name}
                   </h3>
-                  <p className="text-indigo-600 font-medium mb-4">
+                  <p className="text-primary font-medium mb-4">
                     {member.position}
                   </p>
-                  <p className="text-gray-600">{member.description}</p>
+                  <p className="text-muted-foreground">{member.description}</p>
                 </div>
               </motion.div>
             ))}

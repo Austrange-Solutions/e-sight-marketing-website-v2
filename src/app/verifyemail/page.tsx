@@ -62,14 +62,14 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-accent flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
             Verify Your Email
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-muted-foreground">
             We&apos;ve sent a 6-digit code to your email address
           </p>
         </div>
@@ -79,7 +79,7 @@ export default function VerifyEmailPage() {
           <div className="space-y-4">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
                 Email Address
               </label>
               <div className="relative">
@@ -91,7 +91,7 @@ export default function VerifyEmailPage() {
                   name="email"
                   type="email"
                   required
-                  className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 pl-10 border border-border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -102,13 +102,13 @@ export default function VerifyEmailPage() {
             {/* Verification Code Field */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="code" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="code" className="block text-sm font-medium text-foreground">
                   Verification Code
                 </label>
                 <button
                   type="button"
                   onClick={handleResendCode}
-                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+                  className="text-sm font-medium text-primary hover:text-primary/90 transition-colors duration-200"
                 >
                   Resend code
                 </button>
@@ -123,7 +123,7 @@ export default function VerifyEmailPage() {
                   type="text"
                   required
                   maxLength={6}
-                  className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 pl-10 border border-border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Enter 6-digit code"
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
@@ -166,7 +166,7 @@ export default function VerifyEmailPage() {
             <button
               type="submit"
               disabled={isLoading || !email || !code}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {isLoading ? (
                 <span className="flex items-center">
@@ -186,10 +186,10 @@ export default function VerifyEmailPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-100 text-gray-500">
+                <span className="px-2 bg-accent text-gray-500">
                   Need help?
                 </span>
               </div>
@@ -198,19 +198,19 @@ export default function VerifyEmailPage() {
 
           {/* Footer Links */}
           <div className="text-center space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Didn&apos;t receive the code?{' '}
               <button
                 type="button"
                 onClick={handleResendCode}
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+                className="font-medium text-primary hover:text-primary/90 transition-colors duration-200"
               >
                 Resend
               </button>
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+              className="inline-flex items-center font-medium text-primary hover:text-primary/90 transition-colors duration-200"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
               Back to login

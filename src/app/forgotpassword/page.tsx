@@ -29,17 +29,17 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded shadow">
+    <div className="min-h-screen flex items-center justify-center bg-accent">
+      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded shadow">
         <h2 className="text-2xl font-bold text-center">Forgot Password</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+            <label htmlFor="email" className="block text-sm font-medium text-foreground">Email Address</label>
             <input
               id="email"
               type="email"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded"
+              className="mt-1 block w-full px-3 py-2 border border-border rounded"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="Enter your registered email"
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={isLoading || !email}
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full py-2 px-4 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading ? "Sending..." : "Send Reset Link"}
           </button>

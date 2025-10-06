@@ -7,11 +7,11 @@ import HomeProductsSection from "@/components/HomePage/HomeProductsSection";
 
 // Generate metadata for SEO
 export const metadata: Metadata = {
-  title: "E-Kaathi - Your Path, Your Freedom | Smart Blind Stick Technology",
-  description: "Experience independence with E-Kaathi's revolutionary smart blind stick, combining AI technology with intuitive navigation. Advanced obstacle detection, GPS navigation, and long battery life.",
-  keywords: "smart blind stick, AI navigation, obstacle detection, assistive technology, E-Kaathi, independence, GPS navigation, blind assistance",
+  title: "Maceazy - Making Life easier, For the Disabled | Smart Blind Stick Technology",
+  description: "Experience independence with Maceazy's revolutionary smart blind stick,'E-Kaathi' combining AI technology with intuitive navigation. Advanced obstacle detection, GPS integration, and long battery life.",
+  keywords: "smart blind stick, AI navigation, obstacle detection, assistive technology, Maceazy, independence, GPS integration, blind assistance",
   openGraph: {
-    title: "E-Kaathi - Your Path, Your Freedom",
+    title: "Maceazy - Making Life easier, For the Disabled",
     description: "Revolutionary smart blind stick with AI technology for enhanced mobility and independence.",
     type: "website",
     images: [
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "E-Kaathi - Your Path, Your Freedom",
+    title: "Maceazy - Making Life easier, For the Disabled",
     description: "Revolutionary smart blind stick with AI technology for enhanced mobility and independence.",
     images: ["/assets/images/blind-person.png"],
   },
@@ -45,7 +45,7 @@ const Home = () => {
 
       {/* Products Section - Dynamic products from database */}
       <HomeProductsSection />
-    </div>  
+    </div>
   );
 };
 

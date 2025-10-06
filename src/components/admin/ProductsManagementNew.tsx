@@ -584,7 +584,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
   const getStatusColor = (status: string, stock: number) => {
     if (stock === 0 || status === 'out_of_stock') return 'bg-red-100 text-red-800';
     if (status === 'active') return 'bg-green-100 text-green-800';
-    return 'bg-gray-100 text-gray-800';
+    return 'bg-accent text-gray-800';
   };
 
   const getStatusText = (status: string, stock: number) => {
@@ -609,12 +609,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
         <div>
-          <h3 className="text-lg sm:text-xl font-medium text-gray-900">Product Management</h3>
+          <h3 className="text-lg sm:text-xl font-medium text-foreground">Product Management</h3>
           <p className="text-sm text-gray-500">Manage your product catalog</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="inline-flex items-center justify-center px-3 py-2 sm:px-4 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 w-full sm:w-auto"
+          className="inline-flex items-center justify-center px-3 py-2 sm:px-4 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 w-full sm:w-auto"
         >
           <Plus size={16} className="mr-2" />
           Add Product
@@ -622,14 +622,14 @@ const deleteOldImage = async (oldImageUrl: string) => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
+      <div className="bg-card p-3 sm:p-4 rounded-lg border border-border">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-            <label className="text-sm font-medium text-gray-700 sm:whitespace-nowrap">Category:</label>
+            <label className="text-sm font-medium text-foreground sm:whitespace-nowrap">Category:</label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="text-sm border border-gray-300 rounded-md px-3 py-2 w-full sm:w-auto"
+              className="text-sm border border-border rounded-md px-3 py-2 w-full sm:w-auto"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => (
@@ -639,11 +639,11 @@ const deleteOldImage = async (oldImageUrl: string) => {
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-            <label className="text-sm font-medium text-gray-700 sm:whitespace-nowrap">Status:</label>
+            <label className="text-sm font-medium text-foreground sm:whitespace-nowrap">Status:</label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="text-sm border border-gray-300 rounded-md px-3 py-2 w-full sm:w-auto"
+              className="text-sm border border-border rounded-md px-3 py-2 w-full sm:w-auto"
             >
               <option value="all">All Status</option>
               <option value="in_stock">In Stock</option>
@@ -657,9 +657,9 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredProducts.map((product) => (
-          <div key={product._id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+          <div key={product._id} className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow">
             {/* Product Image */}
-            <div className="relative h-40 sm:h-48 bg-gray-100">
+            <div className="relative h-40 sm:h-48 bg-accent">
               <img
                 src={product.image || '/assets/images/e-sight-logo.png'}
                 alt={product.name}
@@ -683,12 +683,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
             {/* Product Info */}
             <div className="p-3 sm:p-4 space-y-3">
               <div>
-                <h4 className="font-medium text-gray-900 truncate text-sm sm:text-base">{product.name}</h4>
+                <h4 className="font-medium text-foreground truncate text-sm sm:text-base">{product.name}</h4>
                 <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">{product.description}</p>
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-gray-900">₹{product.price.toLocaleString()}</span>
+                <span className="font-medium text-foreground">₹{product.price.toLocaleString()}</span>
                 <span className="text-gray-500 capitalize text-xs sm:text-sm">{product.type}</span>
               </div>
 
@@ -697,7 +697,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Package2 size={14} className="text-gray-400" />
-                    <span className="text-xs sm:text-sm text-gray-600">Stock: {product.stock}</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Stock: {product.stock}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <button
@@ -725,7 +725,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     placeholder="Qty"
                     value={qtyInputs[product._id] || ''}
                     onChange={(e) => setQtyInputs(prev => ({ ...prev, [product._id]: e.target.value }))}
-                    className="w-14 sm:w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-14 sm:w-16 px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     disabled={updating === product._id}
                   />
                   <button
@@ -742,13 +742,13 @@ const deleteOldImage = async (oldImageUrl: string) => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-2">
                   <DollarSign size={14} className="text-gray-400" />
-                  <span className="text-xs sm:text-sm text-gray-600">Tax: {product.tax?.value || 18}%</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">Tax: {product.tax?.value || 18}%</span>
                 </div>
                 <select
                   value={product.tax?.value || 18}
                   onChange={(e) => updateTax(product._id, Number(e.target.value))}
                   disabled={updating === product._id}
-                  className="text-xs border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
+                  className="text-xs border border-border rounded px-2 py-1 w-full sm:w-auto"
                 >
                   {taxOptions.map(option => (
                     <option key={option.value} value={option.value}>
@@ -762,7 +762,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                 <button
                   onClick={() => setSelectedProduct(product)}
-                  className="flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm"
+                  className="flex items-center space-x-1 text-primary hover:text-indigo-800 text-xs sm:text-sm"
                 >
                   <Eye size={12} />
                   <span>View</span>
@@ -823,12 +823,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Product Details Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white">
+          <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-card">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Product Details</h3>
+              <h3 className="text-lg font-medium text-foreground">Product Details</h3>
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-muted-foreground"
               >
                 ✕
               </button>
@@ -845,8 +845,8 @@ const deleteOldImage = async (oldImageUrl: string) => {
               
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900">{selectedProduct.name}</h4>
-                  <p className="text-gray-600 text-sm">{selectedProduct.description}</p>
+                  <h4 className="font-medium text-foreground">{selectedProduct.name}</h4>
+                  <p className="text-muted-foreground text-sm">{selectedProduct.description}</p>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
@@ -880,7 +880,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 
                 <div>
                   <span className="font-medium block mb-2">Product Details:</span>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                     {selectedProduct.details.map((detail, index) => (
                       <li key={index}>{detail}</li>
                     ))}
@@ -895,12 +895,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-800">Edit Product</h2>
               <button
                 onClick={() => setEditingProduct(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-foreground"
               >
                 ✕
               </button>
@@ -924,22 +924,22 @@ const deleteOldImage = async (oldImageUrl: string) => {
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Product Name</label>
                   <input
                     type="text"
                     value={editingProduct.name}
                     onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Category</label>
                   <select
                     value={editingProduct.category}
                     onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     {categories.map(cat => (
@@ -949,12 +949,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Price</label>
                   <input
                     type="number"
                     value={editingProduct.price}
                     onChange={(e) => setEditingProduct({...editingProduct, price: Number(e.target.value)})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                     min="0"
                     step="0.01"
@@ -962,23 +962,23 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
                   <input
                     type="number"
                     value={editingProduct.stock}
                     onChange={(e) => setEditingProduct({...editingProduct, stock: Number(e.target.value)})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                     min="0"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Type</label>
                   <select
                     value={editingProduct.type}
                     onChange={(e) => setEditingProduct({...editingProduct, type: e.target.value as "basic" | "pro" | "max"})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="basic">Basic</option>
@@ -988,11 +988,11 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                   <select
                     value={editingProduct.status}
                     onChange={(e) => setEditingProduct({...editingProduct, status: e.target.value as "active" | "inactive" | "out_of_stock"})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="active">Active</option>
@@ -1003,18 +1003,18 @@ const deleteOldImage = async (oldImageUrl: string) => {
               </div>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Description (Optional)</label>
                 <textarea
                   value={editingProduct.description}
                   onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="Optional: Enter product description"
                 />
               </div>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Product Image</label>
                 <div className="space-y-3">
                   {/* Current Image Preview */}
                   {editingProduct.image && (
@@ -1027,25 +1027,25 @@ const deleteOldImage = async (oldImageUrl: string) => {
                           e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
                         }}
                       />
-                      <span className="text-sm text-gray-600">Current product image</span>
+                      <span className="text-sm text-muted-foreground">Current product image</span>
                     </div>
                   )}
                   
                   {/* Image URL Input */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Option 1: Image URL</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 1: Image URL</label>
                     <input
                       type="url"
                       value={editingProduct.image.startsWith('data:') ? '' : editingProduct.image}
                       onChange={(e) => setEditingProduct({...editingProduct, image: e.target.value})}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
                   {/* File Upload */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Option 2: Upload Image File</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 2: Upload Image File</label>
                     <div className="flex items-center space-x-2">
                       <input
                         type="file"
@@ -1056,7 +1056,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                             handleImageUpload(file);
                           }
                         }}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={uploadingImage}
                       />
                       {uploadingImage && (
@@ -1069,7 +1069,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
               </div>
               
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Product Details (Optional - Max 8 points, one per line)
                 </label>
                 <textarea
@@ -1078,14 +1078,14 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     const details = e.target.value.split('\n').filter(detail => detail.trim());
                     setEditingProduct({...editingProduct, details});
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={6}
                   placeholder="Optional: Enter product details, one per line&#10;Maximum 8 points allowed"
                 />
                 <div className="text-sm text-gray-500 mt-1">
                   Current: {editingProduct.details.length} points 
                   {editingProduct.details.length > 8 && (
-                    <span className="text-red-500 ml-2">Maximum 8 points allowed</span>
+                    <span className="text-destructive ml-2">Maximum 8 points allowed</span>
                   )}
                   {editingProduct.details.length === 0 && (
                     <span className="text-gray-500 ml-2">Optional field</span>
@@ -1097,7 +1097,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 <button
                   type="button"
                   onClick={() => setEditingProduct(null)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:bg-accent"
                 >
                   Cancel
                 </button>
@@ -1138,7 +1138,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Add Product Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Add New Product</h2>
               <button
@@ -1159,7 +1159,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     updatedAt: new Date()
                   });
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-foreground"
               >
                 ✕
               </button>
@@ -1189,22 +1189,22 @@ const deleteOldImage = async (oldImageUrl: string) => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Product Name *</label>
                     <input
                       type="text"
                       value={newProduct.name}
                       onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                     />
                   </div>
                 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Category *</label>
                     <select
                       value={newProduct.category}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                     >
                       {categories.map(cat => (
@@ -1216,12 +1216,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Price *</label>
                     <input
                       type="number"
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                       min="0"
                       step="0.01"
@@ -1229,12 +1229,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
                     <input
                       type="number"
                       value={newProduct.stock}
                       onChange={(e) => setNewProduct({...newProduct, stock: Number(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       min="0"
                     />
                   </div>
@@ -1242,11 +1242,11 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Type *</label>
                     <select
                       value={newProduct.type}
                       onChange={(e) => setNewProduct({...newProduct, type: e.target.value as "basic" | "pro" | "max"})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                     >
                       <option value="basic">Basic</option>
@@ -1256,11 +1256,11 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                   <select
                     value={newProduct.status}
                     onChange={(e) => setNewProduct({...newProduct, status: e.target.value as "active" | "inactive" | "out_of_stock"})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -1270,18 +1270,18 @@ const deleteOldImage = async (oldImageUrl: string) => {
               </div>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Description (Optional)</label>
                 <textarea
                   value={newProduct.description}
                   onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="Optional: Enter product description"
                 />
               </div>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Product Image *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Product Image *</label>
                 <div className="space-y-3">
                   {/* Current Image Preview */}
                   {newProduct.image && (
@@ -1306,19 +1306,19 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   
                   {/* Image URL Input */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Option 1: Image URL</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 1: Image URL</label>
                     <input
                       type="url"
                       value={newProduct.image.startsWith('data:') ? '' : newProduct.image}
                       onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
                   {/* File Upload */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Option 2: Upload Image File</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 2: Upload Image File</label>
                     <div className="flex items-center space-x-2">
                       <input
                         type="file"
@@ -1329,7 +1329,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                             handleNewProductImageUpload(file);
                           }
                         }}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={uploadingImage}
                       />
                       {uploadingImage && (
@@ -1342,7 +1342,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
               </div>
               
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Product Details (Optional - Max 8 points, one per line)
                 </label>
                 <textarea
@@ -1351,14 +1351,14 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     const details = e.target.value.split('\n').filter(detail => detail.trim());
                     setNewProduct({...newProduct, details});
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={6}
                   placeholder="Optional: Enter product details, one per line&#10;Maximum 8 points allowed"
                 />
                 <div className="text-sm text-gray-500 mt-1">
                   Current: {newProduct.details.length} points 
                   {newProduct.details.length > 8 && (
-                    <span className="text-red-500 ml-2">Maximum 8 points allowed</span>
+                    <span className="text-destructive ml-2">Maximum 8 points allowed</span>
                   )}
                   {newProduct.details.length === 0 && (
                     <span className="text-gray-500 ml-2">Optional field</span>
@@ -1367,8 +1367,8 @@ const deleteOldImage = async (oldImageUrl: string) => {
               </div>
               
               {/* Debug Info for Add Product Form */}
-              <div className="mb-4 p-3 bg-gray-50 rounded-md text-sm">
-                <div className="font-medium text-gray-700 mb-2">Form Validation Status:</div>
+              <div className="mb-4 p-3 bg-accent rounded-md text-sm">
+                <div className="font-medium text-foreground mb-2">Form Validation Status:</div>
                 <div className="space-y-1">
                   <div className={`${newProduct.name ? 'text-green-600' : 'text-red-600'}`}>
                     Name: {newProduct.name ? '✓' : '✗'} {newProduct.name || 'Required'}
@@ -1408,7 +1408,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                       updatedAt: new Date()
                     });
                   }}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:bg-accent"
                 >
                   Cancel
                 </button>
@@ -1451,13 +1451,13 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center mb-4">
               <div className="flex-shrink-0 w-10 h-10 mx-auto bg-red-100 rounded-full flex items-center justify-center">
                 <Trash2 className="w-5 h-5 text-red-600" />
               </div>
               <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Delete Product</h3>
+                <h3 className="text-lg font-medium text-foreground">Delete Product</h3>
                 <p className="text-sm text-gray-500 mt-1">
                   Are you sure you want to delete this product? This action cannot be undone and will also remove the associated image from storage.
                 </p>
@@ -1468,7 +1468,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
               <button
                 onClick={() => setShowDeleteConfirm(null)}
                 disabled={deletingProduct === showDeleteConfirm}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

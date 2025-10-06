@@ -224,8 +224,8 @@ const fetchOrders = async (page = 1, reset = false) => {
       case 'processing': return 'text-orange-600';
       case 'shipped': return 'text-purple-600';
       case 'delivered': return 'text-green-600';
-      case 'cancelled': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'cancelled': return 'text-destructive';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -239,7 +239,7 @@ const fetchOrders = async (page = 1, reset = false) => {
 
   // if (authLoading || loading) {
   //   return (
-  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  //     <div className="min-h-screen bg-accent flex items-center justify-center">
   //       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
   //     </div>
   //   );
@@ -247,15 +247,15 @@ const fetchOrders = async (page = 1, reset = false) => {
 
   if (authLoading || loading) {
   return (
-    <div className="mt-[4%] min-h-screen bg-gray-50 py-8">
+    <div className="mt-[4%] min-h-screen bg-accent py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="border border-gray-200 rounded-lg p-6 animate-pulse bg-gray-100">
-              <div className="h-6 w-1/3 bg-gray-300 rounded mb-2" />
-              <div className="h-4 w-1/4 bg-gray-300 rounded mb-2" />
-              <div className="h-4 w-1/2 bg-gray-300 rounded mb-2" />
-              <div className="h-12 w-full bg-gray-200 rounded mb-2" />
+            <div key={i} className="border border-border rounded-lg p-6 animate-pulse bg-accent">
+              <div className="h-6 w-1/3 bg-muted-foreground/20 rounded mb-2" />
+              <div className="h-4 w-1/4 bg-muted-foreground/20 rounded mb-2" />
+              <div className="h-4 w-1/2 bg-muted-foreground/20 rounded mb-2" />
+              <div className="h-12 w-full bg-muted rounded mb-2" />
             </div>
           ))}
         </div>
@@ -270,20 +270,20 @@ const fetchOrders = async (page = 1, reset = false) => {
   }
 
   return (
-    <div className="mt-[4%] min-h-screen bg-gray-50 py-8">
+    <div className="mt-[4%] min-h-screen bg-accent py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-card rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                 <User className="w-8 h-8 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-foreground">
                   Welcome back, {user?.name || user?.email || 'User'}!
                 </h1>
-                <p className="text-gray-600">{user?.email}</p>
+                <p className="text-muted-foreground">{user?.email}</p>
               </div>
             </div>
             <button
@@ -297,15 +297,15 @@ const fetchOrders = async (page = 1, reset = false) => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="border-b border-gray-200">
+        <div className="bg-card rounded-lg shadow-sm mb-6">
+          <div className="border-b border-border">
             <nav className="-mb-px flex">
               <button
                 onClick={() => setActiveTab('profile')}
                 className={`py-4 px-6 text-sm font-medium border-b-2 ${
                   activeTab === 'profile'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <User className="w-4 h-4 inline mr-2" />
@@ -316,7 +316,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                 className={`py-4 px-6 text-sm font-medium border-b-2 ${
                   activeTab === 'orders'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Package className="w-4 h-4 inline mr-2" />
@@ -329,7 +329,7 @@ const fetchOrders = async (page = 1, reset = false) => {
           {activeTab === 'profile' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+                <h2 className="text-xl font-semibold text-foreground">Profile Information</h2>
                 {!editMode && (
                   <button
                     onClick={() => setEditMode(true)}
@@ -344,35 +344,35 @@ const fetchOrders = async (page = 1, reset = false) => {
               {editMode ? (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Username</label>
                     <input
                       type="text"
                       name="username"
                       value={formData.username}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
                     <input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Address</label>
                     <textarea
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
@@ -408,7 +408,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                     <div className="flex items-center space-x-3">
                       <User className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-gray-500">Username</p>
+                        <p className="text-sm text-muted-foreground">Username</p>
                         <p className="font-medium">{user?.name || user?.email || 'Not provided'}</p>
                       </div>
                     </div>
@@ -416,7 +416,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                     <div className="flex items-center space-x-3">
                       <Mail className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="text-sm text-muted-foreground">Email</p>
                         <p className="font-medium">{user?.email || 'Not provided'}</p>
                       </div>
                     </div>
@@ -424,7 +424,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                     <div className="flex items-center space-x-3">
                       <Phone className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-gray-500">Phone</p>
+                        <p className="text-sm text-muted-foreground">Phone</p>
                         <p className="font-medium">{'Not provided'}</p>
                       </div>
                     </div>
@@ -434,7 +434,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                     <div className="flex items-start space-x-3">
                       <MapPin className="w-5 h-5 text-gray-400 mt-1" />
                       <div>
-                        <p className="text-sm text-gray-500">Address</p>
+                        <p className="text-sm text-muted-foreground">Address</p>
                         <p className="font-medium">{'Not provided'}</p>
                       </div>
                     </div>
@@ -442,7 +442,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-gray-500">Member since</p>
+                        <p className="text-sm text-muted-foreground">Member since</p>
                         <p className="font-medium">
                           {user ? formatDate(new Date().toISOString()) : 'Not available'}
                         </p>
@@ -457,13 +457,13 @@ const fetchOrders = async (page = 1, reset = false) => {
           {/* Orders Tab */}
           {activeTab === 'orders' && (
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Order History</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-6">Order History</h2>
               
               {orders.length === 0 ? (
                 <div className="text-center py-12">
                   <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                  <p className="text-gray-500 mb-6">When you place your first order, it will appear here.</p>
+                  <h3 className="text-lg font-medium text-foreground mb-2">No orders yet</h3>
+                  <p className="text-muted-foreground mb-6">When you place your first order, it will appear here.</p>
                   <button
                     onClick={() => router.push('/products')}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -474,21 +474,21 @@ const fetchOrders = async (page = 1, reset = false) => {
               ) : (
                 <div className="space-y-6">
                   {orders.map((order) => (
-                    <div key={order._id} className="border border-gray-200 rounded-lg p-6">
+                    <div key={order._id} className="border border-border rounded-lg p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <h3 className="font-semibold text-gray-900">Order #{order.orderNumber}</h3>
-                          <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+                          <h3 className="font-semibold text-foreground">Order #{order.orderNumber}</h3>
+                          <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
                         </div>
                         <div className="text-right">
                           <p className={`font-medium capitalize ${getStatusColor(order.status)}`}>
                             {order.status}
                           </p>
-                          <p className="text-lg font-bold text-gray-900">₹{order.totalAmount}</p>
+                          <p className="text-lg font-bold text-foreground">₹{order.totalAmount}</p>
                         </div>
                       </div>
                       
-                      <div className="border-t border-gray-200 pt-4">
+                      <div className="border-t border-border pt-4">
                         <div className="space-y-3">
                           {order.items.map((item, index) => (
                             <div key={index} className="flex items-center space-x-4">
@@ -502,8 +502,8 @@ const fetchOrders = async (page = 1, reset = false) => {
                                 }}
                               />
                               <div className="flex-1">
-                                <p className="font-medium text-gray-900">{item.name}</p>
-                                <p className="text-sm text-gray-500">
+                                <p className="font-medium text-foreground">{item.name}</p>
+                                <p className="text-sm text-muted-foreground">
                                   Quantity: {item.quantity} × ₹{item.price}
                                 </p>
                               </div>
@@ -512,7 +512,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                         </div>
                         
                         {order.status === 'pending' && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="mt-4 pt-4 border-t border-border">
                             <button
                               onClick={() => handleCancelOrder(order._id, order.orderNumber)}
                               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -525,11 +525,11 @@ const fetchOrders = async (page = 1, reset = false) => {
                     </div>
                   ))}
                   {ordersLoading && Array.from({ length: ORDERS_PAGE_SIZE }).map((_, i) => (
-  <div key={i} className="border border-gray-200 rounded-lg p-6 animate-pulse bg-gray-100">
-    <div className="h-6 w-1/3 bg-gray-300 rounded mb-2" />
-    <div className="h-4 w-1/4 bg-gray-300 rounded mb-2" />
-    <div className="h-4 w-1/2 bg-gray-300 rounded mb-2" />
-    <div className="h-12 w-full bg-gray-200 rounded mb-2" />
+  <div key={i} className="border border-border rounded-lg p-6 animate-pulse bg-accent">
+    <div className="h-6 w-1/3 bg-muted-foreground/20 rounded mb-2" />
+    <div className="h-4 w-1/4 bg-muted-foreground/20 rounded mb-2" />
+    <div className="h-4 w-1/2 bg-muted-foreground/20 rounded mb-2" />
+    <div className="h-12 w-full bg-muted rounded mb-2" />
   </div>
 ))}
 <div ref={ordersLoaderRef} style={{ height: 1 }} />

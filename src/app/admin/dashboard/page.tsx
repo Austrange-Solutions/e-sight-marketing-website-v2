@@ -94,10 +94,10 @@ function SkeletonTable({ rows = 5, cols = 4 }) {
       {/* Mobile skeleton - card format */}
       <div className="block sm:hidden space-y-4">
         {[...Array(rows)].map((_, i) => (
-          <div key={i} className="bg-white border rounded-lg p-4 space-y-3">
-            <div className="h-4 bg-gray-200 rounded w-3/4" />
-            <div className="h-3 bg-gray-200 rounded w-1/2" />
-            <div className="h-3 bg-gray-200 rounded w-2/3" />
+          <div key={i} className="bg-card border rounded-lg p-4 space-y-3">
+            <div className="h-4 bg-muted rounded w-3/4" />
+            <div className="h-3 bg-muted rounded w-1/2" />
+            <div className="h-3 bg-muted rounded w-2/3" />
           </div>
         ))}
       </div>
@@ -105,21 +105,21 @@ function SkeletonTable({ rows = 5, cols = 4 }) {
       {/* Desktop skeleton - table format */}
       <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-accent">
             <tr>
               {[...Array(cols)].map((_, i) => (
-                <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-300 bg-gray-100">
-                  <div className="h-4 bg-gray-200 rounded w-3/4" />
+                <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-300 bg-accent">
+                  <div className="h-4 bg-muted rounded w-3/4" />
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-card divide-y divide-gray-200">
             {[...Array(rows)].map((_, i) => (
               <tr key={i}>
                 {[...Array(cols)].map((_, j) => (
                   <td key={j} className="px-6 py-4 whitespace-nowrap">
-                    <div className="h-4 bg-gray-200 rounded w-full" />
+                    <div className="h-4 bg-muted rounded w-full" />
                   </td>
                 ))}
               </tr>
@@ -248,18 +248,18 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-accent">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-card shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-lg sm:text-xl font-semibold text-foreground">Admin Dashboard</h1>
             </div>
             <div className="flex items-center">
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-2 border border-transparent text-xs sm:text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-2 border border-transparent text-xs sm:text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-primary/90"
               >
                 <LogOut size={14} className="mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Logout</span>
@@ -271,14 +271,14 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="border-b border-gray-200">
+        <div className="bg-card rounded-lg shadow">
+          <div className="border-b border-border">
             {/* Mobile Tab Navigation */}
             <div className="sm:hidden">
               <select
                 value={activeTab}
                 onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
-                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                className="block w-full pl-3 pr-10 py-2 text-base border-border focus:outline-none focus:ring-ring focus:border-indigo-500 rounded-md"
               >
                 <option value="overview">Overview</option>
                 <option value="users">Users</option>
@@ -303,8 +303,8 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                       activeTab === tab.key
-                        ? 'border-indigo-500 text-indigo-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        ? 'border-indigo-500 text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {tab.label}

@@ -88,7 +88,7 @@ const HomeProductsSection = () => {
 
   if (loading) {
     return (
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -96,17 +96,17 @@ const HomeProductsSection = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               Our Products
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground">
               Discover our range of smart assistance devices
             </p>
           </motion.div>
           
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-            <span className="ml-2 text-gray-600">Loading products...</span>
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading products...</span>
           </div>
         </div>
       </section>
@@ -115,7 +115,7 @@ const HomeProductsSection = () => {
 
   if (error) {
     return (
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -123,19 +123,19 @@ const HomeProductsSection = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               Our Products
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground">
               Discover our range of smart assistance devices
             </p>
           </motion.div>
           
           <div className="text-center py-12">
-            <div className="text-red-600 mb-4">{error}</div>
+            <div className="text-destructive mb-4">{error}</div>
             <button
               onClick={fetchProducts}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               Try Again
             </button>
@@ -147,7 +147,7 @@ const HomeProductsSection = () => {
 
   if (products.length === 0) {
     return (
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -155,20 +155,20 @@ const HomeProductsSection = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
               Our Products
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground">
               Discover our range of smart assistance devices
             </p>
           </motion.div>
           
           <div className="text-center py-12">
-            <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-4">No products available at the moment</p>
+            <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground mb-4">No products available at the moment</p>
             <Link
               href="/products"
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               Browse All Products
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -180,7 +180,7 @@ const HomeProductsSection = () => {
   }
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -188,10 +188,10 @@ const HomeProductsSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             Our Products
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-muted-foreground">
             Discover our range of smart assistance devices
           </p>
         </motion.div>
@@ -208,7 +208,7 @@ const HomeProductsSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className={`bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 ${
+                className={`bg-card border-2 border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary transition-all duration-300 ${
                   isOutOfStock ? 'opacity-70' : 'hover:scale-105'
                 }`}
               >
@@ -245,7 +245,7 @@ const HomeProductsSection = () => {
                 {/* Product Content */}
                 <div className="p-6">
                   {/* Product Name */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
+                  <h3 className="text-xl font-bold text-foreground mb-2 text-center">
                     {product.name}
                   </h3>
 
@@ -254,31 +254,31 @@ const HomeProductsSection = () => {
                     <div className="flex mr-2">
                       {renderStars(rating)}
                     </div>
-                    <span className="text-gray-500 text-sm">({rating}) • 128 reviews</span>
+                    <span className="text-muted-foreground text-sm">({rating}) • 128 reviews</span>
                   </div>
 
                   {/* Price */}
                   <div className="text-center mb-4">
-                    <div className="text-3xl font-bold text-indigo-600">
+                    <div className="text-3xl font-bold text-primary">
                       ₹{product.price.toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-500">/device</div>
+                    <div className="text-sm text-muted-foreground">/device</div>
                   </div>
 
                   {/* Key Features */}
                   <div className="mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Key Features:</h4>
+                    <h4 className="font-semibold text-foreground mb-3">Key Features:</h4>
                     <ul className="space-y-2">
                       {product.details && product.details.length > 0 ? (
                         product.details.slice(0, 4).map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-center text-sm text-gray-600">
-                            <ArrowRight className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
+                          <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
+                            <ArrowRight className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                             <span className="line-clamp-1">{feature}</span>
                           </li>
                         ))
                       ) : (
-                        <li className="flex items-center text-sm text-gray-600">
-                          <ArrowRight className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
+                        <li className="flex items-center text-sm text-muted-foreground">
+                          <ArrowRight className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
                           <span>Product details coming soon</span>
                         </li>
                       )}
@@ -299,7 +299,7 @@ const HomeProductsSection = () => {
         >
           <Link
             href="/products"
-            className="inline-flex items-center px-8 py-3 bg-indigo-600 text-white text-lg font-semibold rounded-xl hover:bg-indigo-700 transition-all duration-300 hover:scale-105 shadow-lg"
+            className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground text-lg font-semibold rounded-xl hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-lg"
           >
             Browse All Products
             <ArrowRight className="ml-2 w-5 h-5" />

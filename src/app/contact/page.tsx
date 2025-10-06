@@ -22,7 +22,7 @@ const Contact = () => {
       {/* Contact Hero - Client Component with animations */}
       <ContactHero />
 
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-accent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12">
             {/* Contact Information - Client Component with animations */}
