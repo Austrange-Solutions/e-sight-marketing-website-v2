@@ -389,7 +389,7 @@ The migration is **COMPLETE**! Your website now features:
 ♿ **Accessible** to all users  
 ⚡ **Performant** with Tailwind v4  
 
-Your E-Kaathi website now has a professional, modern look that represents the MACEAZY brand perfectly!
+Your Maceazy website now has a professional, modern look that represents the MACEAZY brand perfectly!
 
 ---
 
