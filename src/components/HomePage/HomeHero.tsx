@@ -98,6 +98,18 @@ const HomeHero = () => {
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
+              <a
+                href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.' + process.env.NEXT_PUBLIC_HOSTNAME}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
+                >
+                  Donate Now ❤️
+                </Button>
+              </a>
               <Link href="/contact">
                 <Button
                   size="lg"

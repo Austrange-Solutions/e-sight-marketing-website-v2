@@ -11,6 +11,8 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [isDonateDomain, setIsDonateDomain] = useState(false);
+  const [mainDomainUrl, setMainDomainUrl] = useState('');
 
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
@@ -19,6 +21,24 @@ const Navbar = () => {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  // Detect if we're on donate subdomain
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const isDonate = hostname.startsWith('donate.');
+      setIsDonateDomain(isDonate);
+      
+      // Determine main domain URL
+      if (isDonate) {
+        // Remove 'donate.' from hostname
+        const mainHostname = hostname.replace('donate.', '');
+        const protocol = window.location.protocol;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
+      }
+    }
+  }, []);
 
   // Dynamic nav items based on auth state
   const getNavItems = () => {
@@ -70,11 +90,21 @@ const Navbar = () => {
 
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
-      router.push('/login?redirect=/checkout');
+      // If on donate subdomain, redirect to main domain for login
+      if (isDonateDomain) {
+        window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
+      } else {
+        router.push('/login?redirect=/checkout');
+      }
       return;
     }
     closeCart();
-    router.push("/checkout");
+    // If on donate subdomain, redirect to main domain for checkout
+    if (isDonateDomain) {
+      window.location.href = `${mainDomainUrl}/checkout`;
+    } else {
+      router.push("/checkout");
+    }
   };
 
   // Enhanced cart functions
@@ -137,24 +167,48 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname === item.path
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-primary"
-                    }`}
-                >
-                  {pathname === item.path && (
-                    <motion.div
-                      layoutId="underline"
-                      className="absolute left-0 right-0 bottom-0 h-0.5 bg-primary"
-                    />
-                  )}
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                // If on donate subdomain, link to main domain
+                const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
+                const isExternal = isDonateDomain;
+                
+                return isExternal ? (
+                  <a
+                    key={item.path}
+                    href={href}
+                    className="relative px-3 py-2 text-sm font-medium transition-colors duration-200 text-muted-foreground hover:text-primary"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.path}
+                    href={href}
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname === item.path
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-primary"
+                      }`}
+                  >
+                    {pathname === item.path && (
+                      <motion.div
+                        layoutId="underline"
+                        className="absolute left-0 right-0 bottom-0 h-0.5 bg-primary"
+                      />
+                    )}
+                    {item.label}
+                  </Link>
+                );
+              })}
+
+              {/* Donate Button */}
+              <a 
+                href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.'+process.env.NEXT_PUBLIC_HOSTNAME}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1"
+              >
+                ❤️ Donate
+              </a>
 
               {/* Auth Status */}
               {isAuthenticated && user && (
@@ -221,19 +275,45 @@ const Navbar = () => {
           className="md:hidden overflow-hidden bg-background border-b border-border"
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === item.path
-                    ? "text-primary bg-accent"
-                    : "text-muted-foreground hover:text-primary hover:bg-accent"
-                  }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              // If on donate subdomain, link to main domain
+              const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
+              const isExternal = isDonateDomain;
+              
+              return isExternal ? (
+                <a
+                  key={item.path}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.path}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === item.path
+                      ? "text-primary bg-accent"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent"
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            {/* Mobile Donate Button */}
+            <a 
+              href={process.env.NODE_ENV === 'development' ? 'http://localhost:3000/donate' : 'https://donate.maceazy.com'}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsOpen(false)}
+              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md"
+            >
+              ❤️ Donate Now
+            </a>
 
             {/* Mobile Auth Status */}
             {isAuthenticated && user && (

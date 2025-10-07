@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Facebook,
@@ -12,6 +12,23 @@ import {
 // import Image from "next/image"; // Removed unused import
 
 const Footer = () => {
+  const [isDonateDomain, setIsDonateDomain] = useState(false);
+  const [mainDomainUrl, setMainDomainUrl] = useState('');
+
+  useEffect(() => {
+    // Check if we're on the donate subdomain
+    const hostname = window.location.hostname;
+    const isDonate = hostname.startsWith('donate.');
+    setIsDonateDomain(isDonate);
+    
+    if (isDonate) {
+      // Construct main domain URL
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      const mainHostname = hostname.replace('donate.', '');
+      setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
+    }
+  }, []);
   return (
     <footer className="bg-[oklch(0.35_0.08_230)] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -35,46 +52,34 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/"
-                  className="text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/products"
-                  className="text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  Products
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
+              {[
+                { href: "/", label: "Home" },
+                { href: "/about", label: "About" },
+                { href: "/products", label: "Products" },
+                { href: "/contact", label: "Contact" },
+                { href: "/privacy", label: "Privacy Policy" },
+              ].map((link) => {
+                const href = isDonateDomain ? `${mainDomainUrl}${link.href}` : link.href;
+                return (
+                  <li key={link.href}>
+                    {isDonateDomain ? (
+                      <a
+                        href={href}
+                        className="text-white/70 hover:text-white transition-colors duration-200"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={href}
+                        className="text-white/70 hover:text-white transition-colors duration-200"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
