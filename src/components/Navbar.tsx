@@ -205,7 +205,7 @@ const Navbar = () => {
                 href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.'+process.env.NEXT_PUBLIC_HOSTNAME}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1"
+                className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1"
               >
                 ❤️ Donate
               </a>
@@ -310,7 +310,7 @@ const Navbar = () => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsOpen(false)}
-              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md"
+              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
             >
               ❤️ Donate Now
             </a>
