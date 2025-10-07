@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useCart } from "@/contexts/CartContext";
-import { ThemeToggle } from "./ThemeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -166,9 +165,6 @@ const Navbar = () => {
                 </div>
               )}
 
-              {/* Theme Toggle */}
-              <ThemeToggle />
-
               {/* Cart Button */}
               <button
                 onClick={() => openCart()}
@@ -189,9 +185,6 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-2">
-              {/* Theme Toggle for Mobile */}
-              <ThemeToggle />
-
               <button
                 onClick={() => openCart()}
                 className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"

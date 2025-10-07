@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 /* Custom utilities */
 .line-clamp-3 {
   overflow: hidden;
@@ -123,72 +121,6 @@
   --sidebar-accent-foreground: oklch(0.35 0.08 230);
   --sidebar-border: oklch(0.90 0.005 230);
   --sidebar-ring: oklch(0.65 0.14 230);
-}
-
-.dark {
-  /* MACEAZY Brand Theme - Dark Mode */
-  
-  /* Base colors - Dark with blue tint */
-  --background: oklch(0.15 0.01 230); /* Dark blue-black */
-  --foreground: oklch(0.95 0.005 230); /* Almost white with blue tint */
-  
-  /* Card colors - Slightly lighter than background */
-  --card: oklch(0.20 0.01 230); /* Dark card background */
-  --card-foreground: oklch(0.95 0.005 230);
-  
-  /* Popover colors */
-  --popover: oklch(0.20 0.01 230);
-  --popover-foreground: oklch(0.95 0.005 230);
-  
-  /* Primary brand color - Lighter blue for dark mode */
-  --primary: oklch(0.70 0.14 230); /* Brighter MACEAZY blue */
-  --primary-foreground: oklch(0.15 0.01 230); /* Dark text on blue */
-  
-  /* Secondary - Darker blue */
-  --secondary: oklch(0.25 0.02 230); /* Dark blue-gray */
-  --secondary-foreground: oklch(0.95 0.005 230); /* Light text */
-  
-  /* Muted colors */
-  --muted: oklch(0.25 0.02 230); /* Dark blue-gray */
-  --muted-foreground: oklch(0.65 0.02 230); /* Medium light */
-  
-  /* Accent colors */
-  --accent: oklch(0.30 0.04 230); /* Medium blue accent */
-  --accent-foreground: oklch(0.95 0.005 230);
-  
-  /* Destructive/Error - Softer red for dark mode */
-  --destructive: oklch(0.60 0.20 25); /* Softer red */
-  --destructive-foreground: oklch(0.95 0.005 230);
-  
-  /* Success color - Emerald green for dark mode */
-  --success: oklch(0.65 0.14 160); /* Softer emerald */
-  --success-foreground: oklch(0.95 0.005 230);
-  
-  /* Warning color - Amber for dark mode */
-  --warning: oklch(0.70 0.14 70); /* Softer amber */
-  --warning-foreground: oklch(0.15 0.01 230);
-  
-  /* Borders and inputs */
-  --border: oklch(0.30 0.02 230); /* Dark blue-gray border */
-  --input: oklch(0.30 0.02 230); /* Matching input border */
-  --ring: oklch(0.70 0.14 230); /* Bright blue for focus */
-  
-  /* Chart colors - Adjusted for dark mode */
-  --chart-1: oklch(0.70 0.14 230); /* Primary blue */
-  --chart-2: oklch(0.65 0.14 160); /* Success green */
-  --chart-3: oklch(0.70 0.14 70); /* Warning amber */
-  --chart-4: oklch(0.50 0.08 230); /* Medium blue */
-  --chart-5: oklch(0.60 0.10 200); /* Lighter blue */
-  
-  /* Sidebar colors */
-  --sidebar: oklch(0.18 0.01 230); /* Slightly lighter than bg */
-  --sidebar-foreground: oklch(0.95 0.005 230);
-  --sidebar-primary: oklch(0.70 0.14 230); /* MACEAZY blue */
-  --sidebar-primary-foreground: oklch(0.95 0.005 230);
-  --sidebar-accent: oklch(0.25 0.02 230);
-  --sidebar-accent-foreground: oklch(0.95 0.005 230);
-  --sidebar-border: oklch(0.30 0.02 230);
-  --sidebar-ring: oklch(0.70 0.14 230);
 }
 
 @layer base {
