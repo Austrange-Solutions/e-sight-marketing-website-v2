@@ -169,7 +169,7 @@ export default function PrivacyContent() {
                   <div className="space-y-3">
                     <p><strong>When We Use Your Location:</strong></p>
                     <ul className="list-disc list-inside ml-4 space-y-1">
-                      <li>Only when you're actively using the app or during an emergency</li>
+                      <li>Only when you&apos;re actively using the app or during an emergency</li>
                       <li>Shared only with your approved caretakers</li>
                       <li>Never sold or shared with third parties</li>
                     </ul>
