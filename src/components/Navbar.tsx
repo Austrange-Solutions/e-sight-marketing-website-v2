@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useCart } from "@/contexts/CartContext";
+import { getDonateUrl, getMainDomainUrl, isDonateDomain as checkIsDonateDomain } from "@/lib/domainUtils";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ const Navbar = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
+  const [donateUrl, setDonateUrl] = useState('');
 
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
@@ -22,21 +24,13 @@ const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Detect if we're on donate subdomain
+  // Detect if we're on donate subdomain and get URLs
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      const isDonate = hostname.startsWith('donate.');
+      const isDonate = checkIsDonateDomain();
       setIsDonateDomain(isDonate);
-      
-      // Determine main domain URL
-      if (isDonate) {
-        // Remove 'donate.' from hostname
-        const mainHostname = hostname.replace('donate.', '');
-        const protocol = window.location.protocol;
-        const port = window.location.port ? `:${window.location.port}` : '';
-        setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
-      }
+      setDonateUrl(getDonateUrl());
+      setMainDomainUrl(getMainDomainUrl());
     }
   }, []);
 
@@ -202,10 +196,11 @@ const Navbar = () => {
 
               {/* Donate Button */}
               <a 
-                href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.'+process.env.NEXT_PUBLIC_HOSTNAME}
+                href={donateUrl || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1"
+                aria-label="Donate to support our cause"
               >
                 ❤️ Donate
               </a>
@@ -306,11 +301,12 @@ const Navbar = () => {
 
             {/* Mobile Donate Button */}
             <a 
-              href={process.env.NODE_ENV === 'development' ? 'http://localhost:3000/donate' : 'https://donate.maceazy.com'}
+              href={donateUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsOpen(false)}
               className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
+              aria-label="Donate to support our cause"
             >
               ❤️ Donate Now
             </a>

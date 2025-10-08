@@ -16,9 +16,7 @@ interface RazorpayOptions {
     email: string;
     contact: string;
   };
-  notes?: {
-    [key: string]: string;
-  };
+  notes?: Record<string, string>;
   theme: {
     color: string;
   };
@@ -175,6 +173,7 @@ export default function DonateButton({
       };
 
       // Open Razorpay checkout
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
     } catch (error) {

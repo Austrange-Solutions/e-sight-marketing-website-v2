@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2, Heart, Share2, Download, Home, ArrowRight } from "lucide-react";
@@ -18,7 +18,7 @@ interface DonationData {
   createdAt: string;
 }
 
-export default function DonationSuccessPage() {
+function DonationSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [donationData, setDonationData] = useState<DonationData | null>(null);
@@ -283,5 +283,22 @@ export default function DonationSuccessPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function DonationSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-primary/5 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading donation details...</p>
+          </div>
+        </div>
+      }
+    >
+      <DonationSuccessContent />
+    </Suspense>
   );
 }

@@ -1,12 +1,19 @@
 'use client';
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Shield, Navigation } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getDonateUrl } from "@/lib/domainUtils";
 
 const HomeHero = () => {
+  const [donateUrl, setDonateUrl] = useState('');
+
+  useEffect(() => {
+    // Get donate URL on client side to handle dynamic domains
+    setDonateUrl(getDonateUrl());
+  }, []);
   return (
     <section className="relative bg-gradient-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white min-h-[92vh] flex items-center overflow-hidden">
       {/* Animated background elements */}
@@ -99,13 +106,14 @@ const HomeHero = () => {
                 </Button>
               </Link>
               <a
-                href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.' + process.env.NEXT_PUBLIC_HOSTNAME}
+                href={donateUrl || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-rose-500 to-pink-600 text-white hover:from-rose-600 hover:to-pink-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
+                  disabled={!donateUrl}
                 >
                   Donate Now ❤️
                 </Button>
