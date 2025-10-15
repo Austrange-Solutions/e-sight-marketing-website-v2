@@ -2,6 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Eye, Navigation2, Battery, Wifi } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 const FeatureCards = () => {
   const features = [
@@ -13,8 +14,8 @@ const FeatureCards = () => {
     },
     {
       icon: <Navigation2 className="w-8 h-8" />,
-      title: "GPS Navigation",
-      description: "Turn-by-turn navigation with voice guidance",
+      title: "GPS Integration",
+      description: "Turn-by-turn directions with voice guidance",
     },
     {
       icon: <Battery className="w-8 h-8" />,
@@ -29,7 +30,7 @@ const FeatureCards = () => {
   ];
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-24 bg-accent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -37,10 +38,10 @@ const FeatureCards = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             Smart Features for Enhanced Mobility
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-muted-foreground">
             Advanced technology designed for independence
           </p>
         </motion.div>
@@ -53,13 +54,14 @@ const FeatureCards = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="text-indigo-600 mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600">{feature.description}</p>
+              <Card className="p-8 h-full border-border hover:border-primary hover:shadow-xl transition-all duration-300 group">
+                <div className="text-primary mb-4 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
+                <h3 className="text-xl font-bold text-foreground mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </Card>
             </motion.div>
           ))}
         </div>

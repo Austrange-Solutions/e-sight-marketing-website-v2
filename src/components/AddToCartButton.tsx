@@ -135,18 +135,18 @@ export default function AddToCartButton({
       {isOutOfStock || actualRemainingStock === 0 ? (
         <button
           disabled
-          className="w-full bg-gray-500 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold cursor-not-allowed text-sm sm:text-base"
+          className="w-full bg-muted text-muted-foreground py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold cursor-not-allowed text-sm sm:text-base"
         >
           {isOutOfStock ? 'Out of Stock' : 'All Items in Cart'}
         </button>
       ) : showQuantityControls ? (
         /* Quantity Controls with Add to Cart button */
         <div className="space-y-3">
-          <div className="flex items-center justify-between bg-gray-100 text-gray-900 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border">
+          <div className="flex items-center justify-between bg-accent text-foreground py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-border">
             <button
               onClick={handleDecrement}
               disabled={quantity <= 1}
-              className="flex-1 flex items-center justify-center text-gray-900 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg sm:text-xl font-bold py-1"
+              className="flex-1 flex items-center justify-center text-foreground hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg sm:text-xl font-bold py-1"
             >
               -
             </button>
@@ -154,7 +154,7 @@ export default function AddToCartButton({
             <button
               onClick={handleIncrement}
               disabled={currentCartQuantity + quantity >= maxQuantity || actualRemainingStock <= 0}
-              className="flex-1 flex items-center justify-center text-gray-900 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg sm:text-xl font-bold py-1"
+              className="flex-1 flex items-center justify-center text-foreground hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg sm:text-xl font-bold py-1"
               title={currentCartQuantity + quantity >= maxQuantity ? `Stock limit reached (${maxQuantity} max)` : actualRemainingStock <= 0 ? 'No more stock available' : 'Increase quantity'}
             >
               +
@@ -163,7 +163,7 @@ export default function AddToCartButton({
           <button
             onClick={() => checkAuthAndProceed(handleAddToCart, 'add item to cart')}
             disabled={isAdding || authLoading || !canAddToCart || actualRemainingStock < safeQuantity || currentCartQuantity + safeQuantity > maxQuantity}
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {isAdding ? (
               <span className="flex items-center justify-center">
@@ -194,7 +194,7 @@ export default function AddToCartButton({
         <button
           onClick={() => checkAuthAndProceed(handleAddToCart, 'add item to cart')}
           disabled={isAdding || authLoading || !canAddToCart}
-          className="w-full bg-indigo-600  hover:bg-indigo-700  text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
         >
           {isAdding ? (
             <span className="flex items-center justify-center">

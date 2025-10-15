@@ -11,14 +11,34 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
-  
+  const [isDonateDomain, setIsDonateDomain] = useState(false);
+  const [mainDomainUrl, setMainDomainUrl] = useState('');
+
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
   const user = session?.user;
   const { cart, cartCount, isLoading, removeFromCart, updateQuantity } = useCart();
-  
+
   const pathname = usePathname();
   const router = useRouter();
+
+  // Detect if we're on donate subdomain
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const isDonate = hostname.startsWith('donate.');
+      setIsDonateDomain(isDonate);
+      
+      // Determine main domain URL
+      if (isDonate) {
+        // Remove 'donate.' from hostname
+        const mainHostname = hostname.replace('donate.', '');
+        const protocol = window.location.protocol;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
+      }
+    }
+  }, []);
 
   // Dynamic nav items based on auth state
   const getNavItems = () => {
@@ -65,16 +85,26 @@ const Navbar = () => {
   };
 
   const removeItem = async (productId: string) => {
-  removeFromCart(productId);
+    removeFromCart(productId);
   };
 
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
-      router.push('/login?redirect=/checkout');
+      // If on donate subdomain, redirect to main domain for login
+      if (isDonateDomain) {
+        window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
+      } else {
+        router.push('/login?redirect=/checkout');
+      }
       return;
     }
     closeCart();
-    router.push("/checkout");
+    // If on donate subdomain, redirect to main domain for checkout
+    if (isDonateDomain) {
+      window.location.href = `${mainDomainUrl}/checkout`;
+    } else {
+      router.push("/checkout");
+    }
   };
 
   // Enhanced cart functions
@@ -121,64 +151,85 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed w-full bg-white shadow-md z-50">
+
+      <nav className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
                 <img
-                  src="/assets/images/e-sight-logo.png"
-                  alt="e-Kaathi Logo"
+                  src="/assets/images/maceazy-logo.png"
+                  alt="Maceazy Logo"
                   className="ml-2 h-8"
                 />
-                <span className="ml-2 text-xl font-bold text-gray-900">
-                  e-Kaathi
-                </span>
               </Link>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-                    pathname === item.path
-                      ? "text-indigo-600"
-                      : "text-gray-600 hover:text-indigo-600"
-                  }`}
-                >
-                  {pathname === item.path && (
-                    <motion.div
-                      layoutId="underline"
-                      className="absolute left-0 right-0 bottom-0 h-0.5 bg-indigo-600"
-                    />
-                  )}
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                // If on donate subdomain, link to main domain
+                const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
+                const isExternal = isDonateDomain;
+                
+                return isExternal ? (
+                  <a
+                    key={item.path}
+                    href={href}
+                    className="relative px-3 py-2 text-sm font-medium transition-colors duration-200 text-muted-foreground hover:text-primary"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.path}
+                    href={href}
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname === item.path
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-primary"
+                      }`}
+                  >
+                    {pathname === item.path && (
+                      <motion.div
+                        layoutId="underline"
+                        className="absolute left-0 right-0 bottom-0 h-0.5 bg-primary"
+                      />
+                    )}
+                    {item.label}
+                  </Link>
+                );
+              })}
+
+              {/* Donate Button */}
+              <a 
+                href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.'+process.env.NEXT_PUBLIC_HOSTNAME}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1"
+              >
+                ❤️ Donate
+              </a>
 
               {/* Auth Status */}
               {isAuthenticated && user && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <User className="w-4 h-4" />
                   <span>Hi, {user.name || user.email}</span>
-                  {/* <button onClick={() => signOut()} className="ml-2 text-xs text-indigo-600 underline">Logout</button> */}
+                  {/* <button onClick={() => signOut()} className="ml-2 text-xs text-primary underline">Logout</button> */}
                 </div>
               )}
 
               {/* Cart Button */}
               <button
                 onClick={() => openCart()}
-                className="cart-button relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ShoppingCart size={22} />
                 {totalQuantity > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center"
+                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center"
                   >
                     {totalQuantity}
                   </motion.span>
@@ -190,14 +241,14 @@ const Navbar = () => {
             <div className="md:hidden flex items-center space-x-2">
               <button
                 onClick={() => openCart()}
-                className="cart-button relative p-2 rounded-md text-gray-600 hover:text-indigo-600 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ShoppingCart size={22} />
                 {totalQuantity > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center"
+                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-1 min-w-5 h-5 flex items-center justify-center"
                   >
                     {totalQuantity}
                   </motion.span>
@@ -205,7 +256,7 @@ const Navbar = () => {
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus:outline-none"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -221,29 +272,54 @@ const Navbar = () => {
             open: { opacity: 1, height: "auto" },
             closed: { opacity: 0, height: 0 },
           }}
-          className="md:hidden overflow-hidden bg-white"
+          className="md:hidden overflow-hidden bg-background border-b border-border"
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  pathname === item.path
-                    ? "text-indigo-600 bg-indigo-50"
-                    : "text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-            
+            {navItems.map((item) => {
+              // If on donate subdomain, link to main domain
+              const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
+              const isExternal = isDonateDomain;
+              
+              return isExternal ? (
+                <a
+                  key={item.path}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.path}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === item.path
+                      ? "text-primary bg-accent"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent"
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            {/* Mobile Donate Button */}
+            <a 
+              href={process.env.NODE_ENV === 'development' ? 'http://localhost:3000/donate' : 'https://donate.maceazy.com'}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsOpen(false)}
+              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
+            >
+              ❤️ Donate Now
+            </a>
+
             {/* Mobile Auth Status */}
             {isAuthenticated && user && (
-              <div className="px-3 py-2 text-sm text-gray-600 border-t">
+              <div className="px-3 py-2 text-sm text-muted-foreground border-t border-border">
                 Welcome, {user.name || user.email}
-                <button onClick={() => signOut()} className="ml-2 text-xs text-indigo-600 underline">Logout</button>
+                <button onClick={() => signOut()} className="ml-2 text-xs text-primary underline">Logout</button>
               </div>
             )}
           </div>
@@ -273,27 +349,27 @@ const Navbar = () => {
               WebkitBackdropFilter: 'blur(12px) saturate(180%)', // Safari support
             }}
           />
-          
+
           {/* Cart Drawer */}
           <motion.div
             initial={{ x: "100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 300, 
+            transition={{
+              type: "spring",
+              stiffness: 300,
               damping: 30,
               opacity: { duration: 0.2 }
             }}
-            className="cart-drawer relative w-full sm:w-96 bg-white h-full shadow-2xl flex flex-col z-10"
+            className="cart-drawer relative w-full sm:w-96 bg-card h-full shadow-2xl flex flex-col z-10 border-l border-border"
           >
             {/* Header with Enhanced Close Button */}
-            <div className="p-4 flex justify-between items-center border-b bg-gray-50">
-              <motion.h2 
+            <div className="p-4 flex justify-between items-center border-b border-border bg-accent/50">
+              <motion.h2
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="text-lg font-semibold text-gray-800"
+                className="text-lg font-semibold text-foreground"
               >
                 My Cart ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})
               </motion.h2>
@@ -301,7 +377,7 @@ const Navbar = () => {
                 onClick={closeCart}
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 transition-all"
+                className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-accent transition-all"
               >
                 <X size={24} />
               </motion.button>
@@ -310,7 +386,7 @@ const Navbar = () => {
             {/* Enhanced Cart Items with Stagger Animation */}
             <div className="flex-1 overflow-y-auto p-4">
               {!isAuthenticated ? (
-                <motion.div 
+                <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
@@ -321,28 +397,28 @@ const Navbar = () => {
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, type: "spring" }}
                   >
-                    <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   </motion.div>
-                  <p className="text-gray-500 mb-4">Please login to view your cart</p>
+                  <p className="text-muted-foreground mb-4">Please login to view your cart</p>
                   <button
                     onClick={() => { signIn(); closeCart(); }}
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all hover:scale-105"
+                    className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all hover:scale-105"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
                     Login
                   </button>
                 </motion.div>
               ) : isLoading ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                  <p className="text-gray-500">Loading your cart...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Loading your cart...</p>
                 </motion.div>
               ) : cart.length === 0 ? (
-                <motion.div 
+                <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
@@ -353,20 +429,20 @@ const Navbar = () => {
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, type: "spring" }}
                   >
-                    <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   </motion.div>
-                  <p className="text-gray-500">Your cart is empty</p>
+                  <p className="text-muted-foreground">Your cart is empty</p>
                   <motion.button
                     onClick={closeCart}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="mt-4 px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                    className="mt-4 px-4 py-2 text-primary hover:bg-accent rounded-lg transition-all"
                   >
                     Continue Shopping
                   </motion.button>
                 </motion.div>
               ) : (
-                <motion.div 
+                <motion.div
                   initial="hidden"
                   animate="visible"
                   variants={{
@@ -391,7 +467,7 @@ const Navbar = () => {
                     >
                       <motion.div
                         whileHover={{ scale: 1.02 }}
-                        className="flex items-center gap-4 border rounded-lg p-3 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden"
+                        className="flex items-center gap-4 border border-border rounded-lg p-3 bg-card shadow-sm hover:shadow-md transition-all relative overflow-hidden"
                       >
                         {/* Product Image */}
                         <div className="relative">
@@ -404,67 +480,67 @@ const Navbar = () => {
                             }}
                           />
                         </div>
-                        
+
                         {/* Product Info */}
                         <div className="flex-1">
-                          <h3 className="font-medium text-gray-900 line-clamp-1">
+                          <h3 className="font-medium text-foreground line-clamp-1">
                             {item.name || 'Unknown Product'}
                           </h3>
-                          <p className="text-sm text-gray-600">₹{item.price || 0}</p>
-                          
+                          <p className="text-sm text-muted-foreground">₹{item.price || 0}</p>
+
                           {/* Stock Information */}
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-muted-foreground mt-1">
                             {item.stock <= 5 ? (
-                              <span className="text-orange-600 font-medium">
+                              <span className="text-[oklch(0.75_0.15_70)] font-medium">
                                 Only {item.stock} left in stock
                               </span>
                             ) : (
                               <span>{item.stock} in stock</span>
                             )}
                           </div>
-                          
+
                           {/* Enhanced Quantity Controls */}
                           <div className="flex items-center gap-3 mt-2">
                             <motion.button
                               onClick={() => decreaseQty(item.productId)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+                              className="p-1.5 rounded-full bg-accent hover:bg-accent/80 transition-all"
                             >
                               <Minus size={14} />
                             </motion.button>
-                            
-                            <motion.span 
+
+                            <motion.span
                               key={item.quantity}
                               initial={{ scale: 1.2 }}
                               animate={{ scale: 1 }}
-                              className="min-w-8 text-center font-medium"
+                              className="min-w-8 text-center font-medium text-foreground"
                             >
                               {item.quantity || 0}
                             </motion.span>
-                            
+
                             <motion.button
                               onClick={() => increaseQty(item.productId)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+                              className="p-1.5 rounded-full bg-accent hover:bg-accent/80 transition-all"
                               title={item.quantity >= item.stock ? `Stock limit reached (${item.stock})` : ''}
                             >
                               <Plus size={14} />
                             </motion.button>
                           </div>
                         </div>
-                        
+
                         {/* Enhanced Delete Button */}
                         <motion.button
                           onClick={() => removeItem(item.productId)}
                           whileHover={{ scale: 1.1, rotate: 10 }}
                           whileTap={{ scale: 0.9 }}
-                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all"
+                          className="text-destructive hover:text-destructive/80 p-2 rounded-full hover:bg-destructive/10 transition-all"
                         >
                           <Trash2 size={16} />
                         </motion.button>
-                        
+
                         {/* ...existing code... */}
                       </motion.div>
                     </motion.div>
@@ -475,38 +551,39 @@ const Navbar = () => {
 
             {/* Enhanced Footer with Proceed to Pay Animation */}
             {isAuthenticated && cart.length > 0 && (
-              <motion.div 
+              <motion.div
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="border-t bg-gray-50 p-4"
+                className="border-t border-border bg-accent/30 p-4"
               >
                 {/* Price Summary */}
                 <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Items ({totalQuantity}):</span>
                     <span>₹{totalPrice.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between font-semibold text-lg">
+                  <div className="flex justify-between font-semibold text-lg text-foreground">
                     <span>Total:</span>
                     <motion.span
                       key={totalPrice}
-                      initial={{ scale: 1.1, color: "#10b981" }}
-                      animate={{ scale: 1, color: "#374151" }}
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
                       transition={{ duration: 0.3 }}
+                      className="text-primary"
                     >
                       ₹{totalPrice.toFixed(2)}
                     </motion.span>
                   </div>
                 </div>
-                
+
                 {/* Enhanced Proceed to Pay Button */}
-                <motion.button 
+                <motion.button
                   onClick={handleCartCheckout}
                   disabled={cart.length === 0 || updating !== null}
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
+                  className="w-full bg-gradient-to-r from-primary to-[oklch(0.35_0.08_230)] text-primary-foreground py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
                 >
                   <motion.div
                     className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity"
@@ -526,10 +603,10 @@ const Navbar = () => {
                           className="flex items-center"
                         >
                           Proceed to Pay
-                          <motion.svg 
-                            className="w-5 h-5 ml-2" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <motion.svg
+                            className="w-5 h-5 ml-2"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                             whileHover={{ x: 3 }}
                           >

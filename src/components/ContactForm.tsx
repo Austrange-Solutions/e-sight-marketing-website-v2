@@ -81,9 +81,9 @@ const ContactForm = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-2xl shadow-lg p-8"
+      className="bg-card rounded-2xl shadow-lg p-8 border border-border"
     >
-      <h2 className="text-3xl font-bold text-gray-900 mb-8">
+      <h2 className="text-3xl font-bold text-foreground mb-8">
         Send us a Message
       </h2>
 
@@ -96,12 +96,12 @@ const ContactForm = () => {
             value={formState.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 peer"
+            className="w-full px-4 py-3 border-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 peer bg-background"
             placeholder=" "
           />
           <label
             htmlFor="name"
-            className="absolute left-4 top-3 text-gray-500 transition-all duration-200 -translate-y-7 bg-white px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-white"
+            className="absolute left-4 top-3 text-muted-foreground transition-all duration-200 -translate-y-7 bg-card px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-card"
           >
             Your Name
           </label>
@@ -115,12 +115,12 @@ const ContactForm = () => {
             value={formState.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 peer"
+            className="w-full px-4 py-3 border-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 peer bg-background"
             placeholder=" "
           />
           <label
             htmlFor="email"
-            className="absolute left-4 top-3 text-gray-500 transition-all duration-200 -translate-y-7 bg-white px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-white"
+            className="absolute left-4 top-3 text-muted-foreground transition-all duration-200 -translate-y-7 bg-card px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-card"
           >
             Email Address
           </label>
@@ -133,7 +133,7 @@ const ContactForm = () => {
             value={formState.subject}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200"
+            className="w-full px-4 py-3 border-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 bg-background text-foreground"
           >
             <option value="">Select a Subject</option>
             <option value="general">General Inquiry</option>
@@ -150,12 +150,12 @@ const ContactForm = () => {
             onChange={handleChange}
             required
             rows={4}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 peer"
+            className="w-full px-4 py-3 border-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 peer bg-background"
             placeholder=" "
           ></textarea>
           <label
             htmlFor="message"
-            className="absolute left-4 top-3 text-gray-500 transition-all duration-200 -translate-y-7 bg-white px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-white"
+            className="absolute left-4 top-3 text-muted-foreground transition-all duration-200 -translate-y-7 bg-card px-2 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:bg-transparent peer-focus:-translate-y-7 peer-focus:bg-card"
           >
             Your Message
           </label>
@@ -165,12 +165,12 @@ const ContactForm = () => {
           type="submit"
           className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors duration-200 ${
             formStatus === "success"
-              ? "bg-green-500"
+              ? "bg-[oklch(0.70_0.15_160)]"
               : formStatus === "error"
-              ? "bg-red-500"
+              ? "bg-destructive"
               : formStatus === "submitting"
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700"
+              ? "bg-muted cursor-not-allowed"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {formStatus === "success"

@@ -1,4 +1,6 @@
 import AddToCartButton from './AddToCartButton';
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface Product {
   _id: string;
@@ -69,31 +71,31 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className={`bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] flex flex-col h-full w-full relative overflow-hidden ${isOutOfStock ? 'bg-gray-100' : ''}`}>
+    <Card className={`flex flex-col h-full w-full relative overflow-hidden border-border hover:border-primary transition-all duration-300 transform hover:scale-[1.02] ${isOutOfStock ? 'bg-muted' : ''}`}>
       {/* Type Badge - Mobile Optimized */}
       {product.type && !isOutOfStock && (
         <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 z-10">
-          <span className="bg-blue-600 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm font-semibold shadow-md">
+          <Badge className="bg-primary text-primary-foreground shadow-md">
             {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
-          </span>
+          </Badge>
         </div>
       )}
 
       {/* Status Badge - Only show when out of stock */}
       {isOutOfStock && (
         <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
-          <span className="bg-red-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-md text-xs sm:text-sm font-semibold">
+          <Badge variant="destructive">
             Out of Stock
-          </span>
+          </Badge>
         </div>
       )}
 
       {/* Out of Stock Overlay - Mobile Optimized */}
       {isOutOfStock && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-          <div className="bg-red-500 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold text-xs sm:text-sm md:text-base shadow-lg">
+          <Badge variant="destructive" className="px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 font-bold text-xs sm:text-sm md:text-base shadow-lg">
             OUT OF STOCK
-          </div>
+          </Badge>
         </div>
       )}
 
@@ -110,29 +112,29 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Content Section - Mobile Optimized */}
       <div className="p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col flex-grow">
         {/* Product Name - Mobile Optimized */}
-        <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-2 sm:mb-3 text-center line-clamp-2">{product.name}</h3>
+        <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-foreground mb-2 sm:mb-3 text-center line-clamp-2">{product.name}</h3>
         
         {/* Rating - Mobile Optimized */}
         <div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
           <div className="flex mr-2">
             {renderStars()}
           </div>
-          <span className="text-gray-500 text-xs sm:text-sm">({rating.toFixed(1)}) • 128 reviews</span>
+          <span className="text-muted-foreground text-xs sm:text-sm">({rating.toFixed(1)}) • 128 reviews</span>
         </div>
 
         {/* Price - Mobile Optimized */}
         <div className="text-center mb-3 sm:mb-4 md:mb-5">
-          <div className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">₹{product.price.toLocaleString()}</div>
+          <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">₹{product.price.toLocaleString()}</div>
         </div>
 
         {/* Stock Information - Mobile Optimized */}
         <div className="text-center mb-3 sm:mb-4 md:mb-5">
           <div className={`text-xs sm:text-sm md:text-base font-medium ${
             remainingStock === 0 
-              ? 'text-red-600' 
+              ? 'text-destructive' 
               : remainingStock <= 3 
-                ? 'text-orange-600' 
-                : 'text-green-600'
+                ? 'text-[oklch(0.75_0.15_70)]' 
+                : 'text-[oklch(0.70_0.15_160)]'
           }`}>
             {remainingStock === 0 
               ? 'Out of Stock'
@@ -145,16 +147,16 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* Key Features - Mobile Optimized */}
         <div className="mb-3 sm:mb-4 md:mb-5 flex-grow">
-          <h4 className="font-semibold text-gray-900 mb-2 text-left text-xs sm:text-sm md:text-base">Key Features:</h4>
+          <h4 className="font-semibold text-foreground mb-2 text-left text-xs sm:text-sm md:text-base">Key Features:</h4>
           <ul className="space-y-1 text-left">
             {product.details && product.details.length > 0 ? product.details.slice(0, 3).map((point, index) => (
-              <li key={index} className="flex items-start text-xs sm:text-sm text-gray-600">
-                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-gray-400 rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 flex-shrink-0"></span>
+              <li key={index} className="flex items-start text-xs sm:text-sm text-muted-foreground">
+                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-muted-foreground rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 flex-shrink-0"></span>
                 <span className="line-clamp-2">{point}</span>
               </li>
             )) : (
-              <li className="flex items-start text-xs sm:text-sm text-gray-600">
-                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-gray-400 rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 flex-shrink-0"></span>
+              <li className="flex items-start text-xs sm:text-sm text-muted-foreground">
+                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-muted-foreground rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 flex-shrink-0"></span>
                 <span className="line-clamp-2">No details available</span>
               </li>
             )}
@@ -176,6 +178,6 @@ export default function ProductCard({ product }: { product: Product }) {
           isOutOfStock={isOutOfStock}
         />
       </div>
-    </div>
+    </Card>
   );
 }

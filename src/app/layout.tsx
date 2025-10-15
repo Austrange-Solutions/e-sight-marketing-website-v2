@@ -11,8 +11,17 @@ import { getServerCart, ServerCartItem } from "@/lib/server/cart";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
-  title: "E-sight, Your Path, Your Freedom",
-  description: "Experience independence with e-Sight's revolutionary smart blind stick.",
+  title: "Maceazy - Making Life easier, For the Disabled",
+  description: "Experience independence with Maceazy's revolutionary smart blind stick.",
+  icons: {
+    icon: '/favicon.ico', // You can change this to point to your custom icon
+    // Or use multiple sizes:
+    // icon: [
+    //   { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    //   { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    // ],
+    // apple: '/apple-touch-icon.png', // For Apple devices
+  },
 };
 
 export default async function RootLayout({

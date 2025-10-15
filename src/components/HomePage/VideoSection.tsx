@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const VideoSection = () => {
   return (
-    <section className="py-24 bg-gray-100">
+    <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -12,10 +12,10 @@ const VideoSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             See More Info on Youtube
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-muted-foreground">
             Watch our informational video to learn more about e-Kaathi
           </p>
         </motion.div>
@@ -24,7 +24,7 @@ const VideoSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-2xl shadow-xl mx-auto"
+          className="relative overflow-hidden rounded-2xl shadow-xl mx-auto border border-border"
           style={{
             paddingTop: "56.25%" /* 16:9 aspect ratio */,
             maxWidth: "80%",

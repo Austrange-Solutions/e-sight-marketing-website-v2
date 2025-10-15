@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Custom utilities */
 .line-clamp-3 {
@@ -15,4 +16,118 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  /* MACEAZY Brand Theme - Light Mode */
+  --radius: 0.625rem;
+  
+  /* Base colors - Clean white backgrounds */
+  --background: oklch(1 0 0); /* Pure white */
+  --foreground: oklch(0.20 0.01 230); /* Near-black with blue tint */
+  
+  /* Card colors */
+  --card: oklch(1 0 0); /* White cards */
+  --card-foreground: oklch(0.20 0.01 230);
+  
+  /* Popover colors */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.01 230);
+  
+  /* Primary brand color - Light Blue (#1B9BD8) */
+  --primary: oklch(0.65 0.14 230); /* Bright MACEAZY blue */
+  --primary-foreground: oklch(1 0 0); /* White text on blue */
+  
+  /* Secondary brand color - Navy Blue (#0C5277) */
+  --secondary: oklch(0.88 0.01 230); /* Light blue-gray for backgrounds */
+  --secondary-foreground: oklch(0.35 0.08 230); /* Navy blue text */
+  
+  /* Muted colors */
+  --muted: oklch(0.96 0.005 230); /* Very light blue-gray */
+  --muted-foreground: oklch(0.50 0.02 230); /* Medium gray-blue */
+  
+  /* Accent colors - For special highlights */
+  --accent: oklch(0.92 0.02 230); /* Light blue accent */
+  --accent-foreground: oklch(0.35 0.08 230); /* Navy blue */
+  
+  /* Destructive/Error - Modern red */
+  --destructive: oklch(0.65 0.22 25); /* Modern red (#EF4444) */
+  --destructive-foreground: oklch(1 0 0);
+  
+  /* Success color - Modern emerald green */
+  --success: oklch(0.70 0.15 160); /* Emerald green (#10B981) */
+  --success-foreground: oklch(1 0 0);
+  
+  /* Warning color - Modern amber */
+  --warning: oklch(0.75 0.15 70); /* Amber (#F59E0B) */
+  --warning-foreground: oklch(0.20 0.01 230);
+  
+  /* Borders and inputs */
+  --border: oklch(0.90 0.005 230); /* Light blue-gray border */
+  --input: oklch(0.90 0.005 230); /* Matching input border */
+  --ring: oklch(0.65 0.14 230); /* Primary blue for focus rings */
+  
+  /* Chart colors - Brand-aligned palette */
+  --chart-1: oklch(0.65 0.14 230); /* Primary blue */
+  --chart-2: oklch(0.70 0.15 160); /* Success green */
+  --chart-3: oklch(0.75 0.15 70); /* Warning amber */
+  --chart-4: oklch(0.35 0.08 230); /* Navy blue */
+  --chart-5: oklch(0.60 0.12 200); /* Lighter blue */
+  
+  /* Sidebar colors */
+  --sidebar: oklch(0.98 0.005 230); /* Very light blue-gray */
+  --sidebar-foreground: oklch(0.20 0.01 230);
+  --sidebar-primary: oklch(0.65 0.14 230); /* MACEAZY blue */
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.92 0.02 230);
+  --sidebar-accent-foreground: oklch(0.35 0.08 230);
+  --sidebar-border: oklch(0.90 0.005 230);
+  --sidebar-ring: oklch(0.65 0.14 230);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

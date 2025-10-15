@@ -113,7 +113,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
       case 'processing': return 'bg-yellow-100 text-yellow-800';
       case 'confirmed': return 'bg-purple-100 text-purple-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-accent text-gray-800';
     }
   };
 
@@ -122,7 +122,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
   return (
     <div>
       <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <h3 className="text-lg font-medium text-gray-900">Orders Management</h3>
+        <h3 className="text-lg font-medium text-foreground">Orders Management</h3>
         <div className="text-sm text-gray-500">
           Total: {orders.length}
         </div>
@@ -133,9 +133,9 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
         {orderStatuses.map(status => {
           const count = orders.filter(order => order.status === status).length;
           return (
-            <div key={status} className="bg-white p-2 sm:p-3 rounded-lg border border-gray-200">
+            <div key={status} className="bg-card p-2 sm:p-3 rounded-lg border border-border">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{status}</p>
-              <p className="mt-1 text-lg sm:text-2xl font-semibold text-gray-900">{count}</p>
+              <p className="mt-1 text-lg sm:text-2xl font-semibold text-foreground">{count}</p>
             </div>
           );
         })}
@@ -144,10 +144,10 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
       {/* Mobile Card View */}
       <div className="block lg:hidden space-y-4">
         {orders.map((order) => (
-          <div key={order._id} className="bg-white border rounded-lg p-4 shadow-sm">
+          <div key={order._id} className="bg-card border rounded-lg p-4 shadow-sm">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h4 className="font-medium text-gray-900">#{order.orderNumber}</h4>
+                <h4 className="font-medium text-foreground">#{order.orderNumber}</h4>
                 <p className="text-xs text-gray-500">
                   {new Date(order.createdAt).toLocaleDateString('en-IN', {
                     year: 'numeric',
@@ -161,7 +161,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setSelectedOrder(order)}
-                  className="text-indigo-600 hover:text-indigo-900"
+                  className="text-primary hover:text-primary/90"
                 >
                   <Eye size={16} />
                 </button>
@@ -170,22 +170,22 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
             
             <div className="space-y-2 text-sm">
               <div>
-                <span className="font-medium text-gray-700">Customer:</span>
-                <div className="text-gray-600">
+                <span className="font-medium text-foreground">Customer:</span>
+                <div className="text-muted-foreground">
                   {order.customer.username} - {order.customer.phone}
                 </div>
               </div>
               
               <div>
-                <span className="font-medium text-gray-700">Items:</span>
-                <div className="text-gray-600">
+                <span className="font-medium text-foreground">Items:</span>
+                <div className="text-muted-foreground">
                   {order.items.length} item{order.items.length > 1 ? 's' : ''} - ₹{order.totalAmount.toLocaleString()}
                 </div>
               </div>
               
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-medium text-gray-700">Payment:</span>
+                  <span className="font-medium text-foreground">Payment:</span>
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
                     order.paymentInfo.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                   }`}>
@@ -201,7 +201,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   }`}
                 >
                   {orderStatuses.map(status => (
-                    <option key={status} value={status} className="bg-white text-gray-900">
+                    <option key={status} value={status} className="bg-card text-foreground">
                       {status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
                   ))}
@@ -213,10 +213,10 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
       </div>
       
       {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="hidden lg:block bg-card rounded-lg border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-accent">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Order Details
@@ -241,11 +241,11 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-card divide-y divide-gray-200">
               {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-50">
+                <tr key={order._id} className="hover:bg-accent">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">#{order.orderNumber}</div>
+                    <div className="text-sm font-medium text-foreground">#{order.orderNumber}</div>
                     <div className="text-xs text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString('en-IN', {
                         year: 'numeric',
@@ -257,12 +257,12 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{order.customer.username}</div>
+                    <div className="text-sm font-medium text-foreground">{order.customer.username}</div>
                     <div className="text-xs text-gray-500">{order.customer.email}</div>
                     <div className="text-xs text-gray-500">{order.customer.phone}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-foreground">
                       {order.items.length} item{order.items.length > 1 ? 's' : ''}
                     </div>
                     <div className="text-xs text-gray-500">
@@ -270,8 +270,8 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">₹{order.totalAmount.toLocaleString()}</div>
-                    <div className="text-xs text-gray-600 mt-1">
+                    <div className="text-sm font-medium text-foreground">₹{order.totalAmount.toLocaleString()}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
                       <div className="flex justify-between items-center">
                         <span>Delivery:</span>
                         <span className="font-medium text-blue-600">₹{order.orderSummary.deliveryCharges}</span>
@@ -306,7 +306,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                       }`}
                     >
                       {orderStatuses.map(status => (
-                        <option key={status} value={status} className="bg-white text-gray-900">
+                        <option key={status} value={status} className="bg-card text-foreground">
                           {status.charAt(0).toUpperCase() + status.slice(1)}
                         </option>
                       ))}
@@ -315,7 +315,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => setSelectedOrder(order)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-2"
+                      className="text-primary hover:text-primary/90 mr-2"
                     >
                       <Eye size={16} />
                     </button>
@@ -337,12 +337,12 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
       {/* Order Details Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-card">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Order Details - #{selectedOrder.orderNumber}</h3>
+              <h3 className="text-lg font-medium text-foreground">Order Details - #{selectedOrder.orderNumber}</h3>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-muted-foreground"
               >
                 ✕
               </button>
@@ -351,8 +351,8 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Customer Information */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Customer Information</h4>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                <h4 className="font-medium text-foreground mb-2">Customer Information</h4>
+                <div className="bg-accent p-3 rounded-lg text-sm">
                   <p><strong>Name:</strong> {selectedOrder.customer.username}</p>
                   <p><strong>Email:</strong> {selectedOrder.customer.email}</p>
                   <p><strong>Phone:</strong> {selectedOrder.customer.phone}</p>
@@ -361,8 +361,8 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
 
               {/* Shipping Address */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Shipping Address</h4>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                <h4 className="font-medium text-foreground mb-2">Shipping Address</h4>
+                <div className="bg-accent p-3 rounded-lg text-sm">
                   <p><strong>{selectedOrder.shippingAddress.name}</strong></p>
                   <p>{selectedOrder.shippingAddress.address}</p>
                   {selectedOrder.shippingAddress.addressLine2 && <p>{selectedOrder.shippingAddress.addressLine2}</p>}
@@ -384,10 +384,10 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
 
             {/* Order Items */}
             <div className="mt-6">
-              <h4 className="font-medium text-gray-900 mb-2">Order Items</h4>
-              <div className="bg-gray-50 rounded-lg overflow-hidden">
+              <h4 className="font-medium text-foreground mb-2">Order Items</h4>
+              <div className="bg-accent rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-100">
+                  <thead className="bg-accent">
                     <tr>
                       <th className="px-4 py-2 text-left">Product</th>
                       <th className="px-4 py-2 text-left">Price</th>
@@ -397,7 +397,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
                   </thead>
                   <tbody>
                     {selectedOrder.items.map((item, index) => (
-                      <tr key={index} className="border-t border-gray-200">
+                      <tr key={index} className="border-t border-border">
                         <td className="px-4 py-2">{item.name}</td>
                         <td className="px-4 py-2">₹{item.price.toLocaleString()}</td>
                         <td className="px-4 py-2">{item.quantity}</td>
@@ -413,7 +413,7 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Delivery Validation Info */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Delivery Validation</h4>
+                <h4 className="font-medium text-foreground mb-2">Delivery Validation</h4>
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -443,8 +443,8 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
               </div>
 
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Payment Information</h4>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                <h4 className="font-medium text-foreground mb-2">Payment Information</h4>
+                <div className="bg-accent p-3 rounded-lg text-sm">
                   <p><strong>Method:</strong> {selectedOrder.paymentInfo.method.toUpperCase()}</p>
                   <p><strong>Status:</strong> {selectedOrder.paymentInfo.status}</p>
                   {selectedOrder.paymentInfo.razorpayPaymentId && (
@@ -459,8 +459,8 @@ export default function OrdersManagement({ orders, onRefresh }: OrdersManagement
 
             {/* Financial Summary */}
             <div className="mt-6">
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-3">Financial Breakdown</h4>
+              <div className="bg-card border border-border rounded-lg p-4">
+                <h4 className="font-medium text-foreground mb-3">Financial Breakdown</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <div className="space-y-2 text-sm">

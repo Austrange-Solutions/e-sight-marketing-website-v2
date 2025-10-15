@@ -13,10 +13,10 @@ export default function OrdersPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-accent flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Redirecting to your profile page...</p>
+        <p className="mt-4 text-muted-foreground">Redirecting to your profile page...</p>
       </div>
     </div>
   );

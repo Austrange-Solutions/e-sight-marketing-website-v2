@@ -106,14 +106,14 @@ export default function LoginPage() {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
+    <div className="min-h-screen bg-accent flex items-center justify-center py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Header */}
         <div>
-          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-foreground">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-muted-foreground">
             Welcome back! Please enter your details
           </p>
         </div>
@@ -124,7 +124,7 @@ export default function LoginPage() {
             <p>Welcome {session.user?.name}</p>
             <button
               onClick={() => signOut()}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              className="px-4 py-2 bg-red-500 text-primary-foreground rounded-md hover:bg-destructive/90"
             >
               Logout
             </button>
@@ -141,37 +141,37 @@ export default function LoginPage() {
             >
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Email Address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <input
                     type="email"
-                    className="block w-full px-3 py-2 pl-10 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full px-3 py-2 pl-10 border border-border rounded-md focus:ring-ring focus:border-primary sm:text-sm bg-background text-foreground"
                     placeholder="Enter your email"
                     value={user.email}
                     onChange={(e) => setUser({ ...user, email: e.target.value })}
                   />
                 </div>
-                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
-                {backendErrors.email && <p className="text-red-500 text-xs">{backendErrors.email}</p>}
+                {errors.email && <p className="text-destructive text-xs">{errors.email}</p>}
+                {backendErrors.email && <p className="text-destructive text-xs">{backendErrors.email}</p>}
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="block w-full px-3 py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full px-3 py-2 pl-10 pr-10 border border-border rounded-md focus:ring-ring focus:border-primary sm:text-sm bg-background text-foreground"
                     placeholder="Enter your password"
                     value={user.password}
                     onChange={(e) => setUser({ ...user, password: e.target.value })}
@@ -182,14 +182,14 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
+                      <EyeOff className="h-5 w-5 text-muted-foreground" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
+                      <Eye className="h-5 w-5 text-muted-foreground" />
                     )}
                   </button>
                 </div>
-                {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
-                {backendErrors.password && <p className="text-red-500 text-xs">{backendErrors.password}</p>}
+                {errors.password && <p className="text-destructive text-xs">{errors.password}</p>}
+                {backendErrors.password && <p className="text-destructive text-xs">{backendErrors.password}</p>}
               </div>
 
               {/* Remember + Forgot */}
@@ -200,13 +200,13 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={() => setRememberMe(!rememberMe)}
-                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                    className="h-4 w-4 text-primary border-border rounded"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                     Remember me
                   </label>
                 </div>
-                <Link href="/forgotpassword" className="text-sm text-indigo-600 hover:text-indigo-500">
+                <Link href="/forgotpassword" className="text-sm text-primary hover:text-primary/90">
                   Forgot your password?
                 </Link>
               </div>
@@ -215,7 +215,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={buttonDisabled || loading}
-                className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>
@@ -224,10 +224,10 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-100 text-gray-500">Or continue with</span>
+                <span className="px-2 bg-accent text-muted-foreground">Or continue with</span>
               </div>
             </div>
 
@@ -237,7 +237,7 @@ export default function LoginPage() {
                 onClick={async () => {
                   const res = await signIn("google", { callbackUrl: "/" });
                 }}
-                className="w-full py-2 px-4 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50"
+                className="w-full py-2 px-4 border border-border rounded-md bg-card text-foreground hover:bg-accent"
               >
                 Login with Google
               </button>
@@ -248,16 +248,16 @@ export default function LoginPage() {
                     password: "mynameismeet",
                   })
                 }
-                className="w-full py-2 px-4 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50"
+                className="w-full py-2 px-4 border border-border rounded-md bg-card text-foreground hover:bg-accent"
               >
                 Login with Test Credentials
               </button> */}
             </div>
 
             {/* Signup link */}
-            <p className="mt-4 text-center text-sm text-gray-600">
+            <p className="mt-4 text-center text-sm text-muted-foreground">
               Don’t have an account?{" "}
-              <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/signup" className="font-medium text-primary hover:text-primary/90">
                 Create a new account
               </Link>
             </p>
