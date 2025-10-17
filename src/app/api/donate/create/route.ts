@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect as dbConnect } from "@/dbConfig/dbConfig";
 import Donation from "@/models/Donation";
-import Razorpay from "razorpay";
+import { Cashfree, CFEnvironment } from "cashfree-pg";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
+// Initialize Cashfree
+const cashfree = new Cashfree(
+  process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
+    ? CFEnvironment.PRODUCTION 
+    : CFEnvironment.SANDBOX,
+  process.env.CASHFREE_APP_ID!,
+  process.env.CASHFREE_SECRET_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,23 +34,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create Razorpay order
-    const options = {
-      amount: Math.round(amount * 100), // amount in paise
-      currency: "INR",
-      receipt: `donation_${Date.now()}`,
-      notes: {
-        donorName: name,
-        donorEmail: email,
-        donorPhone: phone,
-        sticksEquivalent: (amount / 1499).toFixed(2),
-      },
-    };
-
-    const order = await razorpay.orders.create(options);
-
     // Calculate sticks equivalent
     const sticksEquivalent = amount / 1499;
+
+    // Generate unique order ID
+    const orderId = `donation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    // Create Cashfree order
+    const orderRequest = {
+      order_id: orderId,
+      order_amount: parseFloat(amount.toFixed(2)),
+      order_currency: "INR",
+      customer_details: {
+        customer_id: `donor_${Date.now()}`,
+        customer_name: name,
+        customer_email: email,
+        customer_phone: phone,
+      },
+      order_meta: {
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/donate/success`,
+        notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donate/webhook`,
+      },
+      order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
+    };
+
+    const response = await cashfree.PGCreateOrder(orderRequest);
+
+    if (!response || !response.data) {
+      return NextResponse.json(
+        { success: false, message: "Failed to create order" },
+        { status: 500 }
+      );
+    }
+
+    const order = response.data;
 
     // Create donation record with pending status
     const donation = await Donation.create({
@@ -55,7 +76,7 @@ export async function POST(req: NextRequest) {
       phone: phone,
       amount: amount,
       sticksEquivalent: sticksEquivalent,
-      orderId: order.id,
+      orderId: order.order_id,
       status: "pending",
       message: message || "",
       isAnonymous: isAnonymous || false,
@@ -68,10 +89,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      orderId: order.order_id,
+      paymentSessionId: order.payment_session_id,
+      orderAmount: order.order_amount,
+      orderCurrency: order.order_currency,
       donationId: donation._id,
     });
   } catch (error) {

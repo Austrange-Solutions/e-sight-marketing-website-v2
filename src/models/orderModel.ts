@@ -63,7 +63,7 @@ const orderSchema = new mongoose.Schema({
   paymentInfo: {
     method: {
       type: String,
-      enum: ['razorpay', 'cod'],
+      enum: ['cashfree', 'cod'],
       required: true,
     },
     status: {
@@ -71,9 +71,8 @@ const orderSchema = new mongoose.Schema({
       enum: ['pending', 'paid', 'failed', 'refunded'],
       default: 'pending',
     },
-    razorpayOrderId: { type: String },
-    razorpayPaymentId: { type: String },
-    razorpaySignature: { type: String },
+    cashfreeOrderId: { type: String },
+    cashfreePaymentId: { type: String },
     paidAt: { type: Date },
   },
   

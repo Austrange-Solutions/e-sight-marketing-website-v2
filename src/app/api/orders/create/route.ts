@@ -3,7 +3,8 @@ import Order from "@/models/orderModel";
 import { connect } from "@/dbConfig/dbConfig";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/authOptions";
-
+import mongoose from "mongoose";
+import User from "@/models/userModel";
 // Force Node.js runtime to avoid Edge Runtime issues
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,11 +14,11 @@ connect();
 export async function POST(request: NextRequest) {
   try {
     console.log("🛍️ [ORDER CREATE] Starting order creation...");
-    
+
     // Ensure database connection
     await connect();
     console.log("✅ [ORDER CREATE] Database connected");
-    
+
     // Get user from NextAuth session
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
@@ -25,11 +26,10 @@ export async function POST(request: NextRequest) {
     }
     let userObjectId;
     // Use dynamic import for mongoose
-    const mongooseModule = await import('mongoose');
-    if (typeof session.user.id === 'string' && mongooseModule.Types.ObjectId.isValid(session.user.id)) {
-      userObjectId = new mongooseModule.Types.ObjectId(session.user.id);
+
+    if (typeof session.user.id === 'string' && mongoose.Types.ObjectId.isValid(session.user.id)) {
+      userObjectId = new mongoose.Types.ObjectId(session.user.id);
     } else if (session.user.email) {
-      const User = (await import("@/models/userModel")).default;
       const userDoc = await User.findOne({ email: session.user.email });
       if (!userDoc) {
         return NextResponse.json({ error: "User not found" }, { status: 401 });
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     console.log("📦 [ORDER CREATE] Request body:", JSON.stringify(body, null, 2));
-    
+
     const {
       checkoutId,
       paymentInfo,
@@ -68,9 +68,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Prevent duplicate orders for same payment
-    if (paymentInfo.razorpayPaymentId) {
+    if (paymentInfo.cashfreePaymentId) {
       const existingOrder = await Order.findOne({
-        'paymentInfo.razorpayPaymentId': paymentInfo.razorpayPaymentId
+        'paymentInfo.cashfreePaymentId': paymentInfo.cashfreePaymentId
       });
       if (existingOrder) {
         return NextResponse.json(
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Get checkout data
     console.log("🔍 Looking for checkout with ID:", checkoutId);
     console.log("🔍 checkoutId type:", typeof checkoutId);
-    
+
     // Ensure we have a valid ObjectId
     if (!checkoutId || typeof checkoutId !== 'string') {
       console.log("❌ Invalid checkoutId:", checkoutId);
@@ -92,20 +92,20 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const checkout = await Order.findById(checkoutId);
     console.log("📋 Checkout found:", !!checkout, checkout ? "with items:" + checkout.items?.length : "null");
-    
+
     if (!checkout) {
       console.log("❌ Checkout not found in database");
-      
+
       // Let's try to find any pending orders for this user
-  const pendingOrders = await Order.find({ userId: userObjectId, status: 'pending' }).limit(5);
+      const pendingOrders = await Order.find({ userId: userObjectId, status: 'pending' }).limit(5);
       console.log("🔍 Found pending orders for user:", pendingOrders.length);
       pendingOrders.forEach((order, index) => {
         console.log(`📋 Pending order ${index + 1}:`, order._id.toString(), "items:", order.items?.length);
       });
-      
+
       return NextResponse.json(
         { error: "Checkout not found" },
         { status: 404 }
@@ -129,11 +129,10 @@ export async function POST(request: NextRequest) {
       orderSummary: checkout.orderSummary,
       totalAmount: checkout.orderSummary.total,
       paymentInfo: {
-        method: paymentInfo.method || 'razorpay',
+        method: paymentInfo.method || 'cashfree',
         status: paymentInfo.status || 'paid',
-        razorpayOrderId: paymentInfo.razorpayOrderId,
-        razorpayPaymentId: paymentInfo.razorpayPaymentId,
-        razorpaySignature: paymentInfo.razorpaySignature,
+        cashfreeOrderId: paymentInfo.cashfreeOrderId,
+        cashfreePaymentId: paymentInfo.cashfreePaymentId,
         paidAt: new Date(),
       },
       status: 'confirmed',
@@ -147,8 +146,8 @@ export async function POST(request: NextRequest) {
     await Order.findByIdAndUpdate(checkoutId, {
       status: 'confirmed',
       paymentStatus: 'paid',
-      razorpayOrderId: paymentInfo.razorpayOrderId,
-      razorpayPaymentId: paymentInfo.razorpayPaymentId,
+      cashfreeOrderId: paymentInfo.cashfreeOrderId,
+      cashfreePaymentId: paymentInfo.cashfreePaymentId,
     });
 
     return NextResponse.json({
@@ -223,7 +222,7 @@ export async function PATCH(request: NextRequest) {
       isCancelled: true,
       cancelledAt: new Date(),
       cancelReason: cancelReason || 'Cancelled by user',
-      refundStatus: order.paymentInfo.method === 'razorpay' ? 'pending' : 'none',
+      refundStatus: order.paymentInfo.method === 'cashfree' ? 'pending' : 'none',
     };
 
     await order.save();

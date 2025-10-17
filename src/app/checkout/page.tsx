@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import RazorpayButton from "@/components/RazorpayButton";
+import CashfreeButton from "@/components/CashfreeButton";
 
 const CheckoutPage = () => {
   const [step, setStep] = useState(1);
@@ -151,12 +151,12 @@ const CheckoutPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/checkout", {
+  const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shippingAddress: shippingForm,
-          paymentMethod: "razorpay",
+          paymentMethod: "cashfree",
         }),
       });
 
@@ -639,7 +639,7 @@ const CheckoutPage = () => {
                   <div className="bg-accent rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-4">Choose Payment Method</h3>
                     
-                    {/* Razorpay Payment */}
+                    {/* Cashfree Payment */}
                     <div className="space-y-4">
                       <div className="bg-card rounded-lg border-2 border-blue-200 p-4">
                         <div className="flex items-center justify-between mb-4">
@@ -651,7 +651,7 @@ const CheckoutPage = () => {
                             </div>
                             <div>
                               <h4 className="font-semibold text-foreground">Online Payment</h4>
-                              <p className="text-sm text-muted-foreground">Pay securely with Razorpay</p>
+                              <p className="text-sm text-muted-foreground">Pay securely</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -667,7 +667,7 @@ const CheckoutPage = () => {
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Wallets</span>
                         </div>
 
-                        <RazorpayButton
+                        <CashfreeButton
                           product={{
                             name: `E-Kaathi Order (${cartData?.items?.length || 0} items)`,
                             price: calculateTotal()
@@ -688,13 +688,11 @@ const CheckoutPage = () => {
                           onStart={() => {
                             setPaymentProcessing(true);
                           }}
-                          onSuccess={(paymentResponse) => {
-                            console.log("Payment successful:", paymentResponse);
+                          onSuccess={() => {
                             // Keep processing state until redirect
                             router.push("/success?payment=completed");
                           }}
-                          onFailure={(error) => {
-                            console.error("Payment failed:", error);
+                          onFailure={() => {
                             alert("Payment failed. Please try again.");
                             setPaymentProcessing(false);
                           }}

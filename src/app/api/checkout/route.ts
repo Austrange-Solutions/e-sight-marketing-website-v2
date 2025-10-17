@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const {
       shippingAddress,
-      paymentMethod = "razorpay"
+      paymentMethod = "cashfree"
     } = await request.json();
 
     // Validate required fields

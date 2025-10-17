@@ -443,7 +443,7 @@ export default function DonatePage() {
                   />
 
                   <p className="text-center text-xs text-muted-foreground">
-                    Your donation is secure and will be processed through Razorpay
+                    Your donation is secure and will be processed through Cashfree
                   </p>
                 </form>
               </motion.div>
