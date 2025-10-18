@@ -168,3 +168,201 @@ export async function sendVerificationEmail(
     throw error;
   }
 }
+
+// Sends registration confirmation email to disabled person
+export async function sendDisabledRegistrationEmail(
+  email: string,
+  name: string,
+  registrationId: string
+): Promise<void> {
+  const subject = "Registration Received - Disabled Person Verification";
+  const statusCheckUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/disabled-registration/status?id=${registrationId}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Registration Received</title>
+    </head>
+    <body style="margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+      <div style="min-height: 100vh; padding: 40px 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+          <div style="background: linear-gradient(135deg, oklch(0.65 0.14 230) 0%, oklch(0.35 0.08 230) 100%); padding: 32px; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; font-weight: 700; margin: 0;">Registration Received</h1>
+            <p style="color: rgba(255,255,255,0.95); font-size: 14px; margin: 12px 0 0 0;">Your application is under review</p>
+          </div>
+          
+          <div style="padding: 32px;">
+            <p style="color: #374151; font-size: 16px; margin: 0 0 16px 0;">Dear ${name},</p>
+            
+            <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+              Thank you for registering with e-Sight. We have received your application for disabled person verification.
+            </p>
+            
+            <div style="background: #f0f9ff; border-left: 4px solid oklch(0.65 0.14 230); padding: 16px; margin: 24px 0;">
+              <p style="color: #1e40af; font-size: 14px; font-weight: 600; margin: 0 0 8px 0;">Registration ID</p>
+              <p style="color: #1e3a8a; font-size: 16px; font-family: 'Courier New', monospace; margin: 0;">${registrationId}</p>
+            </div>
+            
+            <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 16px; margin: 24px 0;">
+              <p style="color: #713f12; font-size: 14px; margin: 0;">
+                <strong>What happens next?</strong><br/>
+                Our team will review your documents and information. This typically takes 3-5 business days.
+              </p>
+            </div>
+            
+            <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 24px 0;">
+              You can check your verification status anytime using the button below:
+            </p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${statusCheckUrl}" style="display: inline-block; padding: 14px 32px; background: oklch(0.65 0.14 230); color: #fff; font-size: 16px; font-weight: 600; border-radius: 8px; text-decoration: none;">
+                Check Status
+              </a>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
+              You will receive an email notification when your verification status is updated.
+            </p>
+          </div>
+          
+          <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">e-Sight</h3>
+            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} e-Sight Technologies. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  await resend.emails.send({
+    from: "e-Sight <no-reply@austrangesolutions.com>",
+    to: email,
+    subject,
+    html,
+  });
+}
+
+// Sends status update email to disabled person
+export async function sendDisabledStatusUpdateEmail(
+  email: string,
+  name: string,
+  registrationId: string,
+  status: "under_review" | "verified" | "rejected",
+  comments?: string
+): Promise<void> {
+  const statusMessages = {
+    under_review: {
+      subject: "Application Under Review",
+      title: "Your Application is Under Review",
+      message: "Our team is currently reviewing your submitted documents and information.",
+      color: "#f59e0b",
+      bgColor: "#fef3c7",
+      textColor: "#92400e",
+    },
+    verified: {
+      subject: "Application Verified ✓",
+      title: "Congratulations! Your Application is Verified",
+      message: "Your documents have been verified successfully. You can now access all disability benefits.",
+      color: "#10b981",
+      bgColor: "#d1fae5",
+      textColor: "#065f46",
+    },
+    rejected: {
+      subject: "Application Update Required",
+      title: "Additional Information Required",
+      message: "We need some clarification or additional documents for your application.",
+      color: "#ef4444",
+      bgColor: "#fee2e2",
+      textColor: "#991b1b",
+    },
+  };
+
+  const { subject, title, message, color, bgColor, textColor } = statusMessages[status];
+  const statusCheckUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/disabled-registration/status?id=${registrationId}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${subject}</title>
+    </head>
+    <body style="margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+      <div style="min-height: 100vh; padding: 40px 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+          <div style="background: linear-gradient(135deg, oklch(0.65 0.14 230) 0%, oklch(0.35 0.08 230) 100%); padding: 32px; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; font-weight: 700; margin: 0;">${title}</h1>
+            <p style="color: rgba(255,255,255,0.95); font-size: 14px; margin: 12px 0 0 0;">Registration ID: ${registrationId}</p>
+          </div>
+          
+          <div style="padding: 32px;">
+            <p style="color: #374151; font-size: 16px; margin: 0 0 16px 0;">Dear ${name},</p>
+            
+            <div style="background: #f0f9ff; border-left: 4px solid oklch(0.65 0.14 230); padding: 16px; margin: 24px 0; border-radius: 4px;">
+              <p style="color: #1e40af; font-size: 14px; font-weight: 600; margin: 0 0 8px 0;">Your Registration ID</p>
+              <p style="color: #1e3a8a; font-size: 18px; font-family: 'Courier New', monospace; font-weight: 700; margin: 0; letter-spacing: 1px;">${registrationId}</p>
+            </div>
+            
+            <div style="background: ${bgColor}; border-left: 4px solid ${color}; padding: 16px; margin: 24px 0; border-radius: 4px;">
+              <p style="color: ${textColor}; font-size: 15px; font-weight: 600; margin: 0 0 8px 0;">Status Update</p>
+              <p style="color: ${textColor}; font-size: 14px; margin: 0;">${message}</p>
+            </div>
+            
+            ${comments ? `
+              <div style="background: #fff4e6; border: 2px solid #fb923c; padding: 20px; margin: 24px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(251, 146, 60, 0.1);">
+                <p style="color: #ea580c; font-size: 15px; font-weight: 700; margin: 0 0 12px 0; display: flex; align-items: center;">
+                  💬 Admin Comments:
+                </p>
+                <p style="color: #9a3412; font-size: 14px; line-height: 1.8; margin: 0; background: #ffffff; padding: 12px; border-radius: 6px; border-left: 3px solid #fb923c;">${comments}</p>
+              </div>
+            ` : ''}
+            
+            ${status === 'verified' ? `
+              <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 24px 0;">
+                You can now access special benefits and services for disabled persons. Keep your registration ID safe for future reference.
+              </p>
+            ` : status === 'rejected' ? `
+              <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 24px 0;">
+                Please review the comments above and submit the required information or documents. You can contact our support team if you have any questions.
+              </p>
+            ` : `
+              <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 24px 0;">
+                We will notify you once the review is complete. This usually takes 3-5 business days.
+              </p>
+            `}
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${statusCheckUrl}" style="display: inline-block; padding: 14px 32px; background: oklch(0.65 0.14 230); color: #fff; font-size: 16px; font-weight: 600; border-radius: 8px; text-decoration: none;">
+                View Full Details
+              </a>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
+              If you have any questions, please contact our support team.
+            </p>
+          </div>
+          
+          <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">e-Sight</h3>
+            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} e-Sight Technologies. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  await resend.emails.send({
+    from: "e-Sight <no-reply@austrangesolutions.com>",
+    to: email,
+    subject,
+    html,
+  });
+}

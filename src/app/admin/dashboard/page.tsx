@@ -7,6 +7,7 @@ import UsersManagement from '@/components/admin/UsersManagement';
 import ProductsManagement from '@/components/admin/ProductsManagementNew';
 import OrdersManagement from '@/components/admin/OrdersManagement';
 import DeliveryAreasManagement from '@/components/admin/DeliveryAreasManagement';
+import DisabledPersonsManagement from '@/components/admin/DisabledPersonsManagement';
 import { TProduct } from '@/models/productModel';
 
 export const dynamic = 'force-dynamic';
@@ -87,6 +88,19 @@ interface Order {
   };
 }
 
+interface DisabledPerson {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  disabilityType: string;
+  disabilityPercentage: number;
+  verificationStatus: "pending" | "under_review" | "verified" | "rejected";
+  createdAt: string;
+  city: string;
+  state: string;
+}
+
 // Skeleton loader component
 function SkeletonTable({ rows = 5, cols = 4 }) {
   return (
@@ -146,7 +160,9 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [deliveryLoading, setDeliveryLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas'>('overview');
+  const [disabledPersons, setDisabledPersons] = useState<DisabledPerson[]>([]);
+  const [disabledPersonsLoading, setDisabledPersonsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons'>('overview');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -214,6 +230,15 @@ export default function AdminDashboard() {
     setDeliveryLoading(true);
     setTimeout(() => setDeliveryLoading(false), 1000);
   };
+  const loadDisabledPersons = async () => {
+    setDisabledPersonsLoading(true);
+    const response = await fetch('/api/admin/disabled-persons');
+    if (response.ok) {
+      const data = await response.json();
+      setDisabledPersons(data.persons || []);
+    }
+    setDisabledPersonsLoading(false);
+  };
 
   useEffect(() => {
     if (activeTab === 'users' && users.length === 0 && !usersLoading) {
@@ -227,6 +252,9 @@ export default function AdminDashboard() {
     }
     if (activeTab === 'delivery-areas' && !deliveryLoading) {
       loadDeliveryAreas();
+    }
+    if (activeTab === 'disabled-persons' && disabledPersons.length === 0 && !disabledPersonsLoading) {
+      loadDisabledPersons();
     }
   }, [activeTab]);
 
@@ -277,7 +305,7 @@ export default function AdminDashboard() {
             <div className="sm:hidden">
               <select
                 value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
+                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons')}
                 className="block w-full pl-3 pr-10 py-2 text-base border-border focus:outline-none focus:ring-ring focus:border-indigo-500 rounded-md"
               >
                 <option value="overview">Overview</option>
@@ -285,6 +313,7 @@ export default function AdminDashboard() {
                 <option value="products">Products</option>
                 <option value="orders">Orders</option>
                 <option value="delivery-areas">Delivery Areas</option>
+                <option value="disabled-persons">Disabled Persons</option>
               </select>
             </div>
             
@@ -297,10 +326,11 @@ export default function AdminDashboard() {
                   { key: 'products', label: 'Products' },
                   { key: 'orders', label: 'Orders' },
                   { key: 'delivery-areas', label: 'Delivery Areas' },
+                  { key: 'disabled-persons', label: 'Disabled Persons' },
                 ].map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas')}
+                    onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                       activeTab === tab.key
                         ? 'border-indigo-500 text-primary'
@@ -329,6 +359,9 @@ export default function AdminDashboard() {
             )}
             {activeTab === 'delivery-areas' && (
               deliveryLoading ? <SkeletonTable rows={5} cols={5} /> : <DeliveryAreasManagement onRefresh={loadDeliveryAreas} />
+            )}
+            {activeTab === 'disabled-persons' && (
+              disabledPersonsLoading ? <SkeletonTable rows={5} cols={6} /> : <DisabledPersonsManagement persons={disabledPersons} onRefresh={loadDisabledPersons} />
             )}
           </div>
         </div>
