@@ -118,15 +118,6 @@ const HomeHero = () => {
                   Donate Now ❤️
                 </Button>
               </a>
-              <Link href="/contact">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary font-semibold px-8 py-6 text-lg rounded-full transition-all duration-300"
-                >
-                  Contact Us
-                </Button>
-              </Link>
             </motion.div>
           </motion.div>
 
