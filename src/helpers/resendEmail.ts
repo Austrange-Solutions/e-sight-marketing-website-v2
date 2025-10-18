@@ -224,7 +224,7 @@ export async function sendDisabledRegistrationEmail(
             </div>
             
             <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
-              You will receive an email notification when your verification status is updated.
+              You will receive an email notification when your verification status is updated. Kindly ensure to check your spam/junk folder in case the email is filtered there.
             </p>
           </div>
           
@@ -344,7 +344,7 @@ export async function sendDisabledStatusUpdateEmail(
             </div>
             
             <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
-              If you have any questions, please contact our support team.
+              If you have any questions, please contact our support team. Please note that emails may sometimes go to your spam folder, so kindly check there as well.
             </p>
           </div>
           

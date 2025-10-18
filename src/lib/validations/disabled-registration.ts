@@ -5,7 +5,8 @@ export const documentSchema = z.object({
   fileName: z.string().min(1, "File name is required"),
   fileUrl: z.string().url("Invalid file URL"),
   fileSize: z.number().positive("File size must be positive"),
-  uploadedAt: z.date().optional(),
+  fileType: z.string().optional(), // Added for frontend compatibility
+  uploadedAt: z.coerce.date().optional(), // Coerce string to date
 });
 
 // Main disabled registration schema

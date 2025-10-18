@@ -27,7 +27,7 @@ type DocumentType = {
   uploadedAt?: Date;
 };
 
-// Form validation schema with real-time validation
+// Form validation schema with real-time validation - matches API schema
 const formSchema = z.object({
   fullName: z
     .string()
@@ -37,38 +37,86 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address").toLowerCase(),
   phone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit Indian mobile number"),
   alternatePhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: z.string().refine((date) => {
+    const birthDate = new Date(date);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    return age >= 1 && age <= 120;
+  }, "Age must be between 1 and 120 years"),
   gender: z.enum(["Male", "Female", "Other"], { message: "Please select a gender" }),
-  address: z.string().min(10, "Address must be at least 10 characters"),
-  addressLine2: z.string().optional(),
-  city: z.string().min(2, "City name must be at least 2 characters"),
+  address: z.string().min(10, "Address must be at least 10 characters").max(500, "Address must not exceed 500 characters"),
+  city: z.string().min(2, "City name must be at least 2 characters").max(100, "City must not exceed 100 characters"),
   state: z.string().min(2, "Please select a state"),
   pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
-  disabilityType: z.string().min(1, "Please select a disability type"),
+  disabilityType: z.enum([
+    "Visual Impairment",
+    "Hearing Impairment",
+    "Locomotor Disability",
+    "Intellectual Disability",
+    "Mental Illness",
+    "Multiple Disabilities",
+    "Other",
+  ], { message: "Please select a disability type" }),
   disabilityPercentage: z
     .number({ message: "Must be a number" })
     .min(40, "Must be at least 40%")
     .max(100, "Cannot exceed 100%"),
-  disabilityDescription: z.string().min(20, "Please provide at least 20 characters"),
-  medicalConditions: z.string().optional(),
-  guardianName: z.string().optional(),
-  guardianRelation: z.string().optional(),
+  disabilityDescription: z.string().min(20, "Please provide at least 20 characters").max(1000, "Must not exceed 1000 characters"),
+  medicalConditions: z.string().max(1000, "Must not exceed 1000 characters").optional().or(z.literal("")),
+  guardianName: z.string().min(3, "Guardian name must be at least 3 characters").max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
+  guardianRelation: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
   guardianPhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
-  emergencyContactName: z.string().optional(),
+  emergencyContactName: z.string().min(3, "Emergency contact must be at least 3 characters").max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
   emergencyContactPhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
-  emergencyContactRelation: z.string().optional(),
-  assistiveDevicesUsed: z.string().optional(),
-  employmentStatus: z.string().optional(),
-  monthlyIncome: z.string().optional(),
-  EducationLevel: z.string().optional(),
-  additionalNotes: z.string().optional(),
+  emergencyContactRelation: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
+  assistiveDevicesUsed: z.string().max(500, "Must not exceed 500 characters").optional().or(z.literal("")),
+  employmentStatus: z.string().max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
+  monthlyIncome: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
+  EducationLevel: z.string().max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
+  additionalNotes: z.string().max(1000, "Must not exceed 1000 characters").optional().or(z.literal("")),
   documents: z.object({
-    passportPhoto: z.custom<DocumentType>().optional(),
-    aadharCard: z.custom<DocumentType>().optional(),
-    panCard: z.custom<DocumentType>().optional(),
-    disabilityCertificate: z.custom<DocumentType>().optional(),
-    udidCard: z.custom<DocumentType>().optional(),
-  }),
+    passportPhoto: z.object({
+      fileName: z.string(),
+      fileUrl: z.string(),
+      fileSize: z.number(),
+      fileType: z.string().optional(),
+      uploadedAt: z.date().optional(),
+    }),
+    aadharCard: z.object({
+      fileName: z.string(),
+      fileUrl: z.string(),
+      fileSize: z.number(),
+      fileType: z.string().optional(),
+      uploadedAt: z.date().optional(),
+    }).optional(),
+    panCard: z.object({
+      fileName: z.string(),
+      fileUrl: z.string(),
+      fileSize: z.number(),
+      fileType: z.string().optional(),
+      uploadedAt: z.date().optional(),
+    }).optional(),
+    disabilityCertificate: z.object({
+      fileName: z.string(),
+      fileUrl: z.string(),
+      fileSize: z.number(),
+      fileType: z.string().optional(),
+      uploadedAt: z.date().optional(),
+    }),
+    udidCard: z.object({
+      fileName: z.string(),
+      fileUrl: z.string(),
+      fileSize: z.number(),
+      fileType: z.string().optional(),
+      uploadedAt: z.date().optional(),
+    }).optional(),
+  }).refine(
+    (docs) => docs.aadharCard || docs.panCard,
+    {
+      message: "At least one ID proof (Aadhar Card or PAN Card) is required",
+      path: ["aadharCard"],
+    }
+  ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -122,11 +170,10 @@ export default function DisabledRegistrationForm() {
       dateOfBirth: "",
       gender: "" as "Male" | "Female" | "Other",
       address: "",
-      addressLine2: "",
       city: "",
       state: "",
       pincode: "",
-      disabilityType: "",
+      disabilityType: undefined,
       disabilityPercentage: 0,
       disabilityDescription: "",
       medicalConditions: "",
@@ -307,6 +354,8 @@ export default function DisabledRegistrationForm() {
   // Handle form submission with React Hook Form
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      console.log("Submitting form data:", data);
+      
       const response = await fetch("/api/disabled-registration/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -316,6 +365,19 @@ export default function DisabledRegistrationForm() {
       const responseData = await response.json();
 
       if (!response.ok) {
+        // Log validation details if available
+        if (responseData.details) {
+          console.error("Validation errors from API:", responseData.details);
+          // Show all validation errors
+          responseData.details.forEach((error: { field: string; message: string }) => {
+            console.error(`Field: ${error.field} - ${error.message}`);
+          });
+          // Show first validation error to user
+          const firstError = responseData.details[0];
+          toast.error(`Validation Error - ${firstError.field}: ${firstError.message}`);
+        } else {
+          toast.error(responseData.error || "Registration failed");
+        }
         throw new Error(responseData.error || "Registration failed");
       }
 
@@ -327,7 +389,9 @@ export default function DisabledRegistrationForm() {
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error(error instanceof Error ? error.message : "Registration failed");
+      if (!(error instanceof Error && error.message.includes("Validation failed"))) {
+        toast.error(error instanceof Error ? error.message : "Registration failed");
+      }
     }
   };
 
@@ -368,6 +432,7 @@ export default function DisabledRegistrationForm() {
             className="flex-1"
             aria-label={label}
             aria-required={required}
+            suppressHydrationWarning
           />
           {isUploading && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
           {document && (
@@ -415,6 +480,7 @@ export default function DisabledRegistrationForm() {
                 placeholder="Enter your full name"
                 aria-required="true"
                 disabled={isSubmitting}
+                suppressHydrationWarning
               />
               {errors.fullName && (
                 <p className="text-sm text-destructive flex items-center gap-1">
@@ -436,6 +502,7 @@ export default function DisabledRegistrationForm() {
                   placeholder="your.email@example.com"
                   aria-required="true"
                   disabled={isSubmitting}
+                  suppressHydrationWarning
                 />
                 {checkingDuplicate.email && (
                   <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-muted-foreground" />
@@ -462,6 +529,7 @@ export default function DisabledRegistrationForm() {
                   maxLength={10}
                   aria-required="true"
                   disabled={isSubmitting}
+                  suppressHydrationWarning
                 />
                 {checkingDuplicate.phone && (
                   <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-muted-foreground" />
@@ -486,6 +554,7 @@ export default function DisabledRegistrationForm() {
                 max={new Date().toISOString().split('T')[0]}
                 aria-required="true"
                 disabled={isSubmitting}
+                suppressHydrationWarning
               />
               {errors.dateOfBirth && (
                 <p className="text-sm text-destructive flex items-center gap-1">
@@ -509,6 +578,7 @@ export default function DisabledRegistrationForm() {
                     disabled={isSubmitting}
                     aria-required="true"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    suppressHydrationWarning
                   >
                     <option value="">Select gender</option>
                     <option value="Male">Male</option>
@@ -534,38 +604,26 @@ export default function DisabledRegistrationForm() {
           <CardTitle className="text-2xl">Address Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="address">
-              Address Line 1 <span className="text-destructive">*</span>
-            </Label>
-            <Textarea
-              id="address"
-              {...register("address")}
-              placeholder="House/Flat No., Street Name"
-              rows={2}
-              aria-required="true"
-              disabled={isSubmitting}
-            />
-            {errors.address && (
-              <p className="text-sm text-destructive flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {errors.address.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="addressLine2">Address Line 2 (Optional)</Label>
-            <Textarea
-              id="addressLine2"
-              {...register("addressLine2")}
-              placeholder="Landmark, Area"
-              rows={2}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="address">
+                Address Line 1 <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="address"
+                {...register("address")}
+                placeholder="House/Flat No., Street Name"
+                rows={2}
+                aria-required="true"
+                disabled={isSubmitting}
+                suppressHydrationWarning
+              />
+              {errors.address && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.address.message}
+                </p>
+              )}
+            </div>          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="city">
                 City <span className="text-destructive">*</span>
@@ -576,6 +634,7 @@ export default function DisabledRegistrationForm() {
                 placeholder="City name"
                 aria-required="true"
                 disabled={isSubmitting}
+                suppressHydrationWarning
               />
               {errors.city && (
                 <p className="text-sm text-destructive flex items-center gap-1">
@@ -599,6 +658,7 @@ export default function DisabledRegistrationForm() {
                     disabled={isSubmitting}
                     aria-required="true"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    suppressHydrationWarning
                   >
                     <option value="">Select state</option>
                     {INDIAN_STATES.map((state) => (
@@ -628,6 +688,7 @@ export default function DisabledRegistrationForm() {
                 maxLength={6}
                 aria-required="true"
                 disabled={isSubmitting}
+                suppressHydrationWarning
               />
               {errors.pincode && (
                 <p className="text-sm text-destructive flex items-center gap-1">
@@ -661,6 +722,7 @@ export default function DisabledRegistrationForm() {
                     disabled={isSubmitting}
                     aria-required="true"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    suppressHydrationWarning
                   >
                     <option value="">Select disability type</option>
                     {DISABILITY_TYPES.map((type) => (
@@ -692,6 +754,7 @@ export default function DisabledRegistrationForm() {
                 placeholder="e.g., 75"
                 aria-required="true"
                 disabled={isSubmitting}
+                suppressHydrationWarning
               />
               {errors.disabilityPercentage && (
                 <p className="text-sm text-destructive flex items-center gap-1">
@@ -713,6 +776,7 @@ export default function DisabledRegistrationForm() {
               rows={4}
               disabled={isSubmitting}
               aria-required="true"
+              suppressHydrationWarning
             />
             {errors.disabilityDescription && (
               <p className="text-sm text-destructive flex items-center gap-1">
@@ -789,6 +853,7 @@ export default function DisabledRegistrationForm() {
           disabled={isSubmitting}
           className="w-full sm:w-auto px-12"
           aria-label="Submit registration form"
+          suppressHydrationWarning
         >
           {isSubmitting ? (
             <>
