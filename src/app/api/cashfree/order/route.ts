@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Cashfree, CFEnvironment } from "cashfree-pg";
 
+// Force Node.js runtime to avoid Edge Runtime issues and ensure dynamic behavior
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // Initialize Cashfree
 const cashfree = new Cashfree(
   process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
@@ -37,10 +41,8 @@ export async function POST(request: NextRequest) {
         customer_email: userDetails?.email || "",
         customer_phone: userDetails?.phone || "",
       },
-      order_meta: {
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/cashfree/callback`,
-        notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/cashfree/webhook`,
-      },
+      // Intentionally omit return_url to avoid Cashfree auto-redirects when using JS checkout.
+      // You can add notify_url later for webhooks if needed.
     };
 
     // Create order

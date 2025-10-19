@@ -43,13 +43,15 @@ export async function POST(request: NextRequest) {
     console.log("📦 [ORDER CREATE] Request body:", JSON.stringify(body, null, 2));
 
     const {
-      checkoutId,
+      checkoutId: incomingCheckoutId,
       paymentInfo,
       customerInfo,
     } = body;
 
-    // Validate required fields
-    if (!checkoutId || !paymentInfo) {
+    let checkoutId = incomingCheckoutId as string | undefined;
+
+    // Validate required fields (paymentInfo required; checkoutId optional with server fallback)
+    if (!paymentInfo) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -86,11 +88,18 @@ export async function POST(request: NextRequest) {
 
     // Ensure we have a valid ObjectId
     if (!checkoutId || typeof checkoutId !== 'string') {
-      console.log("❌ Invalid checkoutId:", checkoutId);
-      return NextResponse.json(
-        { error: "Invalid checkout ID" },
-        { status: 400 }
-      );
+      console.log("⚠️ No valid checkoutId provided. Attempting to find latest pending checkout for user:", userObjectId.toString());
+      const latestPending = await Order.findOne({ userId: userObjectId, status: 'pending' })
+        .sort({ createdAt: -1 });
+      if (!latestPending) {
+        console.log("❌ No pending checkout found for user.");
+        return NextResponse.json(
+          { error: "Invalid checkout ID" },
+          { status: 400 }
+        );
+      }
+      checkoutId = latestPending._id.toString();
+      console.log("🧭 Using latest pending checkoutId:", checkoutId);
     }
 
     const checkout = await Order.findById(checkoutId);

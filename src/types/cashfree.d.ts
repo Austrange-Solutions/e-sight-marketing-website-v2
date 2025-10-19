@@ -6,7 +6,8 @@ declare module '@cashfreepayments/cashfree-js' {
   export interface CheckoutOptions {
     paymentSessionId: string;
     returnUrl?: string;
-    redirectTarget?: '_self' | '_blank' | '_parent' | '_top';
+    // Cashfree supports opening checkout in a modal as well
+    redirectTarget?: '_self' | '_blank' | '_parent' | '_top' | '_modal';
   }
 
   export interface CheckoutResult {

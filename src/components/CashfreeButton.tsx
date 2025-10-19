@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { load } from "@cashfreepayments/cashfree-js";
+import type { CheckoutOptions } from "@cashfreepayments/cashfree-js";
 
 interface PaymentResponse {
   payment: {
@@ -71,10 +72,10 @@ const CashfreeButton: React.FC<Props> = ({
           : "sandbox",
       });
 
-      // Configure checkout options
-      const checkoutOptions = {
+      // Configure checkout options - prefer modal to avoid full page redirect
+      const checkoutOptions: CheckoutOptions = {
         paymentSessionId: orderData.paymentSessionId,
-        returnUrl: `${window.location.origin}/success`,
+        redirectTarget: "_modal",
       };
 
       // Open Cashfree checkout and wait for result
@@ -84,7 +85,7 @@ const CashfreeButton: React.FC<Props> = ({
         throw new Error(result.error.message || "Payment failed");
       }
 
-      const verifiedOrderId = result.paymentDetails?.orderId || orderData.order_id;
+  const verifiedOrderId = result.paymentDetails?.orderId || orderData.order_id;
 
       if (!verifiedOrderId) {
         throw new Error("Could not determine Cashfree order ID after payment");
@@ -105,14 +106,16 @@ const CashfreeButton: React.FC<Props> = ({
         if (!verifyResponse.ok || !verifyData.success) {
           throw new Error(verifyData.error || "Payment verification failed");
         }
-
+        // Prefer the passed checkoutId, else fallback to sessionStorage
+        const effectiveCheckoutId = checkoutId || (typeof window !== 'undefined' ? sessionStorage.getItem('checkoutId') || '' : '');
+        console.log("checkoutId (effective):", effectiveCheckoutId);
         // Create order in database after successful payment
-        if (checkoutId) {
+        if (effectiveCheckoutId) {
           const orderCreateResponse = await fetch("/api/orders/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              checkoutId,
+              checkoutId: effectiveCheckoutId,
               paymentInfo: {
                 method: 'cashfree',
                 status: 'paid',
@@ -121,12 +124,34 @@ const CashfreeButton: React.FC<Props> = ({
               },
               customerInfo: userDetails,
             }),
+            credentials: 'include',
           });
 
           if (!orderCreateResponse.ok) {
             const orderCreateData = await orderCreateResponse.json();
             console.error("Order creation failed:", orderCreateData.error);
             // Continue even if order persistence fails so user is not blocked
+          }
+        } else {
+          // No checkoutId found - server will try to fallback to latest pending checkout for this user
+          const orderCreateResponse = await fetch("/api/orders/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              paymentInfo: {
+                method: 'cashfree',
+                status: 'paid',
+                cashfreeOrderId: verifyData.payment.orderId,
+                cashfreePaymentId: verifyData.payment.paymentId,
+              },
+              customerInfo: userDetails,
+            }),
+            credentials: 'include',
+          });
+
+          if (!orderCreateResponse.ok) {
+            const orderCreateData = await orderCreateResponse.json();
+            console.error("Order creation (no checkoutId) failed:", orderCreateData.error);
           }
         }
 
