@@ -51,11 +51,10 @@ interface Order {
   };
   totalAmount: number;
   paymentInfo: {
-    method: 'razorpay' | 'cod';
+    method: 'cashfree' | 'cod';
     status: 'pending' | 'paid' | 'failed' | 'refunded';
-    razorpayOrderId?: string;
-    razorpayPaymentId?: string;
-    razorpaySignature?: string;
+    cashfreeOrderId?: string;
+    cashfreePaymentId?: string;
     paidAt?: string;
   };
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
