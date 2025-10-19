@@ -63,16 +63,28 @@ export default function DonateButton({
 
       const createData = await createResponse.json();
 
+      console.log("📦 [DONATE BUTTON] Order response:", createData);
+
       if (!createResponse.ok) {
         throw new Error(createData.message || "Failed to create donation order");
       }
 
+      if (!createData.paymentSessionId) {
+        console.error("❌ [DONATE BUTTON] No payment session ID in response:", createData);
+        throw new Error("Payment session ID not received from server");
+      }
+
+      console.log("✅ [DONATE BUTTON] Payment session ID received:", createData.paymentSessionId.substring(0, 20) + "...");
+
       // Initialize Cashfree
-      const cashfree = await load({
-        mode: process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
-          ? "production" 
-          : "sandbox",
-      });
+      const mode = process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
+        ? "production" 
+        : "sandbox";
+      
+      console.log("🔧 [DONATE BUTTON] Loading Cashfree SDK in mode:", mode);
+      console.log("🔧 [DONATE BUTTON] Endpoint:", process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT);
+      
+      const cashfree = await load({ mode });
 
       if (!cashfree) {
         throw new Error("Failed to load payment gateway. Please check your internet connection.");
