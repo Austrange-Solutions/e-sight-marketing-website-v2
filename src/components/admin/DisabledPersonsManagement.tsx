@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Users, Clock, CheckCircle, XCircle, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface DisabledPerson {
   _id: string;
@@ -91,11 +93,137 @@ export default function DisabledPersonsManagement({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
           <h3 className="text-lg font-medium text-gray-900">Disabled Persons Registration</h3>
-          <p className="text-sm text-gray-500 mt-1">
-            Total: {persons.length} | Pending: {statusCounts.pending || 0} | Under Review:{" "}
-            {statusCounts.under_review || 0} | Verified: {statusCounts.verified || 0} | Rejected:{" "}
-            {statusCounts.rejected || 0}
-          </p>
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-5 gap-3">
+            <Card className="p-3">
+              <CardHeader className="p-0">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-muted-foreground" />
+                    <CardTitle className="text-sm">Total</CardTitle>
+                  </div>
+                  <Badge variant="default">All</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="text-2xl font-semibold">{persons.length}</div>
+                <CardDescription className="mt-1">All registered disabled persons</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="p-3">
+              <CardHeader className="p-0">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-yellow-600" />
+                    <CardTitle className="text-sm">Pending</CardTitle>
+                  </div>
+                  <Badge variant="secondary">New</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="text-2xl font-semibold text-yellow-800">{statusCounts.pending || 0}</div>
+                <CardDescription className="mt-1">Awaiting admin review</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="p-3">
+              <CardHeader className="p-0">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-yellow-600" />
+                    <CardTitle className="text-sm">Under Review</CardTitle>
+                  </div>
+                  <Badge variant="outline">In Progress</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="text-2xl font-semibold text-yellow-800">{statusCounts.under_review || 0}</div>
+                <CardDescription className="mt-1">Being evaluated by admin</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="p-3">
+              <CardHeader className="p-0">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CardTitle className="text-sm">Verified</CardTitle>
+                  </div>
+                  <Badge variant="default">Good</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="text-2xl font-semibold text-green-800">{statusCounts.verified || 0}</div>
+                <CardDescription className="mt-1">Approved registrations</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="p-3">
+              <CardHeader className="p-0">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                    <CardTitle className="text-sm">Rejected</CardTitle>
+                  </div>
+                  <Badge variant="destructive">Alert</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="text-2xl font-semibold text-red-800">{statusCounts.rejected || 0}</div>
+                <CardDescription className="mt-1">Rejected registrations</CardDescription>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/admin/disabled-persons/export?format=csv');
+                if (!res.ok) throw new Error('Export failed');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error(err);
+                alert('Failed to export CSV');
+              }
+            }}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50"
+          >
+            Export CSV
+          </button>
+
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/admin/disabled-persons/export?format=xlsx');
+                if (!res.ok) throw new Error('Export failed');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error(err);
+                alert('Failed to export XLSX');
+              }
+            }}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50"
+          >
+            Export Excel
+          </button>
         </div>
       </div>
 
