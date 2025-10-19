@@ -21,22 +21,12 @@ const cashfree = new Cashfree(
   process.env.CASHFREE_SECRET_KEY
 );
 
-console.log("✅ [CASHFREE DONATE] SDK initialized with:", {
-  environment: process.env.CASHFREE_ENDPOINT,
-  mode: process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" ? "PRODUCTION" : "SANDBOX",
-  appIdLength: process.env.CASHFREE_APP_ID.length,
-  secretKeyLength: process.env.CASHFREE_SECRET_KEY.length,
-});
-
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
 
     const body = await req.json();
     const { name, email, phone, amount, message, isAnonymous, address, city, state, pan } = body;
-
-    console.log("🔧 [DONATE CREATE] Environment:", process.env.CASHFREE_ENDPOINT);
-    console.log("🔧 [DONATE CREATE] Creating donation order with amount:", amount);
 
     // Validation
     if (!name || !email || !phone || !amount) {
@@ -76,15 +66,9 @@ export async function POST(req: NextRequest) {
       order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
     };
 
-    console.log("📤 [DONATE CREATE] Order request:", JSON.stringify(orderRequest, null, 2));
-
     const response = await cashfree.PGCreateOrder(orderRequest);
 
-    // Log only the data portion, not the entire response object (which has circular refs)
-    console.log("📥 [DONATE CREATE] Response received");
-
     if (!response || !response.data) {
-      console.error("❌ [DONATE CREATE] Invalid response from Cashfree");
       return NextResponse.json(
         { success: false, message: "Failed to create order" },
         { status: 500 }
@@ -92,13 +76,6 @@ export async function POST(req: NextRequest) {
     }
 
     const order = response.data;
-    console.log("✅ [DONATE CREATE] Order created successfully:", order.order_id);
-    console.log("📥 [DONATE CREATE] Order data:", {
-      order_id: order.order_id,
-      payment_session_id: order.payment_session_id ? "present" : "missing",
-      order_amount: order.order_amount,
-      order_status: order.order_status,
-    });
 
     // Create donation record with pending status
     const donation = await Donation.create({
@@ -127,28 +104,6 @@ export async function POST(req: NextRequest) {
       donationId: donation._id,
     });
   } catch (error) {
-    console.error("❌ [DONATE CREATE] Error:", error);
-    
-    // Safe error logging - avoid circular reference issues
-    let errorDetails = "Unknown error";
-    if (error && typeof error === 'object') {
-      try {
-        // Try to extract meaningful error info without circular references
-        const errorObj = error as Record<string, unknown>;
-        errorDetails = JSON.stringify({
-          message: errorObj.message || 'Unknown',
-          status: errorObj.status || errorObj.statusCode,
-          code: errorObj.code,
-          type: errorObj.type,
-        }, null, 2);
-      } catch {
-        // If still fails, just use the error message
-        const errorObj = error as Record<string, unknown>;
-        errorDetails = String(errorObj.message || error);
-      }
-      console.error("❌ [DONATE CREATE] Error details:", errorDetails);
-    }
-    
     return NextResponse.json(
       { success: false, message: error instanceof Error ? error.message : "Failed to create donation" },
       { status: 500 }

@@ -61,7 +61,6 @@ const CashfreeButton: React.FC<Props> = ({
 
       const orderData = await orderResponse.json();
       
-      console.log("📦 [CASHFREE BUTTON] Order response:", orderData);
       
       if (!orderResponse.ok) {
         throw new Error(orderData.error || "Failed to create order");
@@ -72,15 +71,11 @@ const CashfreeButton: React.FC<Props> = ({
         throw new Error("Payment session ID not received from server");
       }
 
-      console.log("✅ [CASHFREE BUTTON] Payment session ID received:", orderData.paymentSessionId.substring(0, 20) + "...");
 
       // Initialize Cashfree
       const mode = process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
         ? "production" 
         : "sandbox";
-      
-      console.log("🔧 [CASHFREE BUTTON] Loading Cashfree SDK in mode:", mode);
-      console.log("🔧 [CASHFREE BUTTON] Endpoint:", process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT);
       
       const cashfree = await load({ mode });
 
@@ -120,7 +115,6 @@ const CashfreeButton: React.FC<Props> = ({
         }
         // Prefer the passed checkoutId, else fallback to sessionStorage
         const effectiveCheckoutId = checkoutId || (typeof window !== 'undefined' ? sessionStorage.getItem('checkoutId') || '' : '');
-        console.log("checkoutId (effective):", effectiveCheckoutId);
         // Create order in database after successful payment
         if (effectiveCheckoutId) {
           const orderCreateResponse = await fetch("/api/orders/create", {
