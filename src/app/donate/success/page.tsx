@@ -66,7 +66,7 @@ function DonationSuccessContent() {
         await navigator.share({
           title: "I just donated to help blind people!",
           text: `I donated ${donationData?.sticksEquivalent.toFixed(1)} E-Kaathi Pro smart canes to empower visually impaired individuals. Join me in making a difference!`,
-          url: `donate.${process.env.NEXT_PUBLIC_HOSTNAME}`,
+          url: `https://donate.${process.env.NEXT_PUBLIC_HOSTNAME}`,
         });
       } catch (error) {
         console.log("Error sharing:", error);
