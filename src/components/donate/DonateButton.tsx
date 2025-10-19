@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { load } from "@cashfreepayments/cashfree-js";
+import type { CheckoutOptions } from "@cashfreepayments/cashfree-js";
 
 interface DonateButtonProps {
   amount: number;
-  sticksEquivalent: number;
   donorDetails: {
     name: string;
     email: string;
@@ -26,7 +26,6 @@ interface DonateButtonProps {
 
 export default function DonateButton({
   amount,
-  sticksEquivalent,
   donorDetails,
   className = "",
   disabled = false,
@@ -79,10 +78,10 @@ export default function DonateButton({
         throw new Error("Failed to load payment gateway. Please check your internet connection.");
       }
 
-      // Configure checkout options
-      const checkoutOptions = {
+      // Configure checkout options - prefer modal to avoid full page redirect
+      const checkoutOptions: CheckoutOptions = {
         paymentSessionId: createData.paymentSessionId,
-        returnUrl: `${window.location.origin}/donate/success?order_id=${createData.orderId}`,
+        redirectTarget: "_modal",
       };
 
       // Open Cashfree checkout
@@ -106,8 +105,8 @@ export default function DonateButton({
           const verifyData = await verifyResponse.json();
 
           if (verifyResponse.ok && verifyData.success) {
-            // Redirect to success page
-            router.push(
+            // Redirect to success page; keep loader until navigation
+            router.replace(
               `/donate/success?payment_id=${verifyData.donation.paymentId}&order_id=${createData.orderId}`
             );
           } else {

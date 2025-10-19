@@ -3,6 +3,10 @@ import { connect as dbConnect } from "@/dbConfig/dbConfig";
 import Donation from "@/models/Donation";
 import { Cashfree, CFEnvironment } from "cashfree-pg";
 
+// Force Node.js runtime and dynamic rendering
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // Initialize Cashfree
 const cashfree = new Cashfree(
   process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 

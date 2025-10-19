@@ -34,6 +34,7 @@ export default function DonatePage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paymentError, setPaymentError] = useState<string>("");
+  const [processing, setProcessing] = useState<boolean>(false);
 
   // Calculate sticks equivalent when amount changes
   useEffect(() => {
@@ -115,15 +116,28 @@ export default function DonatePage() {
 
     // Form is valid, payment will be handled by DonateButton
     setPaymentError("");
+    setProcessing(true);
   };
 
   const handlePaymentError = (error: string) => {
     setPaymentError(error);
+    setProcessing(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-primary/5 relative">
+      {processing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl p-6 sm:p-8 max-w-md w-[90%] text-center border border-border">
+            <div className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" aria-hidden="true" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Processing your donation</h3>
+            <p className="text-sm text-muted-foreground">
+              Please wait, we are verifying your payment and updating the leaderboard. You will be redirected shortly.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 backdrop-blur-3xl" />
@@ -424,7 +438,6 @@ export default function DonatePage() {
 
                   <DonateButton
                     amount={selectedAmount}
-                    sticksEquivalent={sticksEquivalent}
                     donorDetails={{
                       name: formData.name,
                       email: formData.email,

@@ -3,6 +3,10 @@ import { connect as dbConnect } from "@/dbConfig/dbConfig";
 import Donation from "@/models/Donation";
 import { Cashfree, CFEnvironment } from "cashfree-pg";
 
+// Force Node.js runtime and dynamic rendering
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // Initialize Cashfree
 const cashfree = new Cashfree(
   process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
@@ -51,10 +55,9 @@ export async function POST(req: NextRequest) {
         customer_email: email,
         customer_phone: phone,
       },
-      order_meta: {
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/donate/success`,
-        notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donate/webhook`,
-      },
+      // Intentionally omitting return_url to avoid auto-redirects when using JS checkout modal.
+      // You can configure a webhook later:
+      // order_meta: { notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donate/webhook` },
       order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
     };
 
