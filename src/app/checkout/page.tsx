@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import RazorpayButton from "@/components/RazorpayButton";
+import CashfreeButton from "@/components/CashfreeButton";
 
 const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [codLoading, setCodLoading] = useState(false);
+  const [codLoading] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [cartData, setCartData] = useState<{ items: Array<{ _id: string, name: string, price: number, quantity: number, image: string }>, orderSummary: { subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } } | null>(null);
   const [calculatedCharges, setCalculatedCharges] = useState<{ subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } | null>(null);
@@ -40,46 +40,46 @@ const CheckoutPage = () => {
         if (value.trim().length < 2) return 'Name must be at least 2 characters';
         if (!/^[a-zA-Z\s]+$/.test(value.trim())) return 'Name can only contain letters and spaces';
         return '';
-        
+
       case 'phone':
         if (!value.trim()) return 'Phone number is required';
         if (!/^\d{10}$/.test(value.trim())) return 'Phone number must be exactly 10 digits';
         if (!/^[6-9]\d{9}$/.test(value.trim())) return 'Phone number must start with 6, 7, 8, or 9';
         return '';
-        
+
       case 'email':
         if (!value.trim()) return 'Email address is required';
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value.trim())) return 'Please enter a valid email address';
         return '';
-        
+
       case 'address':
         if (!value.trim()) return 'Street address is required';
         if (value.trim().length < 5) return 'Address must be at least 5 characters';
         return '';
-        
+
       case 'addressLine2':
         if (!value.trim()) return 'Address line 2 is required';
         if (value.trim().length < 2) return 'Address line 2 must be at least 2 characters';
         return '';
-        
+
       case 'city':
         if (!value.trim()) return 'City is required';
         if (value.trim().length < 2) return 'City must be at least 2 characters';
         if (!/^[a-zA-Z\s]+$/.test(value.trim())) return 'City can only contain letters and spaces';
         return '';
-        
+
       case 'state':
         if (!value.trim()) return 'State is required';
         if (value.trim().length < 2) return 'State must be at least 2 characters';
         if (!/^[a-zA-Z\s]+$/.test(value.trim())) return 'State can only contain letters and spaces';
         return '';
-        
+
       case 'pincode':
         if (!value.trim()) return 'Pincode is required';
         if (!/^\d{6}$/.test(value.trim())) return 'Pincode must be exactly 6 digits';
         return '';
-        
+
       default:
         return '';
     }
@@ -88,14 +88,14 @@ const CheckoutPage = () => {
   const validateForm = useCallback(() => {
     const errors: Record<string, string> = {};
     const requiredFields = ['name', 'phone', 'email', 'address', 'addressLine2', 'city', 'state', 'pincode'];
-    
+
     requiredFields.forEach(field => {
       const error = validateField(field, shippingForm[field as keyof typeof shippingForm]);
       if (error) {
         errors[field] = error;
       }
     });
-    
+
     setValidationErrors(errors);
     const isValid = Object.keys(errors).length === 0;
     setIsFormValid(isValid);
@@ -104,10 +104,10 @@ const CheckoutPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     // Handle specific field formatting
     let formattedValue = value;
-    
+
     if (name === 'phone') {
       // Only allow digits and limit to 10 characters
       formattedValue = value.replace(/\D/g, '').slice(0, 10);
@@ -118,12 +118,12 @@ const CheckoutPage = () => {
       // Only allow letters and spaces
       formattedValue = value.replace(/[^a-zA-Z\s]/g, '');
     }
-    
+
     setShippingForm({
       ...shippingForm,
       [name]: formattedValue,
     });
-    
+
     // Clear validation error for this field when user starts typing
     if (validationErrors[name]) {
       setValidationErrors({
@@ -131,7 +131,7 @@ const CheckoutPage = () => {
         [name]: ''
       });
     }
-    
+
     // Real-time validation for the current field
     const error = validateField(name, formattedValue);
     if (error) {
@@ -156,7 +156,7 @@ const CheckoutPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shippingAddress: shippingForm,
-          paymentMethod: "razorpay",
+          paymentMethod: "cashfree",
         }),
       });
 
@@ -188,14 +188,14 @@ const CheckoutPage = () => {
   };
 
   const calculateDynamicCharges = useCallback(async () => {
-  if (!cartData || !cartData.orderSummary) return;
+    if (!cartData || !cartData.orderSummary) return;
 
-  const subtotal = cartData.orderSummary.subtotal;
+    const subtotal = cartData.orderSummary.subtotal;
     const gst = subtotal * 0.18; // 18% GST
     const transactionFee = subtotal * 0.02; // 2% transaction fee
-    
+
     let deliveryCharges = 500; // Default charges for non-delivery zones
-    
+
     // Enhanced pincode validation with strict digit-by-digit matching
     if (shippingForm.pincode && shippingForm.pincode.trim().length >= 6) {
       try {
@@ -214,7 +214,7 @@ const CheckoutPage = () => {
           const result = await response.json();
           if (result.success && result.data) {
             deliveryCharges = result.data.deliveryCharges;
-            
+
             // Log validation details for admin monitoring
             console.log('Strict Pincode Validation:', {
               pincode: shippingForm.pincode.trim(),
@@ -225,7 +225,7 @@ const CheckoutPage = () => {
               validationErrors: result.data.validationErrors,
               orderAmount: subtotal
             });
-            
+
             // Alert user if pincode validation failed
             if (!result.data.isValid && result.data.validationErrors.length > 0) {
               console.warn('Pincode Validation Failed:', result.data.validationErrors.join(', '));
@@ -242,8 +242,8 @@ const CheckoutPage = () => {
       } catch (error) {
         console.error('Error in strict pincode validation:', error);
         // Final fallback - use city-based logic only if everything fails
-        const isMumbai = shippingForm.city.toLowerCase().includes('mumbai') || 
-                         shippingForm.city.toLowerCase().includes('bombay');
+        const isMumbai = shippingForm.city.toLowerCase().includes('mumbai') ||
+          shippingForm.city.toLowerCase().includes('bombay');
         deliveryCharges = isMumbai ? 100 : 500;
       }
     } else if (shippingForm.pincode && shippingForm.pincode.trim().length > 0) {
@@ -282,7 +282,7 @@ const CheckoutPage = () => {
 
   const calculateTotal = () => {
     if (!calculatedCharges && !cartData) return 0;
-    
+
     const charges = calculatedCharges || cartData?.orderSummary;
     if (!charges) return 0;
     return charges.subtotal + charges.gst + charges.transactionFee + charges.deliveryCharges;
@@ -299,7 +299,18 @@ const CheckoutPage = () => {
   const charges = getCurrentCharges();
 
   return (
-    <div className="min-h-screen bg-accent mt-16 py-8">
+    <div className="min-h-screen bg-accent mt-16 py-8 relative">
+      {paymentProcessing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl p-6 sm:p-8 max-w-md w-[90%] text-center border border-border">
+            <div className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" aria-hidden="true" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Processing your payment</h3>
+            <p className="text-sm text-muted-foreground">
+              Please wait, we are verifying your payment and creating your order. You will be redirected shortly.
+            </p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4">
         {/* Step Indicator */}
         <div className="flex items-center justify-center mb-8">
@@ -345,7 +356,7 @@ const CheckoutPage = () => {
                   {/* Contact Information */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-foreground mb-4">Contact Information</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
@@ -356,16 +367,15 @@ const CheckoutPage = () => {
                           name="name"
                           value={shippingForm.name}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                            validationErrors.name ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                          }`}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.name ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                            }`}
                           placeholder="Enter your full name"
                         />
                         {validationErrors.name && (
                           <p className="mt-1 text-sm text-destructive">{validationErrors.name}</p>
                         )}
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
                           Phone Number <span className="text-destructive">*</span>
@@ -376,9 +386,8 @@ const CheckoutPage = () => {
                           value={shippingForm.phone}
                           onChange={handleInputChange}
                           maxLength={10}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                            validationErrors.phone ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                          }`}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.phone ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                            }`}
                           placeholder="Enter 10-digit phone number"
                         />
                         {validationErrors.phone && (
@@ -399,9 +408,8 @@ const CheckoutPage = () => {
                         name="email"
                         value={shippingForm.email}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                          validationErrors.email ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.email ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                          }`}
                         placeholder="Enter your email address"
                       />
                       {validationErrors.email && (
@@ -416,7 +424,7 @@ const CheckoutPage = () => {
                   {/* Shipping Address */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-foreground mb-4">Shipping Address</h3>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
@@ -427,9 +435,8 @@ const CheckoutPage = () => {
                           name="address"
                           value={shippingForm.address}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                            validationErrors.address ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                          }`}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.address ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                            }`}
                           placeholder="House no., Building name, Street"
                         />
                         {validationErrors.address && (
@@ -446,9 +453,8 @@ const CheckoutPage = () => {
                           name="addressLine2"
                           value={shippingForm.addressLine2}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                            validationErrors.addressLine2 ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                          }`}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.addressLine2 ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                            }`}
                           placeholder="Apartment, suite, floor"
                         />
                         {validationErrors.addressLine2 && (
@@ -480,16 +486,15 @@ const CheckoutPage = () => {
                             name="city"
                             value={shippingForm.city}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                              validationErrors.city ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.city ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                              }`}
                             placeholder="Enter city"
                           />
                           {validationErrors.city && (
                             <p className="mt-1 text-sm text-destructive">{validationErrors.city}</p>
                           )}
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
                             State <span className="text-destructive">*</span>
@@ -499,16 +504,15 @@ const CheckoutPage = () => {
                             name="state"
                             value={shippingForm.state}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                              validationErrors.state ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.state ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                              }`}
                             placeholder="Enter state"
                           />
                           {validationErrors.state && (
                             <p className="mt-1 text-sm text-destructive">{validationErrors.state}</p>
                           )}
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
                             Pincode <span className="text-destructive">*</span>
@@ -519,9 +523,8 @@ const CheckoutPage = () => {
                             value={shippingForm.pincode}
                             onChange={handleInputChange}
                             maxLength={6}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                              validationErrors.pincode ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.pincode ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border'
+                              }`}
                             placeholder="Enter 6-digit pincode"
                           />
                           {validationErrors.pincode && (
@@ -547,7 +550,7 @@ const CheckoutPage = () => {
                             <option value="India">India</option>
                           </select>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
                             Address Type
@@ -582,15 +585,14 @@ const CheckoutPage = () => {
                   <button
                     onClick={handleContinueToPayment}
                     disabled={loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])}
-                    className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${
-                      loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])
-                        ? 'bg-gray-400 text-muted-foreground cursor-not-allowed' 
+                    className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])
+                        ? 'bg-gray-400 text-muted-foreground cursor-not-allowed'
                         : 'bg-primary text-primary-foreground hover:bg-blue-700'
-                    }`}
+                      }`}
                   >
                     {loading ? "Processing..." : "Continue to Payment"}
                   </button>
-                  
+
                   {/* Validation Summary */}
                   {Object.keys(validationErrors).some(key => validationErrors[key]) && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -601,13 +603,13 @@ const CheckoutPage = () => {
                         <h4 className="text-sm font-medium text-red-800">Please fix the following errors:</h4>
                       </div>
                       <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
-                        {Object.entries(validationErrors).map(([field, error]) => 
+                        {Object.entries(validationErrors).map(([field, error]) =>
                           error && <li key={field}>{error}</li>
                         )}
                       </ul>
                     </div>
                   )}
-                  
+
                   {isFormValid && !Object.keys(validationErrors).some(key => validationErrors[key]) && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <div className="flex items-center">
@@ -638,8 +640,8 @@ const CheckoutPage = () => {
                   {/* Payment Methods */}
                   <div className="bg-accent rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-4">Choose Payment Method</h3>
-                    
-                    {/* Razorpay Payment */}
+
+                    {/* Cashfree Payment */}
                     <div className="space-y-4">
                       <div className="bg-card rounded-lg border-2 border-blue-200 p-4">
                         <div className="flex items-center justify-between mb-4">
@@ -651,7 +653,7 @@ const CheckoutPage = () => {
                             </div>
                             <div>
                               <h4 className="font-semibold text-foreground">Online Payment</h4>
-                              <p className="text-sm text-muted-foreground">Pay securely with Razorpay</p>
+                              <p className="text-sm text-muted-foreground">Pay securely</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -659,7 +661,7 @@ const CheckoutPage = () => {
                             <p className="text-sm text-muted-foreground">Total Amount</p>
                           </div>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2 mb-4">
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">UPI</span>
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Cards</span>
@@ -667,7 +669,7 @@ const CheckoutPage = () => {
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Wallets</span>
                         </div>
 
-                        <RazorpayButton
+                        <CashfreeButton
                           product={{
                             name: `E-Kaathi Order (${cartData?.items?.length || 0} items)`,
                             price: calculateTotal()
@@ -680,21 +682,19 @@ const CheckoutPage = () => {
                           checkoutId={checkoutId}
                           buttonText={paymentProcessing ? "Processing..." : "Pay Now"}
                           disabled={codLoading || paymentProcessing}
-                          className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${
-                            codLoading || paymentProcessing 
-                              ? 'bg-gray-400 text-white cursor-not-allowed' 
+                          className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${codLoading || paymentProcessing
+                              ? 'bg-gray-400 text-white cursor-not-allowed'
                               : 'bg-primary text-primary-foreground hover:bg-blue-700'
-                          }`}
+                            }`}
                           onStart={() => {
+                            // Show overlay immediately when user enters Cashfree checkout
                             setPaymentProcessing(true);
                           }}
-                          onSuccess={(paymentResponse) => {
-                            console.log("Payment successful:", paymentResponse);
-                            // Keep processing state until redirect
+                          onSuccess={() => {
+                            // Keep processing overlay visible until navigation completes
                             router.push("/success?payment=completed");
                           }}
-                          onFailure={(error) => {
-                            console.error("Payment failed:", error);
+                          onFailure={() => {
                             alert("Payment failed. Please try again.");
                             setPaymentProcessing(false);
                           }}
@@ -827,28 +827,28 @@ const CheckoutPage = () => {
                   <span className="text-muted-foreground">Subtotal ({cartData && cartData.items ? cartData.items.length : 0} items)</span>
                   <span className="font-medium">₹{charges?.subtotal?.toFixed(2) || 0}</span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">GST (18%)</span>
                   <span className="font-medium">₹{charges?.gst?.toFixed(2) || 0}</span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Transaction Fee (2%)</span>
                   <span className="font-medium">₹{charges?.transactionFee?.toFixed(2) || 0}</span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {charges?.deliveryCharges === 100 
-                      ? "Delivery Charges (Mumbai Suburban)" 
+                    {charges?.deliveryCharges === 100
+                      ? "Delivery Charges (Mumbai Suburban)"
                       : charges?.deliveryCharges === 500
                         ? "Delivery Charges (Outside Mumbai)"
                         : "Delivery Charges"}
                   </span>
                   <span className="font-medium">₹{charges?.deliveryCharges || 100}</span>
                 </div>
-                
+
                 <div className="border-t border-border pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-bold text-foreground">Total Amount</span>
@@ -862,8 +862,8 @@ const CheckoutPage = () => {
               {shippingForm.pincode && shippingForm.pincode.length === 6 && (
                 <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    {charges?.deliveryCharges === 100 
-                      ? `🏙️ Mumbai Suburban (${shippingForm.pincode}): ₹100 delivery` 
+                    {charges?.deliveryCharges === 100
+                      ? `🏙️ Mumbai Suburban (${shippingForm.pincode}): ₹100 delivery`
                       : `📦 Outside Mumbai (${shippingForm.pincode}): ₹500 delivery`}
                   </p>
                   <p className="text-xs text-blue-600 mt-1">

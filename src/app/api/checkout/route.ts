@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const {
       shippingAddress,
-      paymentMethod = "razorpay"
+      paymentMethod = "cashfree"
     } = await request.json();
 
     // Validate required fields
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await connect();
     

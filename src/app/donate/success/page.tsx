@@ -29,7 +29,7 @@ function DonationSuccessContent() {
     const orderId = searchParams.get("order_id");
 
     if (!paymentId || !orderId) {
-      router.push("/donate");
+      router.push(`donate.${process.env.NEXT_PUBLIC_HOSTNAME}`);
       return;
     }
 
@@ -66,7 +66,7 @@ function DonationSuccessContent() {
         await navigator.share({
           title: "I just donated to help blind people!",
           text: `I donated ${donationData?.sticksEquivalent.toFixed(1)} E-Kaathi Pro smart canes to empower visually impaired individuals. Join me in making a difference!`,
-          url: window.location.origin + "/donate",
+          url: `donate.${process.env.NEXT_PUBLIC_HOSTNAME}`,
         });
       } catch (error) {
         console.log("Error sharing:", error);
@@ -96,7 +96,7 @@ function DonationSuccessContent() {
         <div className="text-center">
           <p className="text-destructive text-lg mb-4">Failed to load donation details</p>
           <Link
-            href="/donate"
+            href={`donate.${process.env.NEXT_PUBLIC_HOSTNAME}`}
             className="text-primary hover:underline flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4" />
@@ -266,19 +266,20 @@ function DonationSuccessContent() {
           {/* CTA Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/donate"
+              href={`donate.${process.env.NEXT_PUBLIC_HOSTNAME}`}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             >
               <Heart className="w-4 h-4" />
               Donate Again
             </Link>
-            {/* <Link
-              href="/products"
+
+            <Link
+              href={`${process.env.NEXT_PUBLIC_APP_URL}/products`}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-accent text-foreground border border-border rounded-lg font-semibold hover:bg-accent/80 transition-colors"
             >
               Visit Our Shop
               <ArrowRight className="w-4 h-4" />
-            </Link> */}
+            </Link>
           </div>
         </motion.div>
       </div>
