@@ -27,9 +27,10 @@ export const disabledRegistrationSchema = z.object({
     .string()
     .regex(/^[6-9]\d{9}$/, "Phone number must be a valid 10-digit Indian mobile number"),
 
-  alternatePhone: z
+  // Aadhaar number (optional if PAN provided)
+  aadharNumber: z
     .string()
-    .regex(/^[6-9]\d{9}$/, "Alternate phone must be a valid 10-digit Indian mobile number")
+    .regex(/^\d{12}$/, "Aadhaar must be a 12-digit number")
     .optional()
     .or(z.literal("")),
 
@@ -51,6 +52,7 @@ export const disabledRegistrationSchema = z.object({
     .string()
     .min(10, "Address must be at least 10 characters")
     .max(500, "Address must not exceed 500 characters"),
+  addressLine2: z.string().max(200, "Address line 2 must not exceed 200 characters").optional().or(z.literal("")),
 
   city: z
     .string()
@@ -93,12 +95,6 @@ export const disabledRegistrationSchema = z.object({
     .min(20, "Disability description must be at least 20 characters")
     .max(1000, "Disability description must not exceed 1000 characters"),
 
-  medicalConditions: z
-    .string()
-    .max(1000, "Medical conditions must not exceed 1000 characters")
-    .optional()
-    .or(z.literal("")),
-
   // Guardian Information (Optional for adults)
   guardianName: z
     .string()
@@ -107,9 +103,9 @@ export const disabledRegistrationSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  guardianRelation: z
+  guardianEmail: z
     .string()
-    .max(50, "Guardian relation must not exceed 50 characters")
+    .email("Guardian email must be a valid email address")
     .optional()
     .or(z.literal("")),
 
@@ -135,56 +131,6 @@ export const disabledRegistrationSchema = z.object({
     }
   ),
 
-  // Emergency Contact
-  emergencyContactName: z
-    .string()
-    .min(3, "Emergency contact name must be at least 3 characters")
-    .max(100, "Emergency contact name must not exceed 100 characters")
-    .optional()
-    .or(z.literal("")),
-
-  emergencyContactPhone: z
-    .string()
-    .regex(/^[6-9]\d{9}$/, "Emergency contact phone must be a valid 10-digit Indian mobile number")
-    .optional()
-    .or(z.literal("")),
-
-  emergencyContactRelation: z
-    .string()
-    .max(50, "Emergency contact relation must not exceed 50 characters")
-    .optional()
-    .or(z.literal("")),
-
-  // Additional Information
-  assistiveDevicesUsed: z
-    .string()
-    .max(500, "Assistive devices must not exceed 500 characters")
-    .optional()
-    .or(z.literal("")),
-
-  employmentStatus: z
-    .string()
-    .max(100, "Employment status must not exceed 100 characters")
-    .optional()
-    .or(z.literal("")),
-
-  monthlyIncome: z
-    .string()
-    .max(50, "Monthly income must not exceed 50 characters")
-    .optional()
-    .or(z.literal("")),
-
-  EducationLevel: z
-    .string()
-    .max(100, "Education level must not exceed 100 characters")
-    .optional()
-    .or(z.literal("")),
-
-  additionalNotes: z
-    .string()
-    .max(1000, "Additional notes must not exceed 1000 characters")
-    .optional()
-    .or(z.literal("")),
 });
 
 // Type inference for TypeScript

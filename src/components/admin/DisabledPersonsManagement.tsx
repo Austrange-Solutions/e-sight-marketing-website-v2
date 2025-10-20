@@ -11,7 +11,9 @@ interface DisabledPerson {
   _id: string;
   fullName: string;
   email: string;
+  aadharNumber?: string;
   phone: string;
+  guardianName?: string;
   disabilityType: string;
   disabilityPercentage: number;
   verificationStatus: "pending" | "under_review" | "verified" | "rejected";
@@ -281,13 +283,15 @@ export default function DisabledPersonsManagement({
               </span>
             </div>
             <div className="text-xs text-gray-500 space-y-1">
-              <p>
-                {person.disabilityType} ({person.disabilityPercentage}%)
-              </p>
-              <p>
-                {person.city}, {person.state}
-              </p>
-              <p>Registered: {new Date(person.createdAt).toLocaleDateString()}</p>
+                <p>
+                  {person.disabilityType} ({person.disabilityPercentage}%)
+                </p>
+                <p>
+                  {person.city}, {person.state}
+                </p>
+                {person.aadharNumber && <p className="text-xs text-gray-500">Aadhaar: {person.aadharNumber}</p>}
+                {person.guardianName && <p className="text-xs text-gray-500">Guardian: {person.guardianName}</p>}
+                <p>Registered: {new Date(person.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         ))}
@@ -331,6 +335,8 @@ export default function DisabledPersonsManagement({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{person.email}</div>
                   <div className="text-xs text-gray-500">{person.phone}</div>
+                  {person.aadharNumber && <div className="text-xs text-gray-500">Aadhaar: {person.aadharNumber}</div>}
+                  {person.guardianName && <div className="text-xs text-gray-500">Guardian: {person.guardianName}</div>}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{person.disabilityType}</div>

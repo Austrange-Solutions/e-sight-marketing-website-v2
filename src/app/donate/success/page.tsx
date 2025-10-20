@@ -272,13 +272,13 @@ function DonationSuccessContent() {
               <Heart className="w-4 h-4" />
               Donate Again
             </Link>
-            <Link
+            {/* <Link
               href="/products"
               className="flex items-center justify-center gap-2 px-6 py-3 bg-accent text-foreground border border-border rounded-lg font-semibold hover:bg-accent/80 transition-colors"
             >
               Visit Our Shop
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </Link> */}
           </div>
         </motion.div>
       </div>

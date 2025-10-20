@@ -4,6 +4,7 @@ import HomeHero from "@/components/HomePage/HomeHero";
 import FeatureCards from "@/components/HomePage/FeatureCards";
 import VideoSection from "@/components/HomePage/VideoSection";
 import HomeProductsSection from "@/components/HomePage/HomeProductsSection";
+import Faqs from "@/components/HomePage/Faqs";
 
 // Generate metadata for SEO
 export const metadata: Metadata = {
@@ -37,14 +38,17 @@ const Home = () => {
       {/* Hero Section - Client Component with animations */}
       <HomeHero />
 
-      {/* Features Section - Client Component with animations */}
-      <FeatureCards />
+      {/* Products Section - Dynamic products from database */}
+      <HomeProductsSection />
 
       {/* YouTube Video Section - Client Component with animations */}
       <VideoSection />
 
-      {/* Products Section - Dynamic products from database */}
-      <HomeProductsSection />
+      {/* Features Section - Client Component with animations */}
+      <FeatureCards />
+
+      {/* FAQs Section */}
+      <Faqs />
     </div>
   );
 };

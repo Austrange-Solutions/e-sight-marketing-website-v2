@@ -26,6 +26,10 @@ export interface TDisabledPerson {
   fullName: string;
   email: string;
   phone: string;
+  aadharNumber?: string;
+  guardianEmail?: string;
+  guardianName?: string;
+  guardianPhone?: string;
   dateOfBirth: Date;
   gender: "Male" | "Female" | "Other";
   
@@ -39,7 +43,7 @@ export interface TDisabledPerson {
   // Disability Information
   disabilityType: DisabilityType;
   disabilityPercentage: number;
-  otherDisabilityDetails?: string;
+  disabilityDescription?: string;
   
   // Documents (All stored in AWS S3: e-sight/disabled-docs/)
   documents: {
@@ -48,7 +52,6 @@ export interface TDisabledPerson {
     panCard?: DocumentType; // Optional - either Aadhar or PAN
     disabilityCertificate: DocumentType;
     udidCard?: DocumentType; // Unique Disability ID Card (Optional but recommended)
-    additionalDocuments?: DocumentType[]; // Any other supporting documents
   };
   
   // Verification Status
@@ -141,6 +144,28 @@ const disabledPersonSchema = new mongoose.Schema<TDisabledPerson>({
     unique: true,
     index: true,
   },
+  aadharNumber: {
+    type: String,
+    trim: true,
+    match: [/^\d{12}$/, "Aadhaar must be 12 digits"],
+    index: true,
+  },
+    guardianEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      match: [/.+@.+\..+/, "Please provide a valid guardian email address"],
+    },
+    guardianName: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Guardian name must not exceed 100 characters"],
+    },
+    guardianPhone: {
+      type: String,
+      trim: true,
+      match: [/^[6-9]\d{9}$/, "Please provide a valid 10-digit guardian phone number"],
+    },
   dateOfBirth: {
     type: Date,
     required: [true, "Date of birth is required"],
@@ -213,7 +238,7 @@ const disabledPersonSchema = new mongoose.Schema<TDisabledPerson>({
     min: [40, "Disability percentage must be at least 40% for certification"],
     max: [100, "Disability percentage cannot exceed 100%"],
   },
-  otherDisabilityDetails: {
+  disabilityDescription: {
     type: String,
     trim: true,
   },

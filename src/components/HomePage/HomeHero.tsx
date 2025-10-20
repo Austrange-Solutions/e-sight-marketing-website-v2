@@ -58,7 +58,7 @@ const HomeHero = () => {
               transition={{ delay: 0.4 }}
               className="text-xl sm:text-2xl mb-8 text-white/90 max-w-2xl mx-auto lg:mx-0"
             >
-              Experience independence with <span className="font-semibold">MACEAZY</span>&apos;s revolutionary smart blind stick, combining AI technology with intuitive navigation.
+              Experience independence with <span className="font-semibold">MACEAZY</span>&apos;s revolutionizing specially abled community, combining AI technology with intuitive navigation.
             </motion.p>
 
             {/* Feature Pills */}
@@ -177,9 +177,13 @@ const HomeHero = () => {
           transition={{ delay: 0.8 }}
           className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-white/20 pt-12"
         >
-          <div className="text-center">
+          {/* <div className="text-center">
             <div className="text-4xl font-bold mb-2">10K+</div>
             <div className="text-white/70 text-sm">Users Worldwide</div>
+          </div> */}
+          <div className="text-center">
+            <div className="text-4xl font-bold mb-2">50+</div>
+            <div className="text-white/70 text-sm">Life Impacted</div>
           </div>
           <div className="text-center">
             <div className="text-4xl font-bold mb-2">99%</div>
@@ -190,7 +194,7 @@ const HomeHero = () => {
             <div className="text-white/70 text-sm">Support Available</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold mb-2">5+</div>
+            <div className="text-4xl font-bold mb-2">3+</div>
             <div className="text-white/70 text-sm">Years Innovation</div>
           </div>
         </motion.div>

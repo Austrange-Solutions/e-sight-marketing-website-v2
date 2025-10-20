@@ -29,6 +29,26 @@ export async function POST(request: NextRequest) {
     const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
     if (missingVars.length > 0) {
       console.error("Missing environment variables:", missingVars);
+      // If running in development, provide a harmless fallback so local testing works without S3
+      if (process.env.NODE_ENV !== "production") {
+        const { fileName, fileType, documentType } = await request.json();
+        const timestamp = Date.now();
+        const sanitizedFileName = (fileName || "file").replace(/[^a-zA-Z0-9.-]/g, "_");
+        const uniqueFilename = `${timestamp}-${sanitizedFileName}`;
+        const s3Key = `dev-fallback/disabled-docs/${documentType}/${uniqueFilename}`;
+
+        const fakeSignedUrl = `https://example.com/fake-upload/${uniqueFilename}`;
+        const fakeViewUrl = `https://example.com/fake-view/${uniqueFilename}`;
+
+        return NextResponse.json({
+          signedUrl: fakeSignedUrl,
+          viewUrl: fakeViewUrl,
+          filename: uniqueFilename,
+          s3Key,
+          note: `Development fallback used - set real AWS env vars to use S3. Missing: ${missingVars.join(", ")}`,
+        });
+      }
+
       return NextResponse.json(
         {
           error: "Server configuration error",

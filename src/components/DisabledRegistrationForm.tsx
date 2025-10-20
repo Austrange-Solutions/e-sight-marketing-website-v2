@@ -35,6 +35,7 @@ const formSchema = z.object({
     .max(100, "Full name must not exceed 100 characters")
     .regex(/^[a-zA-Z\s.]+$/, "Only letters, spaces, and dots allowed"),
   email: z.string().email("Invalid email address").toLowerCase(),
+  aadharNumber: z.string().regex(/^\d{12}$/, "Aadhaar must be a 12-digit number").optional().or(z.literal("")),
   phone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit Indian mobile number"),
   alternatePhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
   dateOfBirth: z.string().refine((date) => {
@@ -64,6 +65,7 @@ const formSchema = z.object({
   disabilityDescription: z.string().min(20, "Please provide at least 20 characters").max(1000, "Must not exceed 1000 characters"),
   medicalConditions: z.string().max(1000, "Must not exceed 1000 characters").optional().or(z.literal("")),
   guardianName: z.string().min(3, "Guardian name must be at least 3 characters").max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
+  guardianEmail: z.string().email("Invalid guardian email").optional().or(z.literal("")),
   guardianRelation: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
   guardianPhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
   emergencyContactName: z.string().min(3, "Emergency contact must be at least 3 characters").max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
@@ -122,13 +124,28 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const DISABILITY_TYPES = [
-  "Visual Impairment",
-  "Hearing Impairment",
+  "Blindness",
+  "Low Vision",
+  "Leprosy Cured Persons",
+  "Hearing Impairment (Deaf and hard of hearing)",
   "Locomotor Disability",
+  "Dwarfism",
   "Intellectual Disability",
   "Mental Illness",
-  "Multiple Disabilities",
-  "Other",
+  "Autism Spectrum Disorder",
+  "Cerebral Palsy",
+  "Muscular Dystrophy",
+  "Chronic Neurological Conditions",
+  "Specific Learning Disabilities (e.g., Dyslexia)",
+  "Multiple Sclerosis",
+  "Speech and Language Disability",
+  "Thalassemia",
+  "Hemophilia",
+  "Sickle Cell Disease",
+  "Multiple Disabilities (More than one of the above)",
+  "Acid Attack Victims",
+  "Parkinson’s Disease",
+  "Others"
 ];
 
 const INDIAN_STATES = [
@@ -164,7 +181,9 @@ export default function DisabledRegistrationForm() {
     mode: "onChange", // Enable real-time validation
     defaultValues: {
       fullName: "",
+      aadharNumber: "",
       email: "",
+  guardianEmail: "",
       phone: "",
       alternatePhone: "",
       dateOfBirth: "",
@@ -463,6 +482,50 @@ export default function DisabledRegistrationForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" aria-label="Disabled Person Registration Form" suppressHydrationWarning>
+
+      {/* Guardian Information (moved above Personal Information as requested) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Guardian Information <span className="text-sm text-muted-foreground">(If applicable)</span></CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="guardianName">Guardian Full Name</Label>
+              <Input id="guardianName" {...register("guardianName")} placeholder="Guardian full name" disabled={isSubmitting} suppressHydrationWarning />
+              {errors.guardianName && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.guardianName.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="guardianEmail">Guardian Email</Label>
+              <Input id="guardianEmail" type="email" {...register("guardianEmail")} placeholder="guardian@example.com" disabled={isSubmitting} suppressHydrationWarning />
+              {errors.guardianEmail && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.guardianEmail.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="guardianPhone">Guardian Phone</Label>
+              <Input id="guardianPhone" type="tel" {...register("guardianPhone")} placeholder="10-digit mobile number" maxLength={10} disabled={isSubmitting} suppressHydrationWarning />
+              {errors.guardianPhone && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.guardianPhone.message}
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Personal Information */}
       <Card>
         <CardHeader>
@@ -486,6 +549,28 @@ export default function DisabledRegistrationForm() {
                 <p className="text-sm text-destructive flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
                   {errors.fullName.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="aadharNumber">
+                Aadhaar Number <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="aadharNumber"
+                type="text"
+                {...register("aadharNumber")}
+                placeholder="12-digit Aadhaar number"
+                maxLength={12}
+                aria-required="true"
+                disabled={isSubmitting}
+                suppressHydrationWarning
+              />
+              {errors.aadharNumber && (
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.aadharNumber.message}
                 </p>
               )}
             </div>
@@ -815,6 +900,7 @@ export default function DisabledRegistrationForm() {
           <FileUploadSection
             label="Aadhar Card"
             documentType="aadharCard"
+            required
             description="Upload your Aadhar Card (front and back)"
           />
 
@@ -829,12 +915,6 @@ export default function DisabledRegistrationForm() {
             documentType="disabilityCertificate"
             required
             description="Government-issued disability certificate"
-          />
-
-          <FileUploadSection
-            label="UDID Card"
-            documentType="udidCard"
-            description="Unique Disability ID Card (recommended)"
           />
 
           <div className="bg-muted/50 border border-border rounded-lg p-4">
