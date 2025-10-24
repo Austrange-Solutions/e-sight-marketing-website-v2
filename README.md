@@ -46,3 +46,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Development
+
+See `docs/DEVELOPER_GUIDE.md` and `docs/PROJECT_OVERVIEW.md` for setup, common workflows, the donation calculation contract, and the DB connection policy. Quick commands:
+
+```powershell
+# Install deps (Bun recommended)
+bun install
+
+# Start dev server
+bun dev --turbopack
+
+# Run the small donation breakdown tests
+node ./src/__tests__/donationBreakdown.test.js
+```

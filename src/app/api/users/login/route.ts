@@ -1,4 +1,5 @@
 import {connect} from "@/dbConfig/dbConfig";
+await connect();
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

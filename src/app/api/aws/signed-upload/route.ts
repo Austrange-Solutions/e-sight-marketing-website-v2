@@ -4,6 +4,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { connect } from "@/dbConfig/dbConfig";
 import UploadedImage from "@/models/UploadedImage";
 
+await connect();
+
 // Create S3 client with explicit credentials
 const createS3Client = () => {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID;

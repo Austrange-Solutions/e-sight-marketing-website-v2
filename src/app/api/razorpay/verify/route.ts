@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import { connect as __ensureConnect } from "@/dbConfig/dbConfig";
+
+await __ensureConnect();
 
 export async function POST(request: NextRequest) {
   try {

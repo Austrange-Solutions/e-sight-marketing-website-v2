@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
+import { connect as __ensureConnect } from "@/dbConfig/dbConfig";
 import DisabledPerson from "@/models/disabledPersonModel";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
 import { sendDisabledStatusUpdateEmail } from "@/helpers/resendEmail";
 import mongoose from "mongoose";
 
-connect();
+await __ensureConnect();
 
 // GET - Get individual disabled person details (Admin only)
 export async function GET(

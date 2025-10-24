@@ -8,6 +8,8 @@ import ProductsManagement from '@/components/admin/ProductsManagementNew';
 import OrdersManagement from '@/components/admin/OrdersManagement';
 import DeliveryAreasManagement from '@/components/admin/DeliveryAreasManagement';
 import DisabledPersonsManagement from '@/components/admin/DisabledPersonsManagement';
+import DonationsManagement from '@/components/admin/DonationsManagement';
+import FoundationSettingsManagement from '@/components/admin/FoundationSettingsManagement';
 import { TProduct } from '@/models/productModel';
 
 export const dynamic = 'force-dynamic';
@@ -162,7 +164,7 @@ export default function AdminDashboard() {
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [disabledPersons, setDisabledPersons] = useState<DisabledPerson[]>([]);
   const [disabledPersonsLoading, setDisabledPersonsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings'>('overview');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -305,7 +307,7 @@ export default function AdminDashboard() {
             <div className="sm:hidden">
               <select
                 value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons')}
+                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings')}
                 className="block w-full pl-3 pr-10 py-2 text-base border-border focus:outline-none focus:ring-ring focus:border-indigo-500 rounded-md"
               >
                 <option value="overview">Overview</option>
@@ -314,6 +316,8 @@ export default function AdminDashboard() {
                 <option value="orders">Orders</option>
                 <option value="delivery-areas">Delivery Areas</option>
                 <option value="disabled-persons">Disabled Persons</option>
+                <option value="donations">Donations</option>
+                <option value="foundation-settings">Foundation Settings</option>
               </select>
             </div>
             
@@ -327,10 +331,12 @@ export default function AdminDashboard() {
                   { key: 'orders', label: 'Orders' },
                   { key: 'delivery-areas', label: 'Delivery Areas' },
                   { key: 'disabled-persons', label: 'Disabled Persons' },
+                  { key: 'donations', label: 'Donations' },
+                  { key: 'foundation-settings', label: 'Foundation Settings' },
                 ].map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons')}
+                    onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                       activeTab === tab.key
                         ? 'border-indigo-500 text-primary'
@@ -362,6 +368,12 @@ export default function AdminDashboard() {
             )}
             {activeTab === 'disabled-persons' && (
               disabledPersonsLoading ? <SkeletonTable rows={5} cols={6} /> : <DisabledPersonsManagement persons={disabledPersons} onRefresh={loadDisabledPersons} />
+            )}
+            {activeTab === 'donations' && (
+              <DonationsManagement />
+            )}
+            {activeTab === 'foundation-settings' && (
+              <FoundationSettingsManagement />
             )}
           </div>
         </div>
