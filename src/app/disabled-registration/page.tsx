@@ -103,13 +103,13 @@ export default function DisabledRegistrationPage() {
                     <ul className="space-y-1 text-muted-foreground list-disc list-inside">
                       <li>Passport size photograph</li>
                       <li>Government-issued disability certificate</li>
-                      <li>Aadhar Card OR PAN Card</li>
+                      <li>Aadhar Card</li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground mb-2">Optional Documents:</h3>
                     <ul className="space-y-1 text-muted-foreground list-disc list-inside">
-                      <li>UDID Card (Recommended)</li>
+                      <li>PAN Card (Recommended)</li>
                       <li>Medical reports</li>
                       <li>Additional certificates</li>
                     </ul>

@@ -31,9 +31,10 @@ interface DisabledPersonDetail {
   disabilityPercentage: number;
   disabilityDescription: string;
   medicalConditions?: string;
-  guardianName?: string;
+  guardianName: string;
+  guardianEmail?: string;
   guardianRelation?: string;
-  guardianPhone?: string;
+  guardianPhone: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   emergencyContactRelation?: string;
@@ -75,6 +76,16 @@ export default function DisabledPersonDetailPage({
   const [error, setError] = useState("");
   const [newStatus, setNewStatus] = useState<string>("");
   const [adminComments, setAdminComments] = useState("");
+  const [editingPersonal, setEditingPersonal] = useState(false);
+  const [editingGuardian, setEditingGuardian] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [editingDisability, setEditingDisability] = useState(false);
+
+  // Editable form state
+  const [personalForm, setPersonalForm] = useState<any>({});
+  const [guardianForm, setGuardianForm] = useState<any>({});
+  const [addressForm, setAddressForm] = useState<any>({});
+  const [disabilityForm, setDisabilityForm] = useState<any>({});
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
@@ -100,11 +111,69 @@ export default function DisabledPersonDetailPage({
       }
 
       setPerson(data.person);
+      // initialize edit forms
+      setPersonalForm({
+        fullName: data.person.fullName,
+        email: data.person.email,
+        phone: data.person.phone,
+        dateOfBirth: data.person.dateOfBirth,
+        gender: data.person.gender,
+      });
+      setGuardianForm({
+        guardianName: data.person.guardianName || "",
+        guardianEmail: data.person.guardianEmail || "",
+        guardianPhone: data.person.guardianPhone || "",
+      });
+      setAddressForm({
+        address: data.person.address,
+        addressLine2: data.person.addressLine2 || "",
+        city: data.person.city,
+        state: data.person.state,
+        pincode: data.person.pincode,
+      });
+      setDisabilityForm({
+        disabilityType: data.person.disabilityType,
+        disabilityPercentage: data.person.disabilityPercentage,
+        disabilityDescription: data.person.disabilityDescription,
+      });
       setNewStatus(data.person.verificationStatus);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load person details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveEdits = async (group: "personal" | "guardian" | "address" | "disability") => {
+    if (!resolvedParams) return;
+    setUpdating(true);
+    try {
+      const body: any = {};
+      if (group === "personal") body.personalUpdates = personalForm;
+      if (group === "guardian") body.guardianUpdates = guardianForm;
+      if (group === "address") body.addressUpdates = addressForm;
+      if (group === "disability") body.disabilityUpdates = disabilityForm;
+
+      const response = await fetch(`/api/admin/disabled-persons/${resolvedParams.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to save edits");
+
+      alert("Saved successfully");
+      // refresh
+      await fetchPersonDetails();
+      setEditingPersonal(false);
+      setEditingGuardian(false);
+      setEditingAddress(false);
+      setEditingDisability(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save edits");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -282,40 +351,83 @@ export default function DisabledPersonDetailPage({
                 <CardTitle>Personal Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Full Name</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.fullName}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Email</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.email}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.phone}</dd>
-                  </div>
-                  {person.alternatePhone && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">Alternate Phone</dt>
-                      <dd className="text-sm text-gray-900 mt-1">{person.alternatePhone}</dd>
+                {!editingPersonal ? (
+                  <div className="flex justify-between items-start">
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Full Name</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.fullName}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Email</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.email}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Aadhaar Number</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{(person as any).aadharNumber || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.phone}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Date of Birth</dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {new Date(person.dateOfBirth).toLocaleDateString("en-IN", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Gender</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.gender}</dd>
+                      </div>
+                    </dl>
+                    <div className="ml-4">
+                      <Button variant="outline" onClick={() => setEditingPersonal(true)}>Edit</Button>
                     </div>
-                  )}
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Date of Birth</dt>
-                    <dd className="text-sm text-gray-900 mt-1">
-                      {new Date(person.dateOfBirth).toLocaleDateString("en-IN", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </dd>
                   </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Gender</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.gender}</dd>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Full Name</Label>
+                        <input className="input" value={personalForm.fullName || ''} onChange={(e) => setPersonalForm({...personalForm, fullName: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Aadhaar Number</Label>
+                        <input className="input" value={(personalForm as any).aadharNumber || ''} onChange={(e) => setPersonalForm({...personalForm, aadharNumber: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Email</Label>
+                        <input className="input" value={personalForm.email || ''} onChange={(e) => setPersonalForm({...personalForm, email: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Phone</Label>
+                        <input className="input" value={personalForm.phone || ''} onChange={(e) => setPersonalForm({...personalForm, phone: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Date of Birth</Label>
+                        <input className="input" type="date" value={new Date(personalForm.dateOfBirth || '').toISOString().split('T')[0]} onChange={(e) => setPersonalForm({...personalForm, dateOfBirth: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Gender</Label>
+                        <select className="input" value={personalForm.gender || ''} onChange={(e) => setPersonalForm({...personalForm, gender: e.target.value})}>
+                          <option value="">Select</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => saveEdits('personal')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
+                      <Button variant="ghost" onClick={() => setEditingPersonal(false)}>Cancel</Button>
+                    </div>
                   </div>
-                </dl>
+                )}
               </CardContent>
             </Card>
 
@@ -325,24 +437,56 @@ export default function DisabledPersonDetailPage({
                 <CardTitle>Address Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-gray-500">Address</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.address}</dd>
+                {!editingAddress ? (
+                  <div className="flex justify-between items-start">
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="sm:col-span-2">
+                        <dt className="text-sm font-medium text-gray-500">Address</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.address}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">City</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.city}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">State</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.state}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Pincode</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.pincode}</dd>
+                      </div>
+                    </dl>
+                    <div className="ml-4">
+                      <Button variant="outline" onClick={() => setEditingAddress(true)}>Edit</Button>
+                    </div>
                   </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">City</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.city}</dd>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="sm:col-span-2">
+                        <Label>Address</Label>
+                        <input className="input" value={addressForm.address || ''} onChange={(e) => setAddressForm({...addressForm, address: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>City</Label>
+                        <input className="input" value={addressForm.city || ''} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>State</Label>
+                        <input className="input" value={addressForm.state || ''} onChange={(e) => setAddressForm({...addressForm, state: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Pincode</Label>
+                        <input className="input" value={addressForm.pincode || ''} onChange={(e) => setAddressForm({...addressForm, pincode: e.target.value})} />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => saveEdits('address')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
+                      <Button variant="ghost" onClick={() => setEditingAddress(false)}>Cancel</Button>
+                    </div>
                   </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">State</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.state}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Pincode</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.pincode}</dd>
-                  </div>
-                </dl>
+                )}
               </CardContent>
             </Card>
 
@@ -352,97 +496,140 @@ export default function DisabledPersonDetailPage({
                 <CardTitle>Disability Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="space-y-4">
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Disability Type</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.disabilityType}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Disability Percentage</dt>
-                    <dd className="text-sm text-gray-900 mt-1">{person.disabilityPercentage}%</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Description</dt>
-                    <dd className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
-                      {person.disabilityDescription}
-                    </dd>
-                  </div>
-                  {person.medicalConditions && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">Medical Conditions</dt>
-                      <dd className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
-                        {person.medicalConditions}
-                      </dd>
+                {!editingDisability ? (
+                  <div className="flex justify-between items-start">
+                    <dl className="space-y-4">
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Disability Type</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.disabilityType}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Disability Percentage</dt>
+                        <dd className="text-sm text-gray-900 mt-1">{person.disabilityPercentage}%</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Description</dt>
+                        <dd className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
+                          {person.disabilityDescription}
+                        </dd>
+                      </div>
+                    </dl>
+                    <div className="ml-4">
+                      <Button variant="outline" onClick={() => setEditingDisability(true)}>Edit</Button>
                     </div>
-                  )}
-                  {person.assistiveDevicesUsed && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">Assistive Devices Used</dt>
-                      <dd className="text-sm text-gray-900 mt-1">{person.assistiveDevicesUsed}</dd>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Disability Type</Label>
+                        <input className="input" value={disabilityForm.disabilityType || ''} onChange={(e) => setDisabilityForm({...disabilityForm, disabilityType: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Disability Percentage</Label>
+                        <input className="input" type="number" value={disabilityForm.disabilityPercentage || 0} onChange={(e) => setDisabilityForm({...disabilityForm, disabilityPercentage: Number(e.target.value)})} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Description</Label>
+                        <textarea className="input" value={disabilityForm.disabilityDescription || ''} onChange={(e) => setDisabilityForm({...disabilityForm, disabilityDescription: e.target.value})} />
+                      </div>
                     </div>
-                  )}
-                </dl>
+                    <div className="flex gap-2">
+                      <Button onClick={() => saveEdits('disability')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
+                      <Button variant="ghost" onClick={() => setEditingDisability(false)}>Cancel</Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Guardian Information */}
-            {(person.guardianName || person.emergencyContactName) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Guardian & Emergency Contact</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {person.guardianName && (
-                      <>
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Guardian Name</dt>
-                          <dd className="text-sm text-gray-900 mt-1">{person.guardianName}</dd>
-                        </div>
-                        {person.guardianRelation && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Guardian & Emergency Contact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!editingGuardian ? (
+                  <div className="flex justify-between items-start">
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {person.guardianName && (
+                        <>
                           <div>
-                            <dt className="text-sm font-medium text-gray-500">Relation</dt>
-                            <dd className="text-sm text-gray-900 mt-1">{person.guardianRelation}</dd>
+                            <dt className="text-sm font-medium text-gray-500">Guardian Name</dt>
+                            <dd className="text-sm text-gray-900 mt-1">{person.guardianName}</dd>
                           </div>
-                        )}
-                        {person.guardianPhone && (
+                          {person.guardianEmail && (
+                            <div>
+                              <dt className="text-sm font-medium text-gray-500">Guardian Email</dt>
+                              <dd className="text-sm text-gray-900 mt-1">{person.guardianEmail}</dd>
+                            </div>
+                          )}
+                          {person.guardianPhone && (
+                            <div>
+                              <dt className="text-sm font-medium text-gray-500">Guardian Phone</dt>
+                              <dd className="text-sm text-gray-900 mt-1">{person.guardianPhone}</dd>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {person.emergencyContactName && (
+                        <>
                           <div>
-                            <dt className="text-sm font-medium text-gray-500">Guardian Phone</dt>
-                            <dd className="text-sm text-gray-900 mt-1">{person.guardianPhone}</dd>
-                          </div>
-                        )}
-                      </>
-                    )}
-                    {person.emergencyContactName && (
-                      <>
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Emergency Contact</dt>
-                          <dd className="text-sm text-gray-900 mt-1">
-                            {person.emergencyContactName}
-                          </dd>
-                        </div>
-                        {person.emergencyContactPhone && (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">Contact Phone</dt>
+                            <dt className="text-sm font-medium text-gray-500">Emergency Contact</dt>
                             <dd className="text-sm text-gray-900 mt-1">
-                              {person.emergencyContactPhone}
+                              {person.emergencyContactName}
                             </dd>
                           </div>
-                        )}
-                        {person.emergencyContactRelation && (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">Relation</dt>
-                            <dd className="text-sm text-gray-900 mt-1">
-                              {person.emergencyContactRelation}
-                            </dd>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </dl>
-                </CardContent>
-              </Card>
-            )}
+                          {person.emergencyContactPhone && (
+                            <div>
+                              <dt className="text-sm font-medium text-gray-500">Contact Phone</dt>
+                              <dd className="text-sm text-gray-900 mt-1">
+                                {person.emergencyContactPhone}
+                              </dd>
+                            </div>
+                          )}
+                          {person.emergencyContactRelation && (
+                            <div>
+                              <dt className="text-sm font-medium text-gray-500">Relation</dt>
+                              <dd className="text-sm text-gray-900 mt-1">
+                                {person.emergencyContactRelation}
+                              </dd>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {!person.guardianName && !person.emergencyContactName && (
+                        <div className="sm:col-span-2 text-sm text-gray-500">No guardian or emergency contact provided.</div>
+                      )}
+                    </dl>
+                    <div className="ml-4">
+                      <Button variant="outline" onClick={() => setEditingGuardian(true)}>Edit</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Guardian Name</Label>
+                        <input className="input" value={guardianForm.guardianName || ''} onChange={(e) => setGuardianForm({...guardianForm, guardianName: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Guardian Email</Label>
+                        <input className="input" value={guardianForm.guardianEmail || ''} onChange={(e) => setGuardianForm({...guardianForm, guardianEmail: e.target.value})} />
+                      </div>
+                      <div>
+                        <Label>Guardian Phone</Label>
+                        <input className="input" value={guardianForm.guardianPhone || ''} onChange={(e) => setGuardianForm({...guardianForm, guardianPhone: e.target.value})} />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => saveEdits('guardian')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
+                      <Button variant="ghost" onClick={() => setEditingGuardian(false)}>Cancel</Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Additional Information */}
             {(person.employmentStatus ||

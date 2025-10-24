@@ -7,7 +7,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string): P
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Password Reset - E-sight</title>
+      <title>Password Reset - Maceazy</title>
     </head>
     <body style="margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
       <div style="min-height: 100vh; padding: 40px 20px; display: flex; align-items: center; justify-content: center;">
@@ -22,9 +22,9 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string): P
             <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">If you did not request a password reset, please ignore this email.</p>
           </div>
           <div style="background: #f8fafc; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-            <h3 style="color: #374151; font-size: 18px; font-weight: 600; margin: 0 0 8px 0;">e-Sight</h3>
+            <h3 style="color: #374151; font-size: 18px; font-weight: 600; margin: 0 0 8px 0;">e-Kaathi</h3>
             <p style="color: #6b7280; font-size: 14px; margin: 0; font-style: italic;">"Improving the lives of blind individuals living in darkness"</p>
-            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} e-Sight Technologies. All rights reserved.</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} e-Kaathi. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string): P
     </html>
   `;
   await resend.emails.send({
-    from: "e-Sight <no-reply@austrangesolutions.com>",
+    from: "Maceazy <no-reply@austrangesolutions.com>",
     to: email,
     subject,
     html,
@@ -41,7 +41,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string): P
 // Sends a verification code to the user's email
 export async function resendEmail(email: string, code: string): Promise<void> {
   // Actually send the email using the helper
-  await sendVerificationEmail(email, 'Your E-sight Verification Code', code);
+  await sendVerificationEmail(email, 'Your Maceazy Verification Code', code);
 }
 import { Resend } from "resend";
 
@@ -59,7 +59,7 @@ export async function sendVerificationEmail(
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Verify Your Email - E-sight</title>
+        <title>Verify Your Email - Maceazy</title>
       </head>
       <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
         <div style="min-height: 100vh; padding: 40px 20px; display: flex; align-items: center; justify-content: center;">
@@ -83,13 +83,13 @@ export async function sendVerificationEmail(
                 </div>
               </div>
               <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Email Verification</h1>
-              <p style="color: rgba(255, 255, 255, 0.9); font-size: 16px; margin: 0; font-weight: 400;">Secure your e-Sight account</p>
+              <p style="color: rgba(255, 255, 255, 0.9); font-size: 16px; margin: 0; font-weight: 400;">Secure your Maceazy account</p>
             </div>
 
             <!-- Content Section -->
             <div style="padding: 48px 40px 40px 40px; position: relative; z-index: 2;">
               <div style="text-align: center; margin-bottom: 32px;">
-                <h2 style="color: #1a1a1a; font-size: 24px; font-weight: 600; margin: 0 0 16px 0;">Welcome to e-Sight!</h2>
+                <h2 style="color: #1a1a1a; font-size: 24px; font-weight: 600; margin: 0 0 16px 0;">Welcome to !</h2>
                 <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0; max-width: 400px; margin-left: auto; margin-right: auto;">
                   We're excited to have you join our mission of improving lives through innovative assistive technology.
                 </p>
@@ -125,7 +125,7 @@ export async function sendVerificationEmail(
                 </h3>
                 <ol style="color: #6b46c1; font-size: 14px; line-height: 1.6; margin: 0; padding-left: 20px;">
                   <li style="margin-bottom: 8px;">Copy the 6-digit code above</li>
-                  <li style="margin-bottom: 8px;">Return to the e-Sight application</li>
+                  <li style="margin-bottom: 8px;">Return to the Maceazy application</li>
                   <li>Enter the code to verify your email</li>
                 </ol>
               </div>
@@ -134,7 +134,7 @@ export async function sendVerificationEmail(
             <!-- Footer -->
             <div style="background: #f8fafc; padding: 32px 40px; text-align: center; border-top: 1px solid #e5e7eb; position: relative; z-index: 2;">
               <div style="margin-bottom: 20px;">
-                <h3 style="color: #374151; font-size: 18px; font-weight: 600; margin: 0 0 8px 0;">e-Sight</h3>
+                <h3 style="color: #374151; font-size: 18px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
                 <p style="color: #6b7280; font-size: 14px; margin: 0; font-style: italic;">
                   "Improving the lives of blind individuals living in darkness"
                 </p>
@@ -142,7 +142,7 @@ export async function sendVerificationEmail(
               
               <div style="border-top: 1px solid #d1d5db; padding-top: 20px;">
                 <p style="color: #9ca3af; font-size: 12px; margin: 0 0 8px 0;">
-                  © ${new Date().getFullYear()} e-Sight Technologies. All rights reserved.
+                  © ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.
                 </p>
                 <p style="color: #9ca3af; font-size: 11px; margin: 0;">
                   This email was sent to ${to.split('@')[0]}@•••
@@ -156,9 +156,9 @@ export async function sendVerificationEmail(
     `;
 
     const data = await resend.emails.send({
-      from: "e-Sight <no-reply@austrangesolutions.com>", // Consider using your own domain
+      from: "Maceazy <no-reply@austrangesolutions.com>", // Consider using your own domain
       to,
-      subject: subject || "Verify your e-Sight account",
+      subject: subject || "Verify your Maceazy account",
       html,
     });
 
@@ -173,7 +173,8 @@ export async function sendVerificationEmail(
 export async function sendDisabledRegistrationEmail(
   email: string,
   name: string,
-  registrationId: string
+  registrationId: string,
+  guardianEmail?: string
 ): Promise<void> {
   const subject = "Registration Received - Disabled Person Verification";
   const statusCheckUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/disabled-registration/status?id=${registrationId}`;
@@ -198,7 +199,7 @@ export async function sendDisabledRegistrationEmail(
             <p style="color: #374151; font-size: 16px; margin: 0 0 16px 0;">Dear ${name},</p>
             
             <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
-              Thank you for registering with e-Sight. We have received your application for disabled person verification.
+              Thank you for registering with Maceazy. We have received your application for disabled person verification.
             </p>
             
             <div style="background: #f0f9ff; border-left: 4px solid oklch(0.65 0.14 230); padding: 16px; margin: 24px 0;">
@@ -229,9 +230,9 @@ export async function sendDisabledRegistrationEmail(
           </div>
           
           <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
-            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">e-Sight</h3>
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
             <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
-            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} e-Sight Technologies. All rights reserved.</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -240,11 +241,26 @@ export async function sendDisabledRegistrationEmail(
   `;
 
   await resend.emails.send({
-    from: "e-Sight <no-reply@austrangesolutions.com>",
+    from: "Maceazy <no-reply@austrangesolutions.com>",
     to: email,
     subject,
     html,
   });
+
+  // Also send same email to guardian if provided and different from primary
+  try {
+    if (guardianEmail && guardianEmail !== email) {
+      await resend.emails.send({
+        from: "Maceazy <no-reply@austrangesolutions.com>",
+        to: guardianEmail,
+        subject,
+        html,
+      });
+    }
+  } catch (gErr) {
+    console.error("Failed to send registration email to guardian:", gErr);
+    // don't throw - guardian email failure shouldn't fail registration
+  }
 }
 
 // Sends status update email to disabled person
@@ -253,7 +269,8 @@ export async function sendDisabledStatusUpdateEmail(
   name: string,
   registrationId: string,
   status: "under_review" | "verified" | "rejected",
-  comments?: string
+  comments?: string,
+  guardianEmail?: string
 ): Promise<void> {
   const statusMessages = {
     under_review: {
@@ -349,9 +366,9 @@ export async function sendDisabledStatusUpdateEmail(
           </div>
           
           <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
-            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">e-Sight</h3>
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
             <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
-            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} e-Sight Technologies. All rights reserved.</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -360,9 +377,24 @@ export async function sendDisabledStatusUpdateEmail(
   `;
 
   await resend.emails.send({
-    from: "e-Sight <no-reply@austrangesolutions.com>",
+    from: "Maceazy <no-reply@austrangesolutions.com>",
     to: email,
     subject,
     html,
   });
+
+  // Also send same status update to guardian if provided and different from primary
+  try {
+    if (guardianEmail && guardianEmail !== email) {
+      await resend.emails.send({
+        from: "Maceazy <no-reply@austrangesolutions.com>",
+        to: guardianEmail,
+        subject,
+        html,
+      });
+    }
+  } catch (gErr) {
+    console.error("Failed to send status update email to guardian:", gErr);
+    // don't throw - failure to notify guardian shouldn't block admin action
+  }
 }
