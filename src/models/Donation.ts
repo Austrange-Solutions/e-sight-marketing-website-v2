@@ -171,11 +171,11 @@ DonationSchema.virtual("formattedSticks").get(function (this: IDonation) {
   if (sticks < 0.5) {
     return "Contributing";
   } else if (sticks < 1) {
-    return "0.5 E-Kaathi Pro";
+    return "0.5 Maceazy Pro";
   } else if (sticks < 1.5) {
-    return "1 E-Kaathi Pro";
+    return "1 Maceazy Pro";
   } else {
-    return `${sticks.toFixed(1)} E-Kaathi Pro`;
+    return `${sticks.toFixed(1)} Maceazy Pro`;
   }
 });
 
@@ -188,3 +188,4 @@ const Donation: Model<IDonation> =
   mongoose.models.Donation || mongoose.model<IDonation>("Donation", DonationSchema);
 
 export default Donation;
+

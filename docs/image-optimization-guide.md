@@ -69,14 +69,14 @@ Replace image resolution logic:
 const getProductImage = async (product) => {
   if (mongoose.Types.ObjectId.isValid(product.image)) {
     const uploadedImage = await UploadedImage.findById(product.image);
-    return uploadedImage?.cloudFrontUrl || '/assets/images/e-sight-logo.png';
+    return uploadedImage?.cloudFrontUrl || '/assets/images/maceazy-logo.png';
   }
-  return product.image || '/assets/images/e-sight-logo.png';
+  return product.image || '/assets/images/maceazy-logo.png';
 }
 
 // After (Simple)
 const getProductImage = (product) => {
-  return product.image || '/assets/images/e-sight-logo.png';
+  return product.image || '/assets/images/maceazy-logo.png';
 }
 ```
 

@@ -12,6 +12,7 @@ const CheckoutPage = () => {
   const [cartData, setCartData] = useState<{ items: Array<{ _id: string, name: string, price: number, quantity: number, image: string }>, orderSummary: { subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } } | null>(null);
   const [calculatedCharges, setCalculatedCharges] = useState<{ subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } | null>(null);
   const [setAsDefault, setSetAsDefault] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string>("");
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isFormValid, setIsFormValid] = useState(false);
@@ -146,6 +147,11 @@ const CheckoutPage = () => {
     // Validate the entire form
     if (!validateForm()) {
       alert("Please fix all validation errors before continuing");
+      return;
+    }
+
+    if (!policyAccepted) {
+      alert('Please agree to the Terms & Refund Policy before continuing');
       return;
     }
 
@@ -567,23 +573,35 @@ const CheckoutPage = () => {
                     </div>
 
                     <div className="mt-4">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={setAsDefault}
-                          onChange={(e) => setSetAsDefault(e.target.checked)}
-                          className="rounded border-border text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-foreground">Set as default address</span>
-                      </label>
+                        <div className="flex items-start gap-6">
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={setAsDefault}
+                              onChange={(e) => setSetAsDefault(e.target.checked)}
+                              className="rounded border-border text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="ml-2 text-sm text-foreground">Set as default address</span>
+                          </label>
+
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={policyAccepted}
+                              onChange={(e) => setPolicyAccepted(e.target.checked)}
+                              className="rounded border-border text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="ml-2 text-sm text-foreground">I agree to the <a href="/terms-of-use" className="underline">Terms & Refund Policy</a></span>
+                          </label>
+                        </div>
                     </div>
                   </div>
 
                   <button
                     onClick={handleContinueToPayment}
-                    disabled={loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])}
+                    disabled={loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key]) || !policyAccepted}
                     className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${
-                      loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])
+                      loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key]) || !policyAccepted
                         ? 'bg-gray-400 text-muted-foreground cursor-not-allowed' 
                         : 'bg-primary text-primary-foreground hover:bg-blue-700'
                     }`}
@@ -669,7 +687,7 @@ const CheckoutPage = () => {
 
                         <RazorpayButton
                           product={{
-                            name: `E-Kaathi Order (${cartData?.items?.length || 0} items)`,
+                            name: `Maceazy Order (${cartData?.items?.length || 0} items)`,
                             price: calculateTotal()
                           }}
                           userDetails={{
@@ -902,3 +920,4 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
+

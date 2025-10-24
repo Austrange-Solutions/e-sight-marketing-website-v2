@@ -26,10 +26,10 @@ interface Foundation {
 }
 
 const presetAmounts = [
-  { sticks: 1, amount: 1499, label: "1 E-Kaathi Pro" },
-  { sticks: 2, amount: 2998, label: "2 E-Kaathi Pro" },
-  { sticks: 4, amount: 5996, label: "4 E-Kaathi Pro" },
-  { sticks: 8, amount: 11992, label: "8 E-Kaathi Pro" },
+  { sticks: 1, amount: 1499, label: "1 Maceazy Pro" },
+  { sticks: 2, amount: 2998, label: "2 Maceazy Pro" },
+  { sticks: 4, amount: 5996, label: "4 Maceazy Pro" },
+  { sticks: 8, amount: 11992, label: "8 Maceazy Pro" },
 ];
 
 export default function DonatePage() {
@@ -52,6 +52,7 @@ export default function DonatePage() {
     state: "",
     pan: "",
   });
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paymentError, setPaymentError] = useState<string>("");
 
@@ -103,13 +104,13 @@ export default function DonatePage() {
 
   const getImpactMessage = () => {
     if (sticksEquivalent < 0.5) {
-      return "You are contributing towards E-Kaathi Pro for blind people";
+      return "You are contributing towards Maceazy Pro for blind people";
     } else if (sticksEquivalent < 1) {
-      return "You are donating 0.5 E-Kaathi Pro to blind people";
+      return "You are donating 0.5 Maceazy Pro to blind people";
     } else if (sticksEquivalent < 1.5) {
-      return "You are donating 1 E-Kaathi Pro to a blind person";
+      return "You are donating 1 Maceazy Pro to a blind person";
     } else {
-      return `You are donating ${sticksEquivalent.toFixed(1)} E-Kaathi Pro to blind people`;
+      return `You are donating ${sticksEquivalent.toFixed(1)} Maceazy Pro to blind people`;
     }
   };
 
@@ -186,7 +187,7 @@ export default function DonatePage() {
               Help Blind People See the World
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Your donation provides E-Kaathi Pro smart canes that empower visually impaired
+              Your donation provides Maceazy Pro smart canes that empower visually impaired
               individuals with independence, safety, and confidence.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
@@ -277,7 +278,7 @@ export default function DonatePage() {
                         <h3 className="font-semibold text-foreground mb-2">Your Impact</h3>
                         <p className="text-foreground">{getImpactMessage()}</p>
                         <p className="text-sm text-muted-foreground mt-2">
-                          Every E-Kaathi Pro smart cane transforms a life with safer, more
+                          Every Maceazy Pro smart cane transforms a life with safer, more
                           independent mobility.
                         </p>
                       </div>
@@ -466,6 +467,29 @@ export default function DonatePage() {
                     </label>
                   </div>
 
+                  {/* Policy Acceptance Checkbox */}
+                  <div className="flex items-start">
+                    <input
+                      type="checkbox"
+                      id="policyAcceptance"
+                      checked={policyAccepted}
+                      onChange={(e) => setPolicyAccepted(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 text-primary bg-background border-border rounded focus:ring-ring"
+                    />
+                    <label htmlFor="policyAcceptance" className="ml-2 text-sm text-muted-foreground">
+                      I agree to the{" "}
+                      <a
+                        href="/terms-of-use"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Terms & Refund Policy
+                      </a>
+                      {" "}*
+                    </label>
+                  </div>
+
                   {/* Foundation Selection */}
                   <div>
                     <h3 className="text-lg font-semibold text-foreground mb-3">
@@ -548,7 +572,7 @@ export default function DonatePage() {
                       state: formData.state,
                       pan: formData.pan,
                     }}
-                    disabled={!formData.name || !formData.email || !formData.phone || selectedAmount < 1}
+                    disabled={!formData.name || !formData.email || !formData.phone || selectedAmount < 1 || !policyAccepted}
                     onError={handlePaymentError}
                     selectedFoundation={selectedFoundation}
                   />
@@ -575,10 +599,10 @@ export default function DonatePage() {
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Why E-Kaathi Pro?
+              Why Maceazy Pro?
             </h2>
             <p className="text-lg text-muted-foreground mb-12">
-              E-Kaathi Pro is a revolutionary smart cane that uses advanced sensors and AI to
+              Maceazy Pro is a revolutionary smart cane that uses advanced sensors and AI to
               detect obstacles, providing real-time feedback to visually impaired users.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -617,3 +641,4 @@ export default function DonatePage() {
     </div>
   );
 }
+

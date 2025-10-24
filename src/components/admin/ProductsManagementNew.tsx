@@ -661,11 +661,11 @@ const deleteOldImage = async (oldImageUrl: string) => {
             {/* Product Image */}
             <div className="relative h-40 sm:h-48 bg-accent">
               <img
-                src={product.image || '/assets/images/e-sight-logo.png'}
+                src={product.image || '/assets/images/maceazy-logo.png'}
                 alt={product.name}
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  e.currentTarget.src = '/assets/images/e-sight-logo.png';
+                  e.currentTarget.src = '/assets/images/maceazy-logo.png';
                 }}
               />
               <div className="absolute top-2 right-2">
@@ -837,7 +837,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <img
-                  src={selectedProduct.image || '/assets/images/e-sight-logo.png'}
+                  src={selectedProduct.image || '/assets/images/maceazy-logo.png'}
                   alt={selectedProduct.name}
                   className="w-full h-48 sm:h-64 object-cover rounded-lg"
                 />
@@ -1500,3 +1500,4 @@ const deleteOldImage = async (oldImageUrl: string) => {
     </div>
   );
 }
+

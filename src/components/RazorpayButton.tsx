@@ -124,7 +124,7 @@ const RazorpayButton: React.FC<Props> = ({
         key: orderData.key,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "E-Kaathi",
+        name: "Maceazy",
         description: product.name,
         order_id: orderData.orderId,
         handler: async (response: RazorpayResponse) => {
@@ -187,7 +187,7 @@ const RazorpayButton: React.FC<Props> = ({
           contact: userDetails.phone,
         },
         notes: {
-          address: "E-Kaathi Office",
+          address: "Maceazy Office",
         },
         theme: {
           color: "#2563eb",

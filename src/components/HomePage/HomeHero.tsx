@@ -33,7 +33,7 @@ const HomeHero = () => {
               className="inline-block mb-6"
             >
               <Badge className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm font-medium backdrop-blur-sm hover:bg-white/30 transition-colors">
-                ✨ Revolutionary Assistive Technology
+                 A brand by Austrange Solutions pvt Ltd
               </Badge>
             </motion.div>
 
@@ -60,6 +60,9 @@ const HomeHero = () => {
             >
               Experience independence with <span className="font-semibold">MACEAZY</span>&apos;s revolutionary smart blind stick, combining AI technology with intuitive navigation.
             </motion.p>
+
+      
+          
 
             {/* Feature Pills */}
             <motion.div

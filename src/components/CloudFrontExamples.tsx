@@ -11,8 +11,8 @@ function ProductImage({ imageKey }: { imageKey: string }) {
   useEffect(() => {
     const loadImage = async () => {
       // imageKey can be either:
-      // - Just filename: "E-Kaathi-basic.png" 
-      // - Full path: "E-Kaathi-ecommerce-product-images/E-Kaathi-basic.png"
+      // - Just filename: "Maceazy-basic.png" 
+      // - Full path: "Maceazy-ecommerce-product-images/Maceazy-basic.png"
       // The API will handle both correctly
       
       const url = await getImageUrl(imageKey);
@@ -48,8 +48,8 @@ function CloudFrontTest() {
 
   const testUrls = async () => {
     const tests = [
-      { name: 'Just filename', key: 'E-Kaathi-basic.png' },
-      { name: 'Full path', key: 'E-Kaathi-ecommerce-product-images/E-Kaathi-basic.png' },
+      { name: 'Just filename', key: 'Maceazy-basic.png' },
+      { name: 'Full path', key: 'Maceazy-ecommerce-product-images/Maceazy-basic.png' },
     ];
 
     const results = [];
@@ -90,7 +90,7 @@ function CloudFrontTest() {
           {result.status === 'success' ? (
             <>
               <p><strong>Generated URL:</strong> {result.url}</p>
-              <p className="text-green-600">✅ Should be: https://dw9tsoyfcyk5k.cloudfront.net/E-Kaathi-ecommerce-product-images/E-Kaathi-basic.png</p>
+              <p className="text-green-600">✅ Should be: https://dw9tsoyfcyk5k.cloudfront.net/Maceazy-ecommerce-product-images/Maceazy-basic.png</p>
             </>
           ) : (
             <p className="text-red-600">❌ Error: {result.status}</p>

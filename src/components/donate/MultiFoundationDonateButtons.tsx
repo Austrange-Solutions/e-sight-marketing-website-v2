@@ -162,7 +162,7 @@ export default function MultiFoundationDonateButtons({
         amount: createData.amount,
         currency: createData.currency,
         name: createData.foundationName || "MACEAZY Foundation",
-        description: `Donate ${sticksEquivalent.toFixed(1)} E-Kaathi Pro to blind people via ${createData.foundationName}`,
+        description: `Donate ${sticksEquivalent.toFixed(1)} Maceazy Pro to blind people via ${createData.foundationName}`,
         order_id: createData.orderId,
         notes: {
           donorName: donorDetails.name,
@@ -236,14 +236,16 @@ export default function MultiFoundationDonateButtons({
 
   // If selectedFoundation is provided, show single button
   if (selectedFoundation) {
+    const isDisabled = loadingFoundation !== null || disabled || amount < 1;
+    
     return (
       <div className="space-y-4">
         <button
           type="button"
           onClick={() => handleDonation(selectedFoundation)}
-          disabled={loadingFoundation !== null || disabled || amount < 1}
+          disabled={isDisabled}
           className={`w-full bg-primary text-primary-foreground py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2 ${
-            loadingFoundation !== null || disabled || amount < 1 ? "opacity-50 cursor-not-allowed" : ""
+            isDisabled ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
           <Heart className="w-5 h-5" />
@@ -251,6 +253,12 @@ export default function MultiFoundationDonateButtons({
             ? "Processing..."
             : `Donate ₹${amount.toLocaleString("en-IN")}`}
         </button>
+
+        {disabled && amount >= 1 && (
+          <p className="text-center text-sm text-amber-600 mt-2">
+            Please fill all required fields and accept the Terms & Refund Policy to continue
+          </p>
+        )}
 
         <p className="text-center text-xs text-muted-foreground mt-4">
           Your donation is secure and will be processed through Razorpay
@@ -268,3 +276,4 @@ export default function MultiFoundationDonateButtons({
     </div>
   );
 }
+

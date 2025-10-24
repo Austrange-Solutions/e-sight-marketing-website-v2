@@ -9,7 +9,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Interactive UI** with Framer Motion animations  
 - **E-commerce Features** with cart functionality
 - **User Authentication** and profile management
-- **Privacy Policy** - Comprehensive privacy protection for e-Kaathi app users
+- **Privacy Policy** - Comprehensive privacy protection for Maceazy app users
 - **Accessibility Focused** - Designed for visually impaired users and assistive technologies
 
 ## Getting Started
@@ -61,3 +61,4 @@ bun dev --turbopack
 # Run the small donation breakdown tests
 node ./src/__tests__/donationBreakdown.test.js
 ```
+

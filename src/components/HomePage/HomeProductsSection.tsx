@@ -223,13 +223,13 @@ const HomeProductsSection = () => {
                       onError={(e) => {
                         console.error(`Image failed to load for ${product.name}:`, product.image);
                         const target = e.target as HTMLImageElement;
-                        target.src = '/assets/images/e-sight-logo.png';
+                        target.src = '/assets/images/maceazy-logo.png';
                       }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100">
                       <img
-                        src="/assets/images/e-sight-logo.png"
+                        src="/assets/images/maceazy-logo.png"
                         alt={product.name}
                         className="w-32 h-32 object-contain opacity-50"
                       />
