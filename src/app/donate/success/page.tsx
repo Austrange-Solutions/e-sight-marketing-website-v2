@@ -25,10 +25,9 @@ function DonationSuccessContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const paymentId = searchParams.get("payment_id");
     const orderId = searchParams.get("order_id");
 
-    if (!paymentId || !orderId) {
+    if (!orderId) {
       router.push("/donate");
       return;
     }
@@ -40,21 +39,41 @@ function DonationSuccessContent() {
       origin: { y: 0.6 },
     });
 
-    // Fetch donation details
-    fetchDonationDetails(paymentId, orderId);
+    // Verify payment and fetch donation details with retry
+    verifyAndFetchDonation(orderId);
   }, [searchParams, router]);
 
-  const fetchDonationDetails = async (paymentId: string, orderId: string) => {
+  const verifyAndFetchDonation = async (orderId: string, retryCount = 0) => {
     try {
-      const response = await fetch(
-        `/api/donate/details?payment_id=${paymentId}&order_id=${orderId}`
-      );
+      // First verify the payment with Cashfree
+      const verifyResponse = await fetch("/api/donate/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        // Retry up to 3 times with 2 second delay
+        if (retryCount < 3) {
+          setTimeout(() => verifyAndFetchDonation(orderId, retryCount + 1), 2000);
+          return;
+        }
+      }
+
+      // Then fetch donation details
+      const response = await fetch(`/api/donate/details?order_id=${orderId}`);
       if (response.ok) {
         const data = await response.json();
         setDonationData(data.donation);
       }
     } catch (error) {
-      console.error("Error fetching donation details:", error);
+      // Retry on error
+      if (retryCount < 3) {
+        setTimeout(() => verifyAndFetchDonation(orderId, retryCount + 1), 2000);
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -69,7 +88,7 @@ function DonationSuccessContent() {
           url: window.location.origin + "/donate",
         });
       } catch (error) {
-        console.log("Error sharing:", error);
+        // Sharing cancelled or failed
       }
     }
   };
@@ -96,7 +115,7 @@ function DonationSuccessContent() {
         <div className="text-center">
           <p className="text-destructive text-lg mb-4">Failed to load donation details</p>
           <Link
-            href="/donate"
+            href={`donate.${process.env.NEXT_PUBLIC_HOSTNAME}`}
             className="text-primary hover:underline flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4" />
@@ -266,14 +285,15 @@ function DonationSuccessContent() {
           {/* CTA Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/donate"
+              href={`donate.${process.env.NEXT_PUBLIC_HOSTNAME}`}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             >
               <Heart className="w-4 h-4" />
               Donate Again
             </Link>
+
             <Link
-              href="/products"
+              href={`${process.env.NEXT_PUBLIC_APP_URL}/products`}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-accent text-foreground border border-border rounded-lg font-semibold hover:bg-accent/80 transition-colors"
             >
               Visit Our Shop

@@ -30,8 +30,10 @@ const Footer = () => {
     }
   }, []);
   return (
-    <footer className="bg-[oklch(0.35_0.08_230)] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="text-white">
+      {/* full-bleed background wrapper */}
+      <div className="relative left-1/2 right-1/2 -translate-x-1/2 w-screen bg-[oklch(0.35_0.08_230)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
@@ -40,7 +42,6 @@ const Footer = () => {
                 src="/assets/images/maceazy-logo.png"
                 alt="Maceazy Logo"
                 className="h-8 w-20"
-
               />
               {/* <span className="ml-2 text-xl font-bold">Maceazy</span> */}
             </div>
@@ -150,6 +151,7 @@ const Footer = () => {
           © 2025 Austrange Solutions Private Limited
         </div>
       </div>
+      </div> {/* end full-bleed wrapper */}
     </footer>
   );
 };

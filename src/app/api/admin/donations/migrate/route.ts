@@ -31,11 +31,11 @@ export async function POST(req: NextRequest) {
           donation.platformFee = Math.round(donation.amount * 0.02 * 100) / 100;
         }
 
-        // Calculate net amount if missing
-        if (!donation.netAmount) {
-          const fee = donation.platformFee || Math.round(donation.amount * 0.02 * 100) / 100;
-          donation.netAmount = Math.round((donation.amount - fee) * 100) / 100;
-        }
+        // Note: netAmount field is deprecated - now using foundationAmount and companyAmount
+        // if (!donation.netAmount) {
+        //   const fee = donation.platformFee || Math.round(donation.amount * 0.02 * 100) / 100;
+        //   donation.netAmount = Math.round((donation.amount - fee) * 100) / 100;
+        // }
 
         await donation.save();
         updated++;

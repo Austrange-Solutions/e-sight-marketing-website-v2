@@ -45,8 +45,10 @@ interface OrderDetailsModalProps {
     };
     totalAmount: number;
     paymentInfo: {
-      method: 'razorpay' | 'cod';
+      method: 'cashfree' | 'razorpay' | 'cod';
       status: 'pending' | 'paid' | 'failed' | 'refunded';
+      cashfreeOrderId?: string;
+      cashfreePaymentId?: string;
       razorpayOrderId?: string;
       razorpayPaymentId?: string;
       razorpaySignature?: string;
@@ -83,7 +85,9 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
   };
 
   const getPaymentMethodDisplay = (method: string) => {
-    return method === 'razorpay' ? 'Online Payment (Razorpay)' : 'Cash on Delivery';
+    if (method === 'cashfree') return 'Online Payment (Cashfree)';
+    if (method === 'razorpay') return 'Online Payment (Razorpay)';
+    return 'Cash on Delivery';
   };
 
   const getPaymentStatusColor = (status: string) => {

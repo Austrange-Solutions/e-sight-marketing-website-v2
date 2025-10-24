@@ -2,13 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect as dbConnect } from "@/dbConfig/dbConfig";
 import Donation from "@/models/Donation";
 import Foundation from "@/models/Foundation";
-import Razorpay from "razorpay";
 import mongoose from "mongoose";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
+// Both payment gateways available
+import Razorpay from "razorpay";
+import { Cashfree, CFEnvironment } from "cashfree-pg";
+
+// Force Node.js runtime and dynamic rendering
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+// Active payment gateway: CASHFREE
+const ACTIVE_GATEWAY = 'cashfree'; // Change to 'razorpay' if needed
+
+// Validate required environment variables
+if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
+  throw new Error("Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY in environment variables.");
+}
+
+// Initialize Cashfree (Active)
+const cashfree = new Cashfree(
+  process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
+    ? CFEnvironment.PRODUCTION 
+    : CFEnvironment.SANDBOX,
+  process.env.CASHFREE_APP_ID,
+  process.env.CASHFREE_SECRET_KEY
+);
+
+// Initialize Razorpay (Available but inactive)
+const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET 
+  ? new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,22 +87,6 @@ export async function POST(req: NextRequest) {
     const selectedFoundation = foundationDoc.code;
     const foundationName = foundationDoc.displayName || foundationDoc.foundationName;
 
-    // Create Razorpay order
-    const options = {
-      amount: Math.round(amount * 100), // amount in paise
-      currency: "INR",
-      receipt: `donation_${selectedFoundation}_${Date.now()}`,
-      notes: {
-        donorName: name,
-        donorEmail: email,
-        donorPhone: phone,
-        sticksEquivalent: (amount / 1499).toFixed(2),
-        foundation: selectedFoundation,
-      },
-    };
-
-    const order = await razorpay.orders.create(options);
-
     // Use platform fee from Foundation model (now stored per foundation)
     const platformFeePercent = foundationDoc.platformFeePercent || 10;
 
@@ -93,7 +104,37 @@ export async function POST(req: NextRequest) {
     breakdown.afterPlatformFee = Math.round((amount - breakdown.platformFee) * 100) / 100;
     breakdown.foundationAmount = Math.round(breakdown.afterPlatformFee * (foundationDoc.foundationSharePercent / 100) * 100) / 100;
     breakdown.companyAmount = Math.round((breakdown.afterPlatformFee - breakdown.foundationAmount) * 100) / 100;
+    
+    // Calculate sticks equivalent
     const sticksEquivalent = amount / 1499;
+
+    // Generate unique order ID
+    const orderId = `donation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    // Create Cashfree order (Active Gateway)
+    const orderRequest = {
+      order_id: orderId,
+      order_amount: parseFloat(amount.toFixed(2)),
+      order_currency: "INR",
+      customer_details: {
+        customer_id: `donor_${Date.now()}`,
+        customer_name: name,
+        customer_email: email,
+        customer_phone: phone,
+      },
+      order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
+    };
+
+    const response = await cashfree.PGCreateOrder(orderRequest);
+
+    if (!response || !response.data) {
+      return NextResponse.json(
+        { success: false, message: "Failed to create order" },
+        { status: 500 }
+      );
+    }
+
+    const order = response.data;
 
     // Create donation record with pending status
     const donation = await Donation.create({
@@ -108,7 +149,7 @@ export async function POST(req: NextRequest) {
       foundationSharePercent: breakdown.foundationSharePercent,
       companySharePercent: breakdown.companySharePercent,
       sticksEquivalent: sticksEquivalent,
-      orderId: order.id,
+      orderId: order.order_id,
       status: "pending",
       message: message || "",
       isAnonymous: isAnonymous || false,
@@ -122,10 +163,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      orderId: order.order_id,
+      paymentSessionId: order.payment_session_id,
+      orderAmount: order.order_amount,
+      orderCurrency: order.order_currency,
       donationId: donation._id,
       foundationName: foundationName,
       breakdown: {
@@ -136,7 +177,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error creating donation:", error);
     return NextResponse.json(
       { success: false, message: error instanceof Error ? error.message : "Failed to create donation" },
       { status: 500 }

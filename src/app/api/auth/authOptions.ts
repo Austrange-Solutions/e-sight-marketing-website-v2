@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (account?.provider === 'google') {
         const { connect } = await import('@/dbConfig/dbConfig');
         const UserModel = (await import('@/models/userModel')).default;
@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async session({ session, token, user }: { session: Session, token: JWT, user?: User }) {
+  async session({ session, token, user }: { session: Session, token: JWT, user?: User }) {
       if (session.user) {
         const tokenObj = token as Record<string, unknown>;
         session.user.id = user?.id || (tokenObj.id as string) || session.user.id;
@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async jwt({ token, user, account, profile }: { token: JWT, user?: User, account?: Account | null, profile?: Profile }) {
+  async jwt({ token, user }: { token: JWT, user?: User, account?: Account | null, profile?: Profile }) {
       if (user) {
         const tokenObj = token as Record<string, unknown>;
         tokenObj.id = user.id;

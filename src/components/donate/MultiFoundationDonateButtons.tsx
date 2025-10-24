@@ -3,35 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
+import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
 
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  handler: (response: RazorpayResponse) => void;
-  prefill: {
-    name: string;
-    email: string;
-    contact: string;
-  };
-  notes?: {
-    [key: string]: string;
-  };
-  theme: {
-    color: string;
-  };
-  modal: {
-    ondismiss: () => void;
-  };
+// Cashfree Types
+interface CashfreeDropConfig {
+  paymentSessionId: string;
+  returnUrl?: string;
+  notifyUrl?: string;
 }
 
-interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
+interface CashfreeResponse {
+  order: {
+    orderId: string;
+    orderAmount: string;
+  };
+  transaction: {
+    transactionId: string;
+    transactionStatus: string;
+  };
+  payment?: {
+    paymentMethod?: string;
+  };
 }
 
 interface DonateButtonsProps {

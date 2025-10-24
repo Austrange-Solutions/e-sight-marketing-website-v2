@@ -52,11 +52,10 @@ interface Order {
   };
   totalAmount: number;
   paymentInfo: {
-    method: 'razorpay' | 'cod';
+    method: 'cashfree' | 'cod';
     status: 'pending' | 'paid' | 'failed' | 'refunded';
-    razorpayOrderId?: string;
-    razorpayPaymentId?: string;
-    razorpaySignature?: string;
+    cashfreeOrderId?: string;
+    cashfreePaymentId?: string;
     paidAt?: string;
   };
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
@@ -510,7 +509,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                           </p>
                           {order.paymentInfo.method && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              {order.paymentInfo.method === 'razorpay' ? '💳 Online' : '💵 COD'}
+                              {order.paymentInfo.method !== 'cod' ? '💳 Online' : '💵 COD'}
                             </p>
                           )}
                         </div>

@@ -60,21 +60,21 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { verificationStatus, adminNotes, rejectionReason } = body;
 
-    if (!verificationStatus) {
-      return NextResponse.json(
-        { error: "Verification status is required" },
-        { status: 400 }
-      );
-    }
+    // Allow admins to update several groups of fields: personal, guardian, address, disability, and status
+    const {
+      verificationStatus,
+      adminNotes,
+      rejectionReason,
+      personalUpdates,
+      guardianUpdates,
+      addressUpdates,
+      disabilityUpdates,
+    } = body;
 
     const validStatuses = ["pending", "under_review", "verified", "rejected"];
-    if (!validStatuses.includes(verificationStatus)) {
-      return NextResponse.json(
-        { error: "Invalid verification status" },
-        { status: 400 }
-      );
+    if (verificationStatus && !validStatuses.includes(verificationStatus)) {
+      return NextResponse.json({ error: "Invalid verification status" }, { status: 400 });
     }
 
     const person = await DisabledPerson.findById(id);
@@ -82,18 +82,66 @@ export async function PATCH(
       return NextResponse.json({ error: "Person not found" }, { status: 404 });
     }
 
-    // Update status
-    person.verificationStatus = verificationStatus;
+    // Apply personal updates
+    if (personalUpdates) {
+      const allowed = ["fullName", "email", "phone", "dateOfBirth", "gender", "alternatePhone"];
+      allowed.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(personalUpdates, key)) {
+          // @ts-ignore
+          person[key] = personalUpdates[key];
+        }
+      });
+    }
+
+    // Apply guardian updates
+    if (guardianUpdates) {
+      const gAllowed = ["guardianName", "guardianEmail", "guardianPhone", "guardianRelation"];
+      gAllowed.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(guardianUpdates, key)) {
+          // @ts-ignore
+          person[key] = guardianUpdates[key];
+        }
+      });
+    }
+
+    // Apply address updates
+    if (addressUpdates) {
+      const aAllowed = ["address", "addressLine2", "city", "state", "pincode"];
+      aAllowed.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(addressUpdates, key)) {
+          // @ts-ignore
+          person[key] = addressUpdates[key];
+        }
+      });
+    }
+
+    // Apply disability updates
+    if (disabilityUpdates) {
+      const dAllowed = ["disabilityType", "disabilityPercentage", "disabilityDescription", "medicalConditions", "assistiveDevicesUsed"];
+      dAllowed.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(disabilityUpdates, key)) {
+          // @ts-ignore
+          person[key] = disabilityUpdates[key];
+        }
+      });
+    }
+
+    // Update status if provided
+    if (verificationStatus) {
+      person.verificationStatus = verificationStatus;
+    }
     if (adminNotes) person.adminNotes = adminNotes;
     if (rejectionReason) person.rejectionReason = rejectionReason;
 
-    // Add to verification history
-    person.verificationHistory.push({
-      status: verificationStatus,
-      updatedBy: adminData.username || adminData.email,
-      updatedAt: new Date(),
-      comments: adminNotes || rejectionReason,
-    });
+    // Add to verification history when status changed
+    if (verificationStatus) {
+      person.verificationHistory.push({
+        status: verificationStatus,
+        updatedBy: adminData.username || adminData.email,
+        updatedAt: new Date(),
+        comments: adminNotes || rejectionReason,
+      });
+    }
 
     await person.save();
 
@@ -105,7 +153,8 @@ export async function PATCH(
           person.fullName,
           person._id.toString(),
           verificationStatus as "under_review" | "verified" | "rejected",
-          adminNotes || rejectionReason
+          adminNotes || rejectionReason,
+          person.guardianEmail
         );
       }
     } catch (emailError) {

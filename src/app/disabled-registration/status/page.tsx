@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function StatusCheckPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8 mt-5">
       <div className="max-w-3xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-12">

@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 // GET: Fetch single foundation by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -23,7 +23,8 @@ export async function GET(
 
     await connect();
 
-    const foundation = await Foundation.findById(params.id).lean();
+    const { id } = await params;
+    const foundation = await Foundation.findById(id).lean();
 
     if (!foundation) {
       return NextResponse.json(
@@ -48,7 +49,7 @@ export async function GET(
 // PATCH: Update foundation
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -62,6 +63,7 @@ export async function PATCH(
 
     await connect();
 
+    const { id } = await params;
     const body = await request.json();
     const {
       foundationName,
@@ -83,7 +85,7 @@ export async function PATCH(
     } = body;
 
     // Check if foundation exists
-    const foundation = await Foundation.findById(params.id);
+    const foundation = await Foundation.findById(id);
     if (!foundation) {
       return NextResponse.json(
         { error: "Foundation not found" },
@@ -93,7 +95,7 @@ export async function PATCH(
 
     // If code is being changed, check uniqueness
     if (code && code.toLowerCase() !== foundation.code) {
-      const isUnique = await Foundation.isCodeUnique(code.toLowerCase(), params.id);
+      const isUnique = await Foundation.isCodeUnique(code.toLowerCase(), id);
       if (!isUnique) {
         return NextResponse.json(
           { error: `Foundation code "${code}" already exists. Please choose a different code.` },
@@ -165,7 +167,7 @@ export async function PATCH(
 // DELETE: Delete foundation
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -179,8 +181,10 @@ export async function DELETE(
 
     await connect();
 
+    const { id } = await params;
+
     // Check if foundation exists
-    const foundation = await Foundation.findById(params.id);
+    const foundation = await Foundation.findById(id);
     if (!foundation) {
       return NextResponse.json(
         { error: "Foundation not found" },
@@ -189,7 +193,7 @@ export async function DELETE(
     }
 
     // Check if foundation has donations
-    const donationCount = await Donation.countDocuments({ foundation: params.id });
+    const donationCount = await Donation.countDocuments({ foundation: id });
 
     if (donationCount > 0) {
       return NextResponse.json(
@@ -202,7 +206,7 @@ export async function DELETE(
     }
 
     // Delete foundation
-    await Foundation.findByIdAndDelete(params.id);
+    await Foundation.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,
