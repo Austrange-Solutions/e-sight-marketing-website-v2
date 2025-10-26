@@ -2,10 +2,13 @@ import {connect} from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 
-await connect();
+// Mark route as dynamic to prevent build-time execution
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest){
     try {
+        await connect();
+        
         const reqBody = await request.json()
         const {email, username, phone} = reqBody
 
