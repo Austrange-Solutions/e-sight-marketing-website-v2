@@ -417,7 +417,7 @@ TOKEN_SECRET=your_jwt_secret
 ## Support Contact
 
 For help with this feature:
-- Email: support@e-sight.com
+- Email: contact@austrange.com
 - Phone: +91 123-456-7890
 - Documentation: /disabled-registration page has inline help
 

@@ -4,15 +4,32 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart, IndianRupee, Users, Award, CheckCircle2, AlertCircle } from "lucide-react";
 import Leaderboard from "@/components/donate/Leaderboard";
-import DonateButton from "@/components/donate/DonateButton";
+import CashfreeDonateButton from "@/components/donate/CashfreeDonateButton";
 
 const STICK_PRICE = 1499;
 
+interface Foundation {
+  _id: string;
+  foundationName: string;
+  code: string;
+  foundationSharePercent: number;
+  companySharePercent: number;
+  displayName?: string;
+  tagline?: string;
+  description?: string;
+  logoUrl?: string;
+  icon?: string;
+  primaryColor?: string;
+  isActive: boolean;
+  priority: number;
+  minimumDonation?: number;
+}
+
 const presetAmounts = [
-  { sticks: 1, amount: 1499, label: "1 E-Kaathi Pro" },
-  { sticks: 2, amount: 2998, label: "2 E-Kaathi Pro" },
-  { sticks: 4, amount: 5996, label: "4 E-Kaathi Pro" },
-  { sticks: 8, amount: 11992, label: "8 E-Kaathi Pro" },
+  { sticks: 1, amount: 1499, label: "1 Maceazy Pro" },
+  { sticks: 2, amount: 2998, label: "2 Maceazy Pro" },
+  { sticks: 4, amount: 5996, label: "4 Maceazy Pro" },
+  { sticks: 8, amount: 11992, label: "8 Maceazy Pro" },
 ];
 
 export default function DonatePage() {
@@ -20,6 +37,9 @@ export default function DonatePage() {
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustom, setIsCustom] = useState(false);
   const [sticksEquivalent, setSticksEquivalent] = useState<number>(1);
+  const [selectedFoundation, setSelectedFoundation] = useState<string>(""); // Holds foundation code (preferred) or ObjectId (fallback)
+  const [foundations, setFoundations] = useState<Foundation[]>([]);
+  const [loadingFoundations, setLoadingFoundations] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,9 +52,34 @@ export default function DonatePage() {
     state: "",
     pan: "",
   });
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paymentError, setPaymentError] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
+
+  // Fetch active foundations
+  useEffect(() => {
+    const fetchFoundations = async () => {
+      try {
+        setLoadingFoundations(true);
+        const response = await fetch("/api/foundations/active");
+        if (!response.ok) throw new Error("Failed to fetch foundations");
+        const data = await response.json();
+        setFoundations(data.foundations || []);
+        
+        // Auto-select first foundation (prefer code over _id)
+        if (data.foundations && data.foundations.length > 0) {
+          setSelectedFoundation(data.foundations[0].code || data.foundations[0]._id);
+        }
+      } catch (error) {
+        console.error("Error fetching foundations:", error);
+      } finally {
+        setLoadingFoundations(false);
+      }
+    };
+
+    fetchFoundations();
+  }, []);
 
   // Calculate sticks equivalent when amount changes
   useEffect(() => {
@@ -60,13 +105,13 @@ export default function DonatePage() {
 
   const getImpactMessage = () => {
     if (sticksEquivalent < 0.5) {
-      return "You are contributing towards E-Kaathi Pro for blind people";
+      return "You are contributing towards Maceazy Pro for blind people";
     } else if (sticksEquivalent < 1) {
-      return "You are donating 0.5 E-Kaathi Pro to blind people";
+      return "You are donating 0.5 Maceazy Pro to blind people";
     } else if (sticksEquivalent < 1.5) {
-      return "You are donating 1 E-Kaathi Pro to a blind person";
+      return "You are donating 1 Maceazy Pro to a blind person";
     } else {
-      return `You are donating ${sticksEquivalent.toFixed(1)} E-Kaathi Pro to blind people`;
+      return `You are donating ${sticksEquivalent.toFixed(1)} Maceazy Pro to blind people`;
     }
   };
 
@@ -156,7 +201,7 @@ export default function DonatePage() {
               Help Blind People See the World
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Your donation provides E-Kaathi Pro smart canes that empower visually impaired
+              Your donation provides Maceazy Pro smart canes that empower visually impaired
               individuals with independence, safety, and confidence.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
@@ -247,7 +292,7 @@ export default function DonatePage() {
                         <h3 className="font-semibold text-foreground mb-2">Your Impact</h3>
                         <p className="text-foreground">{getImpactMessage()}</p>
                         <p className="text-sm text-muted-foreground mt-2">
-                          Every E-Kaathi Pro smart cane transforms a life with safer, more
+                          Every Maceazy Pro smart cane transforms a life with safer, more
                           independent mobility.
                         </p>
                       </div>
@@ -436,8 +481,99 @@ export default function DonatePage() {
                     </label>
                   </div>
 
-                  <DonateButton
+                  {/* Policy Acceptance Checkbox */}
+                  <div className="flex items-start">
+                    <input
+                      type="checkbox"
+                      id="policyAcceptance"
+                      checked={policyAccepted}
+                      onChange={(e) => setPolicyAccepted(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 text-primary bg-background border-border rounded focus:ring-ring"
+                    />
+                    <label htmlFor="policyAcceptance" className="ml-2 text-sm text-muted-foreground">
+                      I agree to the{" "}
+                      <a
+                        href="/terms-of-use"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Terms & Refund Policy
+                      </a>
+                      {" "}*
+                    </label>
+                  </div>
+
+                  {/* Foundation Selection */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">
+                      Select Foundation
+                    </h3>
+                    {loadingFoundations ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : foundations.length === 0 ? (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+                        <p className="text-yellow-800">No active foundations available. Please try again later.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                        {foundations.map((foundation) => {
+                          const displayName = foundation.displayName || foundation.foundationName;
+                          const isSelected = selectedFoundation === foundation.code || selectedFoundation === foundation._id;
+                          
+                          return (
+                            <button
+                              key={foundation._id}
+                              type="button"
+                              onClick={() => setSelectedFoundation(foundation.code || foundation._id)}
+                              className={`p-4 rounded-lg border-2 transition-all text-left hover:shadow-md ${
+                                isSelected
+                                  ? `ring-2 ring-offset-2`
+                                  : "border-border bg-card"
+                              }`}
+                              style={{
+                                borderColor: isSelected ? foundation.primaryColor : undefined,
+                                backgroundColor: isSelected ? `${foundation.primaryColor}10` : undefined,
+                                ...(isSelected && foundation.primaryColor ? { '--tw-ring-color': foundation.primaryColor } as any : {})
+                              }}
+                            >
+                              <div className="flex items-start gap-3 mb-2">
+                                {foundation.logoUrl ? (
+                                  <img
+                                    src={foundation.logoUrl}
+                                    alt={foundation.foundationName}
+                                    className="w-10 h-10 object-contain rounded"
+                                  />
+                                ) : (
+                                  <span className="text-3xl">{foundation.icon || "❤️"}</span>
+                                )}
+                                <div className="flex-1">
+                                  <div className="font-semibold text-foreground">{displayName}</div>
+                                  {foundation.tagline && (
+                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                      {foundation.tagline}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              {isSelected && (
+                                <div className="flex items-center gap-1 text-xs font-medium mt-2" style={{ color: foundation.primaryColor }}>
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Selected
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  <CashfreeDonateButton
                     amount={selectedAmount}
+                    sticksEquivalent={sticksEquivalent}
                     donorDetails={{
                       name: formData.name,
                       email: formData.email,
@@ -450,14 +586,10 @@ export default function DonatePage() {
                       state: formData.state,
                       pan: formData.pan,
                     }}
-                    className="w-full bg-primary text-primary-foreground py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
-                    disabled={!formData.name || !formData.email || !formData.phone || selectedAmount < 1}
+                    disabled={!formData.name || !formData.email || !formData.phone || selectedAmount < 1 || !policyAccepted}
                     onError={handlePaymentError}
+                    selectedFoundation={selectedFoundation}
                   />
-
-                  <p className="text-center text-xs text-muted-foreground">
-                    Your donation is secure and will be processed through Cashfree
-                  </p>
                 </form>
               </motion.div>
             </div>
@@ -481,10 +613,10 @@ export default function DonatePage() {
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Why E-Kaathi Pro?
+              Why Maceazy Pro?
             </h2>
             <p className="text-lg text-muted-foreground mb-12">
-              E-Kaathi Pro is a revolutionary smart cane that uses advanced sensors and AI to
+              Maceazy Pro is a revolutionary smart cane that uses advanced sensors and AI to
               detect obstacles, providing real-time feedback to visually impaired users.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -523,3 +655,4 @@ export default function DonatePage() {
     </div>
   );
 }
+

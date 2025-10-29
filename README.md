@@ -9,7 +9,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Interactive UI** with Framer Motion animations  
 - **E-commerce Features** with cart functionality
 - **User Authentication** and profile management
-- **Privacy Policy** - Comprehensive privacy protection for e-Kaathi app users
+- **Privacy Policy** - Comprehensive privacy protection for Maceazy app users
 - **Accessibility Focused** - Designed for visually impaired users and assistive technologies
 
 ## Getting Started
@@ -46,3 +46,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Development
+
+See `docs/DEVELOPER_GUIDE.md` and `docs/PROJECT_OVERVIEW.md` for setup, common workflows, the donation calculation contract, and the DB connection policy. Quick commands:
+
+```powershell
+# Install deps (Bun recommended)
+bun install
+
+# Start dev server
+bun dev --turbopack
+
+# Run the small donation breakdown tests
+node ./src/__tests__/donationBreakdown.test.js
+```
+

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
+import { connect as __ensureConnect } from "@/dbConfig/dbConfig";
 import DisabledPerson from "@/models/disabledPersonModel";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
 
-connect();
+await __ensureConnect();
 
 // GET - Get all disabled person registrations (Admin only)
 export async function GET(request: NextRequest) {

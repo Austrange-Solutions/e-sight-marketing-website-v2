@@ -1,13 +1,13 @@
-﻿import React from "react";
+import React from "react";
 import { Metadata } from "next";
 import AboutHero from "@/components/AboutPage/AboutHero";
 import MissionVision from "@/components/AboutPage/MissionVision";
 import TeamSection from "@/components/AboutPage/TeamSection";
 
 export const metadata: Metadata = {
-  title: "About Us - Maceazy | E-Kaathi Smart Blind Stick",
+  title: "About Us - Maceazy | Maceazy Smart Blind Stick",
   description: "Learn about Maceazy mission to revolutionize mobility for the visually impaired through intelligent, affordable, and user-friendly assistive technology. Meet our innovative team.",
-  keywords: "about maceazy, e-kaathi, smart blind stick, visually impaired technology, assistive devices, founders, mission, vision",
+  keywords: "about maceazy, Maceazy, smart blind stick, visually impaired technology, assistive devices, founders, mission, vision",
 };
 
 const About = () => {
@@ -15,7 +15,7 @@ const About = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Maceazy",
-    alternateName: "E-Kaathi",
+    alternateName: "Maceazy",
     url: "https://www.maceazy.com",
   };
 
@@ -32,3 +32,4 @@ const About = () => {
 };
 
 export default About;
+

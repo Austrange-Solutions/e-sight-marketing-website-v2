@@ -5,6 +5,17 @@ export interface IDonation extends Document {
   email: string;
   phone: string;
   amount: number;
+  
+  // Fee breakdown (2-tier: Platform Fee → Foundation/Company Split)
+  platformFee: number; // Platform's cut (configurable per foundation)
+  foundationAmount: number; // Amount foundation receives
+  companyAmount: number; // Company's share
+  
+  // Percentage tracking
+  platformFeePercent: number; // Configurable per foundation
+  foundationSharePercent: number; // Foundation's % of remaining
+  companySharePercent: number; // Company's % of remaining
+  
   sticksEquivalent: number;
   paymentId?: string;
   orderId?: string;
@@ -12,6 +23,7 @@ export interface IDonation extends Document {
   status: "pending" | "completed" | "failed";
   message?: string;
   isAnonymous: boolean;
+  foundation: mongoose.Types.ObjectId | string; // ObjectId (new) or string "vsf"/"cf" (legacy)
   // Optional fields for tax exemption
   address?: string;
   city?: string;
@@ -52,6 +64,33 @@ const DonationSchema: Schema = new Schema(
       min: [1, "Minimum donation amount is ₹1"],
       max: [1000000, "Maximum donation amount is ₹10,00,000"],
     },
+    platformFee: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    foundationAmount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    companyAmount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    platformFeePercent: {
+      type: Number,
+      default: 10,
+    },
+    foundationSharePercent: {
+      type: Number,
+      default: 70,
+    },
+    companySharePercent: {
+      type: Number,
+      default: 30,
+    },
     sticksEquivalent: {
       type: Number,
       required: true,
@@ -84,6 +123,13 @@ const DonationSchema: Schema = new Schema(
     isAnonymous: {
       type: Boolean,
       default: false,
+    },
+    foundation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Foundation', // Reference to Foundation model for populate()
+      required: [true, "Foundation selection is required"],
+      // Legacy donations: "vsf" | "cf" (string) - handled in queries
+      // New donations: ObjectId reference to Foundation model
     },
     // Optional fields for tax exemption
     address: {
@@ -125,11 +171,11 @@ DonationSchema.virtual("formattedSticks").get(function (this: IDonation) {
   if (sticks < 0.5) {
     return "Contributing";
   } else if (sticks < 1) {
-    return "0.5 E-Kaathi Pro";
+    return "0.5 Maceazy Pro";
   } else if (sticks < 1.5) {
-    return "1 E-Kaathi Pro";
+    return "1 Maceazy Pro";
   } else {
-    return `${sticks.toFixed(1)} E-Kaathi Pro`;
+    return `${sticks.toFixed(1)} Maceazy Pro`;
   }
 });
 
@@ -142,3 +188,4 @@ const Donation: Model<IDonation> =
   mongoose.models.Donation || mongoose.model<IDonation>("Donation", DonationSchema);
 
 export default Donation;
+

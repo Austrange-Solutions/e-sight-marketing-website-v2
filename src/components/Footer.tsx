@@ -30,18 +30,20 @@ const Footer = () => {
     }
   }, []);
   return (
-    <footer className="bg-[oklch(0.35_0.08_230)] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="text-white">
+      {/* full-bleed background wrapper */}
+      <div className="relative left-1/2 right-1/2 -translate-x-1/2 w-screen bg-[oklch(0.35_0.08_230)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center">
               <img
-                src="/assets/images/e-sight-logo.png"
-                alt="E-Kaathi Logo"
-                className="h-8 w-8"
+                src="/assets/images/maceazy-logo.png"
+                alt="Maceazy Logo"
+                className="h-8 w-20"
               />
-              <span className="ml-2 text-xl font-bold">E-Kaathi</span>
+              {/* <span className="ml-2 text-xl font-bold">Maceazy</span> */}
             </div>
             <p className="text-white/70">
               Improving the lives of the people living in darkness.
@@ -58,6 +60,9 @@ const Footer = () => {
                 { href: "/products", label: "Products" },
                 { href: "/contact", label: "Contact" },
                 { href: "/privacy", label: "Privacy Policy" },
+                { href: "/shipping-policy", label: "Shipping & Delivery" },
+                { href: "/refund-policy", label: "Refund & Cancellation" },
+                { href: "/terms-of-use", label: "Terms of Use" },
               ].map((link) => {
                 const href = isDonateDomain ? `${mainDomainUrl}${link.href}` : link.href;
                 return (
@@ -99,15 +104,19 @@ const Footer = () => {
               <li className="flex items-center text-white/70">
                 <Phone className="h-5 w-5 mr-2" />
                 <a
-                  href="tel:+919322871984"
+                  href="tel:+918433887840"
                   className="hover:text-white transition-colors duration-200"
                 >
-                  +91 93228 71984
+                  +91 84338 87840
                 </a>
               </li>
-              <li className="flex items-center text-white/70">
-                <MapPin className="h-5 w-5 mr-2" />
-                <span>Not yet, We are Online.</span>
+              <li className="flex items-start text-white/70">
+                <MapPin className="h-5 w-5 mr-2 mt-1" />
+                <div className="text-sm">
+                  <div>Registered Address:</div>
+                  <div>R No 403, Lakdiwali Lane, Behram Nagar, A K Road, Madina, Bandra East,</div>
+                  <div>Mumbai, Maharashtra, India, PIN: 400051</div>
+                </div>
               </li>
             </ul>
           </div>
@@ -139,9 +148,10 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-white/20 text-center text-white/70">
-          <p>&copy; {new Date().getFullYear()} E-Kaathi. All rights reserved.</p>
+          © 2025 Austrange Solutions Private Limited
         </div>
       </div>
+      </div> {/* end full-bleed wrapper */}
     </footer>
   );
 };

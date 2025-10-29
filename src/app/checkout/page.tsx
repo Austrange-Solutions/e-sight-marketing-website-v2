@@ -12,6 +12,7 @@ const CheckoutPage = () => {
   const [cartData, setCartData] = useState<{ items: Array<{ _id: string, name: string, price: number, quantity: number, image: string }>, orderSummary: { subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } } | null>(null);
   const [calculatedCharges, setCalculatedCharges] = useState<{ subtotal: number, gst: number, transactionFee: number, deliveryCharges: number, total: number } | null>(null);
   const [setAsDefault, setSetAsDefault] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string>("");
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isFormValid, setIsFormValid] = useState(false);
@@ -149,6 +150,11 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (!policyAccepted) {
+      alert('Please agree to the Terms & Refund Policy before continuing');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -215,32 +221,18 @@ const CheckoutPage = () => {
           if (result.success && result.data) {
             deliveryCharges = result.data.deliveryCharges;
 
-            // Log validation details for admin monitoring
-            console.log('Strict Pincode Validation:', {
-              pincode: shippingForm.pincode.trim(),
-              isValid: result.data.isValid,
-              exists: result.data.exists,
-              charges: result.data.deliveryCharges,
-              appliedRule: result.data.appliedRule,
-              validationErrors: result.data.validationErrors,
-              orderAmount: subtotal
-            });
-
             // Alert user if pincode validation failed
             if (!result.data.isValid && result.data.validationErrors.length > 0) {
-              console.warn('Pincode Validation Failed:', result.data.validationErrors.join(', '));
               // You can show user notification here if needed
             }
           } else {
-            console.error('Invalid API response structure');
             deliveryCharges = 500; // Default for failed validation
           }
         } else {
-          console.error('Pincode validation API failed:', response.status);
           deliveryCharges = 500; // Default charges
         }
       } catch (error) {
-        console.error('Error in strict pincode validation:', error);
+        console.error('Error in pincode validation:', error);
         // Final fallback - use city-based logic only if everything fails
         const isMumbai = shippingForm.city.toLowerCase().includes('mumbai') ||
           shippingForm.city.toLowerCase().includes('bombay');
@@ -248,7 +240,6 @@ const CheckoutPage = () => {
       }
     } else if (shippingForm.pincode && shippingForm.pincode.trim().length > 0) {
       // Invalid pincode length - apply default charges
-      console.warn('Invalid pincode length:', shippingForm.pincode.length, 'Expected: 6 digits');
       deliveryCharges = 500;
     }
 
@@ -570,23 +561,36 @@ const CheckoutPage = () => {
                     </div>
 
                     <div className="mt-4">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={setAsDefault}
-                          onChange={(e) => setSetAsDefault(e.target.checked)}
-                          className="rounded border-border text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-foreground">Set as default address</span>
-                      </label>
+                        <div className="flex items-start gap-6">
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={setAsDefault}
+                              onChange={(e) => setSetAsDefault(e.target.checked)}
+                              className="rounded border-border text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="ml-2 text-sm text-foreground">Set as default address</span>
+                          </label>
+
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={policyAccepted}
+                              onChange={(e) => setPolicyAccepted(e.target.checked)}
+                              className="rounded border-border text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="ml-2 text-sm text-foreground">I agree to the <a href="/terms-of-use" className="underline">Terms & Refund Policy</a></span>
+                          </label>
+                        </div>
                     </div>
                   </div>
 
                   <button
                     onClick={handleContinueToPayment}
-                    disabled={loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])}
-                    className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key])
-                        ? 'bg-gray-400 text-muted-foreground cursor-not-allowed'
+                    disabled={loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key]) || !policyAccepted}
+                    className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition duration-200 ${
+                      loading || !isFormValid || Object.keys(validationErrors).some(key => validationErrors[key]) || !policyAccepted
+                        ? 'bg-gray-400 text-muted-foreground cursor-not-allowed' 
                         : 'bg-primary text-primary-foreground hover:bg-blue-700'
                       }`}
                   >
@@ -671,7 +675,7 @@ const CheckoutPage = () => {
 
                         <CashfreeButton
                           product={{
-                            name: `E-Kaathi Order (${cartData?.items?.length || 0} items)`,
+                            name: `Maceazy Order (${cartData?.items?.length || 0} items)`,
                             price: calculateTotal()
                           }}
                           userDetails={{
@@ -902,3 +906,4 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
+
