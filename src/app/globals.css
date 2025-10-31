@@ -62,15 +62,15 @@
   
   /* Base colors - Clean white backgrounds */
   --background: oklch(1 0 0); /* Pure white */
-  --foreground: oklch(0.65 0.14 230); /* MACEAZY blue text */
+  --foreground: oklch(0.20 0.01 230); /* Near-black with blue tint */
   
   /* Card colors */
   --card: oklch(1 0 0); /* White cards */
-  --card-foreground: oklch(0.65 0.14 230); /* MACEAZY blue text */
+  --card-foreground: oklch(0.20 0.01 230);
   
   /* Popover colors */
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.65 0.14 230); /* MACEAZY blue text */
+  --popover-foreground: oklch(0.20 0.01 230);
   
   /* Primary brand color - Light Blue (#1B9BD8) */
   --primary: oklch(0.65 0.14 230); /* Bright MACEAZY blue */
@@ -78,15 +78,15 @@
   
   /* Secondary brand color - Navy Blue (#0C5277) */
   --secondary: oklch(0.88 0.01 230); /* Light blue-gray for backgrounds */
-  --secondary-foreground: oklch(0.65 0.14 230); /* MACEAZY blue text */
+  --secondary-foreground: oklch(0.35 0.08 230); /* Navy blue text */
   
   /* Muted colors */
-  --muted: oklch(0.88 0.01 230); /* Light blue-gray */
-  --muted-foreground: oklch(0.65 0.14 230); /* MACEAZY blue text */
+  --muted: oklch(0.96 0.005 230); /* Very light blue-gray */
+  --muted-foreground: oklch(0.50 0.02 230); /* Medium gray-blue */
   
   /* Accent colors - For special highlights */
-  --accent: oklch(0.70 0.15 160); /* Success green accent */
-  --accent-foreground: oklch(1 0 0); /* White text on green */
+  --accent: oklch(0.92 0.02 230); /* Light blue accent */
+  --accent-foreground: oklch(0.35 0.08 230); /* Navy blue */
   
   /* Destructive/Error - Modern red */
   --destructive: oklch(0.65 0.22 25); /* Modern red (#EF4444) */
@@ -107,7 +107,7 @@
   
   /* Chart colors - Brand-aligned palette */
   --chart-1: oklch(0.65 0.14 230); /* Primary blue */
-  --chart-2: oklch(0.70 0.15 160); /* Success green */
+ /* --chart-2: oklch(0.70 0.15 160) ; */ /* Success green*/
   --chart-3: oklch(0.75 0.15 70); /* Warning amber */
   --chart-4: oklch(0.35 0.08 230); /* Navy blue */
   --chart-5: oklch(0.60 0.12 200); /* Lighter blue */
