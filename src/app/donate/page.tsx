@@ -493,6 +493,15 @@ export default function DonatePage() {
                     <label htmlFor="policyAcceptance" className="ml-2 text-sm text-muted-foreground">
                       I agree to the{" "}
                       <a
+                        href="/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Privacy Policy
+                      </a>
+                      {" "}and{" "}
+                      <a
                         href="/terms-of-use"
                         target="_blank"
                         rel="noopener noreferrer"
