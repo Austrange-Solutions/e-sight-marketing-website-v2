@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRef } from 'react';
-import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X } from 'lucide-react';
+import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import OrderDetailsModal from '@/components/OrderDetailsModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,6 +84,7 @@ const ordersLoaderRef = useRef<HTMLDivElement | null>(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
   const [editMode, setEditMode] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [formData, setFormData] = useState({
     username: '',
     phone: '',
@@ -473,53 +475,102 @@ const fetchOrders = async (page = 1, reset = false) => {
               ) : (
                 <div className="space-y-6">
                   {orders.map((order) => (
-                    <div key={order._id} className="border border-border rounded-lg p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="font-semibold text-foreground">Order #{order.orderNumber}</h3>
-                          <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
+                    <div key={order._id} className="border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground text-lg">Order #{order.orderNumber}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Placed on {formatDate(order.createdAt)}
+                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                              order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                              order.status === 'shipped' ? 'bg-purple-100 text-purple-800' :
+                              order.status === 'processing' ? 'bg-orange-100 text-orange-800' :
+                              order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
+                              order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {order.status}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {order.status === 'delivered' 
+                                ? '✓ Delivered'
+                                : order.status === 'shipped'
+                                ? '🚚 Expected in 2-3 days'
+                                : '📦 Delivered in 3-4 working days'}
+                            </span>
+                          </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-medium capitalize ${getStatusColor(order.status)}`}>
-                            {order.status}
+                          <p className="text-2xl font-bold text-foreground">₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • Tax Included
                           </p>
-                          <p className="text-lg font-bold text-foreground">₹{order.totalAmount}</p>
+                          {order.paymentInfo.method && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {order.paymentInfo.method !== 'cod' ? '💳 Online' : '💵 COD'}
+                            </p>
+                          )}
                         </div>
                       </div>
                       
                       <div className="border-t border-border pt-4">
-                        <div className="space-y-3">
-                          {order.items.map((item, index) => (
-                            <div key={index} className="flex items-center space-x-4">
-                              <img
-                                src={item.image || item.productId?.image || '/placeholder.jpg'}
-                                alt={item.name}
-                                className="w-12 h-12 object-cover rounded"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = '/placeholder.jpg';
-                                }}
-                              />
-                              <div className="flex-1">
-                                <p className="font-medium text-foreground">{item.name}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Quantity: {item.quantity} × ₹{item.price}
-                                </p>
+                        {/* Summary of items */}
+                        <div className="mb-4">
+                          <p className="text-sm font-medium text-foreground mb-2">Items Summary:</p>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {order.items.slice(0, 3).map((item, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm">
+                                <img
+                                  src={item.image || item.productId?.image || '/assets/images/maceazy-logo.png'}
+                                  alt={item.name}
+                                  className="w-8 h-8 object-cover rounded border border-border"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/assets/images/maceazy-logo.png';
+                                  }}
+                                />
+                                <span className="text-muted-foreground truncate">
+                                  {item.name.length > 15 ? item.name.substring(0, 15) + '...' : item.name}
+                                </span>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                            {order.items.length > 3 && (
+                              <div className="text-sm text-muted-foreground">
+                                +{order.items.length - 3} more
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Shipping to */}
+                        <div className="mb-4 p-3 bg-accent/50 rounded-lg">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Shipping to:</p>
+                          <p className="text-sm text-foreground font-medium">{order.shippingAddress.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                          </p>
                         </div>
                         
-                        {order.status === 'pending' && (
-                          <div className="mt-4 pt-4 border-t border-border">
+                        <div className="flex gap-3 mt-4 pt-4 border-t border-border">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View Details
+                          </button>
+                          
+                          {order.status === 'pending' && (
                             <button
                               onClick={() => handleCancelOrder(order._id, order.orderNumber)}
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                             >
                               Cancel Order
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -538,6 +589,14 @@ const fetchOrders = async (page = 1, reset = false) => {
           )}
         </div>
       </div>
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
     </div>
   );
 }

@@ -12,7 +12,7 @@ export default function AboutHero() {
           className="text-center"
         >
           <h1 id="about-hero-heading" className="text-4xl md:text-5xl font-bold mb-6">
-            About E-Kaathi
+            About Maceazy
           </h1>
           <p className="text-xl max-w-3xl mx-auto">
             Empowering independence through innovative assistive technology for the visually impaired.
@@ -22,3 +22,4 @@ export default function AboutHero() {
     </section>
   );
 }
+

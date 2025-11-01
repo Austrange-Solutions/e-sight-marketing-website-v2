@@ -1,8 +1,8 @@
-# E-Kaathi Pro Crowdfunding Portal
+# Maceazy Pro Crowdfunding Portal
 
 ## Overview
 
-The E-Kaathi Pro Crowdfunding Portal is a comprehensive donation platform built to enable supporters to contribute towards providing smart canes to visually impaired individuals. The portal is designed to run on the `donate` subdomain with a seamless, no-login-required donation flow.
+The Maceazy Pro Crowdfunding Portal is a comprehensive donation platform built to enable supporters to contribute towards providing smart canes to visually impaired individuals. The portal is designed to run on the `donate` subdomain with a seamless, no-login-required donation flow.
 
 ## Live URL
 - **Main Site**: `https://maceazy.com`
@@ -17,7 +17,7 @@ Inspired by: [https://donate.sightsaversindia.org/](https://donate.sightsaversin
 
 ### 1. **Donation Flow**
 - ✅ No authentication required - guest donations
-- ✅ Preset donation amounts (1x, 2x, 4x, 8x E-Kaathi Pro at ₹1499 each)
+- ✅ Preset donation amounts (1x, 2x, 4x, 8x Maceazy Pro at ₹1499 each)
 - ✅ Custom donation amount with real-time impact calculator
 - ✅ Secure Razorpay payment integration
 - ✅ Email and SMS notifications (via Razorpay)
@@ -26,10 +26,10 @@ Inspired by: [https://donate.sightsaversindia.org/](https://donate.sightsaversin
 
 ### 2. **Real-Time Impact Calculator**
 Shows donors exactly what their contribution provides:
-- **₹1-750**: "Contributing towards E-Kaathi Pro"
-- **₹751-1498**: "Donating 0.5 E-Kaathi Pro"
-- **₹1499**: "Donating 1 E-Kaathi Pro"
-- **₹3000**: "Donating 2 E-Kaathi Pro"
+- **₹1-750**: "Contributing towards Maceazy Pro"
+- **₹751-1498**: "Donating 0.5 Maceazy Pro"
+- **₹1499**: "Donating 1 Maceazy Pro"
+- **₹3000**: "Donating 2 Maceazy Pro"
 - **Custom amounts**: Calculated dynamically (amount ÷ 1499)
 
 ### 3. **Leaderboard**
@@ -306,7 +306,7 @@ NEXTAUTH_SECRET=your_nextauth_secret
 - Trust badges
 
 ### 2. **Donation Form**
-- **Preset Buttons**: 1x, 2x, 4x, 8x E-Kaathi Pro
+- **Preset Buttons**: 1x, 2x, 4x, 8x Maceazy Pro
 - **Custom Amount Input**: With rupee symbol
 - **Real-Time Impact Display**: Shows stick equivalent
 - **Donor Details Form**: Name, email, phone, optional message
@@ -318,7 +318,7 @@ NEXTAUTH_SECRET=your_nextauth_secret
 - Amounts and stick counts
 - Timestamps
 
-### 4. **Why E-Kaathi Pro Section**
+### 4. **Why Maceazy Pro Section**
 - Feature cards (obstacle detection, battery life, lightweight, affordable)
 - MACEAZY brand messaging
 
@@ -345,7 +345,7 @@ NEXTAUTH_SECRET=your_nextauth_secret
 
 ### 4. **Next Steps Timeline**
 1. Processing donation
-2. Manufacturing E-Kaathi Pro
+2. Manufacturing Maceazy Pro
 3. Distribution to beneficiaries
 
 ---
@@ -569,3 +569,4 @@ For issues or questions regarding the donation portal:
 - ✅ Mobile responsive design
 - ✅ Form validation
 - ✅ MongoDB integration
+

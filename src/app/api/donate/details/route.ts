@@ -7,20 +7,18 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     const searchParams = req.nextUrl.searchParams;
-    const paymentId = searchParams.get("payment_id");
     const orderId = searchParams.get("order_id");
 
-    if (!paymentId || !orderId) {
+    if (!orderId) {
       return NextResponse.json(
-        { success: false, message: "Payment ID and Order ID are required" },
+        { success: false, message: "Order ID is required" },
         { status: 400 }
       );
     }
 
+    // Find donation by orderId (works for both completed and pending)
     const donation = await Donation.findOne({
-      paymentId: paymentId,
       orderId: orderId,
-      status: "completed",
     }).lean();
 
     if (!donation) {

@@ -1,12 +1,12 @@
-﻿import React from "react";
+import React from "react";
 import { Metadata } from "next";
 import PrivacyHero from "@/components/PrivacyPage/PrivacyHero";
 import PrivacyContent from "@/components/PrivacyPage/PrivacyContent";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - E-Kaathi | Maceazy",
-  description: "Learn how E-Kaathi protects your privacy and data. Your safety and privacy are our top priorities.",
-  keywords: "privacy policy, data protection, e-kaathi, smart blind stick, data security",
+  title: "Privacy Policy - Maceazy | Maceazy",
+  description: "Learn how Maceazy protects your privacy and data. Your safety and privacy are our top priorities.",
+  keywords: "privacy policy, data protection, Maceazy, smart blind stick, data security",
 };
 
 const PrivacyPolicy = () => {
@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "Privacy Policy",
-    description: "Privacy policy for E-Kaathi smart blind stick application",
+    description: "Privacy policy for Maceazy smart blind stick application",
     publisher: {
       "@type": "Organization",
       name: "Maceazy",

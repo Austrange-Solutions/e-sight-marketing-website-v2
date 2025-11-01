@@ -4,6 +4,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { connect } from "@/dbConfig/dbConfig";
 import UploadedImage from "@/models/UploadedImage";
 
+// Mark route as dynamic to prevent build-time execution
+export const dynamic = 'force-dynamic';
+
 // Create S3 client with explicit credentials
 const createS3Client = () => {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -27,6 +30,9 @@ const createS3Client = () => {
 // Generate signed URL for upload
 export async function POST(req: NextRequest) {
     try {
+        // Connect to database
+        await connect();
+        
         console.log('Signed URL upload requested');
         
         // Check AWS credentials first

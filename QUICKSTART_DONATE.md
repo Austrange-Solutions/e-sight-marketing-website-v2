@@ -1,4 +1,4 @@
-# 🚀 Quick Start: E-Kaathi Pro Donation Portal
+# 🚀 Quick Start: Maceazy Pro Donation Portal
 
 Get the donation portal up and running in 5 minutes!
 
@@ -94,7 +94,7 @@ Expiry: 12/25
 
 ### Test Flow:
 1. Go to http://localhost:3000/donate
-2. Click a preset amount (e.g., 1x E-Kaathi Pro - ₹1,499)
+2. Click a preset amount (e.g., 1x Maceazy Pro - ₹1,499)
 3. Fill in donor details:
    - Name: Test User
    - Email: test@example.com
@@ -173,14 +173,14 @@ bun add razorpay
 ## What's Included?
 
 ✅ **4 Preset Donation Amounts**
-- 1x E-Kaathi Pro (₹1,499)
-- 2x E-Kaathi Pro (₹2,998)
-- 4x E-Kaathi Pro (₹5,996)
-- 8x E-Kaathi Pro (₹11,992)
+- 1x Maceazy Pro (₹1,499)
+- 2x Maceazy Pro (₹2,998)
+- 4x Maceazy Pro (₹5,996)
+- 8x Maceazy Pro (₹11,992)
 
 ✅ **Custom Amount Input**
 - Real-time stick calculation
-- Shows impact ("You are donating X E-Kaathi Pro")
+- Shows impact ("You are donating X Maceazy Pro")
 
 ✅ **Form Fields**
 - Name (required)
@@ -240,7 +240,7 @@ bun add razorpay
 - Consider adding donation tiers with perks
 
 🎯 **Best Practices:**
-- Keep E-Kaathi Pro price updated (currently ₹1,499)
+- Keep Maceazy Pro price updated (currently ₹1,499)
 - Regularly update hero stats
 - Share success stories
 - Thank donors via email
@@ -267,4 +267,5 @@ bun add razorpay
 
 **Happy Fundraising! 🎉**
 
-Help us make a difference by providing E-Kaathi Pro smart canes to visually impaired individuals.
+Help us make a difference by providing Maceazy Pro smart canes to visually impaired individuals.
+

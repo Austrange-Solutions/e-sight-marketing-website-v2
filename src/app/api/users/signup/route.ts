@@ -5,7 +5,7 @@ import { z } from "zod";
 import bcryptjs from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/resendEmail";
 
-connect()
+await connect();
 
 
 export async function POST(request: NextRequest){

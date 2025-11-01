@@ -72,6 +72,19 @@ const ContactInfo = () => {
         </div>
       </div>
 
+      <div className="pt-8 border-t border-border">
+        <h3 className="text-sm text-muted-foreground">Business</h3>
+        <p className="text-sm text-foreground mt-2">Operated by <strong>Austrange Solutions Private Limited</strong></p>
+        <div className="text-sm text-foreground mt-2">
+          <div><strong>Merchant Legal entity name:</strong> AUSTRANGE SOLUTIONS PRIVATE LIMITED</div>
+          <div className="mt-1"><strong>Registered Address:</strong> R No 403, Lakdiwali Lane, Behram Nagar, A K Road, Madina, Bandra East, Mumbai, Maharashtra, PIN: 400051</div>
+          <div className="mt-1"><strong>Operational Address:</strong> R No 403, Lakdiwali Lane, Behram Nagar, A K Road, Madina, Bandra East, Mumbai, Maharashtra, PIN: 400051</div>
+          <div className="mt-1"><strong>Telephone No:</strong> 8433887840</div>
+          <div className="mt-1"><strong>E-Mail ID:</strong> <a href="mailto:austrange.india@gmail.com" className="text-primary">austrange.india@gmail.com</a></div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">Last updated on 24-10-2025 13:37:14</p>
+      </div>
+
       <div className="pt-8">
         <h3 className="text-lg font-semibold text-foreground mb-4">
           Follow Us
