@@ -82,6 +82,7 @@ const ContactForm = () => {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       className="bg-card rounded-2xl shadow-lg p-8 border border-border"
+      suppressHydrationWarning
     >
       <h2 className="text-3xl font-bold text-foreground mb-8">
         Send us a Message
