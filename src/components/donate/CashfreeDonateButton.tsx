@@ -77,22 +77,50 @@ export default function CashfreeDonateButton({
         throw new Error("Failed to load Cashfree SDK");
       }
 
-      // Configure Cashfree checkout
+      // Configure Cashfree checkout with modal (redirectTarget: "_modal")
       const checkoutOptions = {
         paymentSessionId: createData.paymentSessionId,
-        returnUrl: `${window.location.origin}/donate/success?order_id=${createData.orderId}`,
+        redirectTarget: "_modal" as "_modal", // Open in modal instead of full page redirect
       };
 
       console.log("🚀 Opening Cashfree checkout with options:", checkoutOptions);
 
-      // Open Cashfree checkout
+      // Open Cashfree checkout - this will open a modal/popup
       const result = await cashfree.checkout(checkoutOptions);
       
       console.log("✅ Cashfree checkout result:", result);
       
-      // After checkout closes (whether success or cancel), redirect to success page
-      // The success page will verify the payment
-      window.location.href = `/donate/success?order_id=${createData.orderId}`;
+      // Check if payment was successful
+      if (result.error) {
+        throw new Error(result.error.message || "Payment failed");
+      }
+
+      if (result.paymentDetails) {
+        // Payment completed, verify it
+        try {
+          const verifyResponse = await fetch("/api/donate/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: result.paymentDetails.orderId || createData.orderId,
+            }),
+          });
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyResponse.ok && verifyData.success) {
+            // Redirect to success page with payment details
+            window.location.href = `/donate/success?payment_id=${verifyData.donation.paymentId}&order_id=${createData.orderId}`;
+          } else {
+            throw new Error(verifyData.message || "Payment verification failed");
+          }
+        } catch (verifyError: any) {
+          throw new Error(verifyError.message || "Payment verification failed");
+        }
+      } else {
+        // User closed the modal without completing payment
+        throw new Error("Payment was not completed");
+      }
       
     } catch (error: any) {
       console.error("Payment Error:", error);
