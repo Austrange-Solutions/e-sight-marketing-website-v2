@@ -1,6 +1,5 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { getSignedUrl as getCloudfrontSignedUrl } from "@aws-sdk/cloudfront-signer";
 
 // Initialize S3 client
 const s3Client = new S3Client({
@@ -27,11 +26,14 @@ function isCloudfrontSignedEnabled(): boolean {
  * @param expiresIn - Expiration time in seconds
  * @returns Signed CloudFront URL
  */
-function generateCloudfrontSignedUrl(
+async function generateCloudfrontSignedUrl(
   url: string,
   expiresIn: number = 900
-): string {
+): Promise<string> {
   try {
+    // Dynamically import cloudfront-signer to avoid bundler errors when it's not installed
+    const { getSignedUrl: getCloudfrontSignedUrl } = await import('@aws-sdk/cloudfront-signer');
+
     const dateLessThan = new Date(Date.now() + expiresIn * 1000).toISOString();
 
     const signedUrl = getCloudfrontSignedUrl({
@@ -66,7 +68,7 @@ export async function generatePresignedUrl(
       if (cloudfrontDomain) {
         const baseUrl = cloudfrontDomain.startsWith('http') ? cloudfrontDomain : `https://${cloudfrontDomain}`;
         const cloudfrontUrl = `${baseUrl}/${fileKey}`;
-        return generateCloudfrontSignedUrl(cloudfrontUrl, expiresIn);
+        return await generateCloudfrontSignedUrl(cloudfrontUrl, expiresIn);
       }
     }
 
