@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
       folderPath = `${S3_PREFIX}donation-logos/`;
     } else if (folder === "products") {
       folderPath = `${S3_PREFIX}products/`;
+    } else if (folder === "gallery") {
+      folderPath = `${S3_PREFIX}gallery/`;
     }
 
     // Generate unique filename with timestamp

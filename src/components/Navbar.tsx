@@ -13,6 +13,8 @@ const Navbar = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
+  const [resourceDropdownOpen, setResourceDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
@@ -21,6 +23,11 @@ const Navbar = () => {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Detect if we're on donate subdomain
   useEffect(() => {
@@ -47,6 +54,7 @@ const Navbar = () => {
       { path: "/products", label: "Products" },
       { path: "/about", label: "About" },
       { path: "/contact", label: "Contact" },
+      { path: "/gallery", label: "Gallery" },
     ];
 
     if (isAuthenticated) {
@@ -152,7 +160,7 @@ const Navbar = () => {
   return (
     <>
 
-      <nav className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border">
+  <nav suppressHydrationWarning className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -166,7 +174,7 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
                 // If on donate subdomain, link to main domain
                 const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
@@ -199,6 +207,7 @@ const Navbar = () => {
                   </Link>
                 );
               })}
+
 
               {/* Donate Button */}
               <a 
@@ -238,7 +247,7 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-2">
+            <div className="lg:hidden flex items-center space-x-2">
               <button
                 onClick={() => openCart()}
                 className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
@@ -303,6 +312,59 @@ const Navbar = () => {
                 </Link>
               );
             })}
+
+            {/* Mobile Resource Center */}
+            {mounted && (
+              <div className="space-y-1">
+                <button
+                  onClick={() => setResourceDropdownOpen(!resourceDropdownOpen)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    pathname?.startsWith('/resource-center')
+                      ? "text-primary bg-accent"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent"
+                  }`}
+                >
+                  <span>Resource Center</span>
+                  <svg className={`w-4 h-4 transition-transform duration-200 ${resourceDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Mobile Resource Center Dropdown */}
+                {resourceDropdownOpen && (
+                  <div className="pl-4 space-y-1">
+                    <Link
+                      href="/resource-center"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      All Resources
+                    </Link>
+                    <Link
+                      href="/resource-center/annual-reports"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      Annual Reports
+                    </Link>
+                    <Link
+                      href="/resource-center/project-reports"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      Project Reports
+                    </Link>
+                    <Link
+                      href="/resource-center/documents"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      Documents
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Mobile Donate Button */}
             <a 

@@ -15,19 +15,7 @@ export const dynamic = 'force-dynamic';
 // Active payment gateway: CASHFREE
 const ACTIVE_GATEWAY = 'cashfree'; // Change to 'razorpay' if needed
 
-// Validate required environment variables
-if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
-  throw new Error("Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY in environment variables.");
-}
-
-// Initialize Cashfree (Active)
-const cashfree = new Cashfree(
-  process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
-    ? CFEnvironment.PRODUCTION 
-    : CFEnvironment.SANDBOX,
-  process.env.CASHFREE_APP_ID,
-  process.env.CASHFREE_SECRET_KEY
-);
+// Avoid initializing gateway at import time to prevent build-time env errors
 
 // Initialize Razorpay (Available but inactive)
 const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET 
@@ -112,6 +100,19 @@ export async function POST(req: NextRequest) {
     const orderId = `donation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     // Create Cashfree order (Active Gateway)
+    const appId = process.env.CASHFREE_APP_ID;
+    const secret = process.env.CASHFREE_SECRET_KEY;
+    if (!appId || !secret) {
+      return NextResponse.json(
+        { success: false, message: "Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY." },
+        { status: 500 }
+      );
+    }
+
+    const env = process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
+      ? CFEnvironment.PRODUCTION 
+      : CFEnvironment.SANDBOX;
+    const cashfree = new Cashfree(env, appId, secret);
     const orderRequest = {
       order_id: orderId,
       order_amount: parseFloat(amount.toFixed(2)),
@@ -125,7 +126,7 @@ export async function POST(req: NextRequest) {
       order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
     };
 
-    const response = await cashfree.PGCreateOrder(orderRequest);
+  const response = await cashfree.PGCreateOrder(orderRequest);
 
     if (!response || !response.data) {
       return NextResponse.json(

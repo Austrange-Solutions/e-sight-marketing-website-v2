@@ -1,10 +1,13 @@
 'use client';
 import React from "react";
+import dynamic from 'next/dynamic';
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Shield, Navigation } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+const DynamicCarousel = dynamic(() => import('./Carousel'), { ssr: false });
 
 const HomeHero = () => {
   return (
@@ -32,9 +35,11 @@ const HomeHero = () => {
               transition={{ delay: 0.2 }}
               className="inline-block mb-6"
             >
-              <Badge className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm font-medium backdrop-blur-sm hover:bg-white/30 transition-colors">
-                 A brand by Austrange Solutions pvt Ltd
-              </Badge>
+              <Link href="https://www.austrangesolutions.com/" target="_blank" rel="noopener noreferrer">
+                <Badge className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm font-medium backdrop-blur-sm hover:bg-white/30 transition-colors">
+                  A brand by Austrange Solutions pvt Ltd
+                </Badge>
+              </Link>
             </motion.div>
 
             {/* Main Heading */}
@@ -125,52 +130,20 @@ const HomeHero = () => {
           </motion.div>
 
           {/* Right Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative hidden lg:block"
-          >
-            {/* Decorative circles */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-96 h-96 bg-white/5 rounded-full animate-pulse" />
-              <div className="absolute w-80 h-80 bg-white/10 rounded-full animate-pulse delay-500" />
-              <div className="absolute w-64 h-64 bg-white/15 rounded-full animate-pulse delay-1000" />
-            </div>
-
-            {/* 3D-style illustration or icon */}
-            <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-12 border border-white/20 shadow-2xl">
-                <svg
-                  className="w-64 h-64 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  {/* Accessibility icon with modern styling */}
-                  <circle cx="12" cy="7" r="3" stroke="currentColor" strokeWidth="2" fill="none" />
-                  <path
-                    d="M12 10C9.79086 10 8 11.7909 8 14V17C8 18.1046 8.89543 19 10 19C11.1046 19 12 18.1046 12 17V14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M12 14C12 11.7909 13.7909 10 16 10C16.5523 10 17 10.4477 17 11V17C17 18.1046 16.1046 19 15 19C13.8954 19 13 18.1046 13 17"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M6 13L4 20M18 13L20 20"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+          <div className="relative hidden lg:block">
+            {/* Carousel - loads images from admin-managed S3 carousel collection */}
+            <div className="relative z-10">
+              <div className="p-4">
+                {/* Lazy load carousel component to avoid SSR issues */}
+                {/* Imported dynamically to keep HomeHero server-friendly */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <React.Suspense fallback={<div className="w-full h-96 flex items-center justify-center bg-card rounded-2xl">Loading...</div>}>
+                  {/* @ts-ignore */}
+                  <DynamicCarousel />
+                </React.Suspense>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Stats Section */}
