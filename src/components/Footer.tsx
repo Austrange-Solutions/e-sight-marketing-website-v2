@@ -94,7 +94,7 @@ const Footer = () => {
                 { href: "/resource-center/documents", label: "Documents" },
               ].map((link) => {
                 // Use a deterministic href (either absolute main domain if configured or relative)
-                const href = mainDomainUrl ? `${mainDomainUrl}${link.href}` : link.href;
+                const href = link.href;
                 return (
                   <li key={link.href}>
                     <a href={href} className="text-white/70 hover:text-white transition-colors duration-200">
