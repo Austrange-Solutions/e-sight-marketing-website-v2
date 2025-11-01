@@ -13,6 +13,8 @@ const Navbar = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
+  const [resourceDropdownOpen, setResourceDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
@@ -21,6 +23,11 @@ const Navbar = () => {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Detect if we're on donate subdomain
   useEffect(() => {
@@ -200,6 +207,65 @@ const Navbar = () => {
                 );
               })}
 
+              {/* Resource Center Dropdown */}
+              <div className="relative">
+                <button
+                  onMouseEnter={() => mounted && setResourceDropdownOpen(true)}
+                  onMouseLeave={() => mounted && setResourceDropdownOpen(false)}
+                  onClick={() => mounted && setResourceDropdownOpen(!resourceDropdownOpen)}
+                  className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 flex items-center gap-1 ${
+                    pathname?.startsWith('/resource-center')
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-primary"
+                  }`}
+                >
+                  Resource Center
+                  <svg className={`w-4 h-4 transition-transform duration-200 ${resourceDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  {pathname?.startsWith('/resource-center') && (
+                    <motion.div
+                      layoutId="underline"
+                      className="absolute left-0 right-0 bottom-0 h-0.5 bg-primary"
+                    />
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {mounted && resourceDropdownOpen && (
+                  <div
+                    onMouseEnter={() => setResourceDropdownOpen(true)}
+                    onMouseLeave={() => setResourceDropdownOpen(false)}
+                    className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50"
+                  >
+                    <Link
+                      href="/resource-center"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      All Resources
+                    </Link>
+                    <Link
+                      href="/resource-center/annual-reports"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Annual Reports
+                    </Link>
+                    <Link
+                      href="/resource-center/project-reports"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Project Reports
+                    </Link>
+                    <Link
+                      href="/resource-center/documents"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Documents
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               {/* Donate Button */}
               <a 
                 href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.'+process.env.NEXT_PUBLIC_HOSTNAME}
@@ -303,6 +369,59 @@ const Navbar = () => {
                 </Link>
               );
             })}
+
+            {/* Mobile Resource Center */}
+            {mounted && (
+              <div className="space-y-1">
+                <button
+                  onClick={() => setResourceDropdownOpen(!resourceDropdownOpen)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    pathname?.startsWith('/resource-center')
+                      ? "text-primary bg-accent"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent"
+                  }`}
+                >
+                  <span>Resource Center</span>
+                  <svg className={`w-4 h-4 transition-transform duration-200 ${resourceDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Mobile Resource Center Dropdown */}
+                {resourceDropdownOpen && (
+                  <div className="pl-4 space-y-1">
+                    <Link
+                      href="/resource-center"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      All Resources
+                    </Link>
+                    <Link
+                      href="/resource-center/annual-reports"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      Annual Reports
+                    </Link>
+                    <Link
+                      href="/resource-center/project-reports"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      Project Reports
+                    </Link>
+                    <Link
+                      href="/resource-center/documents"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                    >
+                      Documents
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Mobile Donate Button */}
             <a 
