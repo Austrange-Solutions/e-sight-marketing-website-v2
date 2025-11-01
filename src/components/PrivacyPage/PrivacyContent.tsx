@@ -261,7 +261,7 @@ export default function PrivacyContent() {
                 <h3 className="text-xl font-semibold text-foreground mb-4">Questions About Your Privacy?</h3>
                 <p className="mb-6">If you have any questions, concerns, or requests regarding this privacy policy or your data, please contact us:</p>
                 <div className="space-y-3">
-                  <p><strong>Email:</strong> <a href="mailto:austrange.india@gmail.com" className="text-primary hover:underline">austrange.india@gmail.com</a></p>
+                  <p><strong>Email:</strong> <a href="mailto:contact@maceazy.com" className="text-primary hover:underline">contact@maceazy.com</a></p>
                   <p><strong>Phone:</strong> <a href="tel:+919322871984" className="text-primary hover:underline">+91 93228 71984</a></p>
                   <p><strong>Response Time:</strong> We typically respond within 48-72 hours</p>
                 </div>

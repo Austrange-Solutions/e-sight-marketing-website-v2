@@ -114,7 +114,7 @@ const sections: { id: string; title: string; faqs: FAQ[] }[] = [
     id: "feedback",
     title: "Feedback & Support FAQs",
     faqs: [
-      { q: "How can I give feedback or report an issue?", a: <>Use the <a href="/contact" className="text-primary underline">Contact Us form</a> or email us directly at <a href="mailto:contact.austrange@gmail.com" className="text-primary underline">contact.austrange@gmail.com</a>. We value every suggestion to help improve our products and platform.</> },
+      { q: "How can I give feedback or report an issue?", a: <>Use the <a href="/contact" className="text-primary underline">Contact Us form</a> or email us directly at <a href="mailto:contact@maceazy.com" className="text-primary underline">contact@maceazy.com</a>. We value every suggestion to help improve our products and platform.</> },
     ],
   },
 ]
