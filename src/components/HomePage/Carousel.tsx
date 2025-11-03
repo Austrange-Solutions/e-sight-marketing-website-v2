@@ -5,6 +5,7 @@ type Slide = {
   id: string;
   key: string;
   url: string;
+  fileType?: string;
   altText?: string;
 };
 
@@ -68,15 +69,28 @@ export default function Carousel({ autoplay = true, interval = 4000 }: { autopla
   return (
     <div className="w-full h-96 relative rounded-2xl overflow-hidden bg-card">
       {slides.map((s, i) => (
-        <img
-          key={s.id}
-          src={s.url}
-          alt={s.altText || `Slide ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            transitionProperty: 'opacity, transform'
-          }}
-        />
+        s.fileType && s.fileType.startsWith('video') ? (
+          <video
+            key={s.id}
+            src={s.url}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
+            style={{ transitionProperty: 'opacity, transform' }}
+            playsInline
+            muted
+            loop
+            autoPlay={autoplay}
+          />
+        ) : (
+          <img
+            key={s.id}
+            src={s.url}
+            alt={s.altText || `Slide ${i + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
+            style={{
+              transitionProperty: 'opacity, transform'
+            }}
+          />
+        )
       ))}
 
       {/* Prev / Next */}

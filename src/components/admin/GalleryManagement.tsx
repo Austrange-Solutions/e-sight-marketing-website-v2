@@ -370,8 +370,8 @@ export default function GalleryManagement() {
       </div>
 
       {editOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-lg p-4 w-full max-w-3xl">
+        <div className="fixed inset-0 bg-black/50 overflow-y-auto z-50 flex items-start justify-center">
+          <div className="bg-card rounded-lg p-4 w-full max-w-3xl max-h-[90vh] overflow-y-auto mt-8 mb-8">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Edit Event</h3>
               <button onClick={() => { setEditOpen(false); setEditing(null); }}>✕</button>

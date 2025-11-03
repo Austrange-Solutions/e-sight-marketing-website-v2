@@ -54,7 +54,20 @@ const uploadedImageSchema = new mongoose.Schema<IUploadedImage>({
   fileType: {
     type: String,
     required: true,
-    enum: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
+    enum: [
+      // images
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/svg+xml',
+      // videos
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'video/quicktime',
+      'video/x-msvideo'
+    ]
   },
   width: {
     type: Number,
@@ -179,7 +192,12 @@ uploadedImageSchema.statics.getUploadStats = function() {
   ]);
 };
 
-const UploadedImage = mongoose.models.UploadedImage || 
-  mongoose.model<IUploadedImage>('UploadedImage', uploadedImageSchema);
+// Ensure model is recompiled in dev/hot-reload environments
+if (mongoose.models && mongoose.models.UploadedImage) {
+  // Delete the cached model so the updated schema (enum additions) is applied
+  delete mongoose.models.UploadedImage;
+}
+
+const UploadedImage = mongoose.models.UploadedImage || mongoose.model<IUploadedImage>('UploadedImage', uploadedImageSchema);
 
 export default UploadedImage;

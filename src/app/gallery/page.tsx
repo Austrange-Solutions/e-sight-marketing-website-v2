@@ -2,8 +2,10 @@ import { connect } from "@/dbConfig/dbConfig";
 import EventModel from "@/models/Event";
 import Link from "next/link";
 import GalleryHero from "@/components/gallery/GalleryHero";
+import { tr } from "zod/v4/locales";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 async function getEvents() {
   await connect();
