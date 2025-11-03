@@ -44,9 +44,12 @@ export default function CarouselManagement() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename: file.name, fileType: file.type, folder: 'carousel' }),
+        credentials: 'include',
       });
       const presignedData = await presignedRes.json();
-      if (!presignedData || !presignedData.uploadUrl) throw new Error('Failed to get upload URL');
+      if (!presignedRes.ok || !presignedData || !presignedData.uploadUrl) {
+        throw new Error(presignedData?.error || 'Failed to get upload URL');
+      }
 
       // Upload file directly to S3 (PUT)
       await fetch(presignedData.uploadUrl, {
@@ -59,6 +62,7 @@ export default function CarouselManagement() {
       const saveRes = await fetch('/api/images', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           filename: presignedData.key.split('/').pop(),
           originalName: file.name,
@@ -73,13 +77,13 @@ export default function CarouselManagement() {
       });
 
       const saved = await saveRes.json();
-      if (saved && saved.success) {
+      if (saveRes.ok && saved && saved.success) {
         toast.success('Image uploaded and saved');
         setFile(null);
         fetchImages();
       } else {
         console.error('Save failed', saved);
-        toast.error('Failed to save image metadata');
+        toast.error(saved?.error || 'Failed to save image metadata');
       }
     } catch (err: any) {
       console.error(err);
@@ -144,7 +148,8 @@ export default function CarouselManagement() {
 
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
         <div className='border p-1'>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          {/* Allow both images and videos for carousel uploads */}
+          <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
         </div>
         <div className="flex gap-2">
           <button onClick={handleUpload} disabled={!file || uploading} className="px-3 py-1 bg-primary text-white rounded disabled:opacity-50">
@@ -163,7 +168,11 @@ export default function CarouselManagement() {
           {images.map(img => (
             <div key={img._id} className="border p-2 rounded bg-card flex flex-col">
               <div className="w-full h-40 bg-gray-100 rounded overflow-hidden">
-                <img src={img.cloudFrontUrl || img.s3Url} alt={img.altText || img.originalName} className="w-full h-full object-cover" />
+                {((img.fileType || '') as string).startsWith('video') ? (
+                  <video src={img.cloudFrontUrl || img.s3Url} controls className="w-full h-full object-cover" />
+                ) : (
+                  <img src={img.cloudFrontUrl || img.s3Url} alt={img.altText || img.originalName} className="w-full h-full object-cover" />
+                )}
               </div>
               <div className="mt-2 text-sm font-medium truncate">{img.filename}</div>
               <div className="text-xs text-muted-foreground truncate">{img.originalName}</div>
@@ -186,7 +195,11 @@ export default function CarouselManagement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
                 <div className="w-full h-48 bg-gray-100 rounded overflow-hidden">
-                  <img src={editing.cloudFrontUrl || editing.s3Url} alt={editing.altText || editing.originalName} className="w-full h-full object-cover" />
+                  {((editing.fileType || '') as string).startsWith('video') ? (
+                    <video src={editing.cloudFrontUrl || editing.s3Url} controls className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={editing.cloudFrontUrl || editing.s3Url} alt={editing.altText || editing.originalName} className="w-full h-full object-cover" />
+                  )}
                 </div>
               </div>
               <div className="md:col-span-2 space-y-3">

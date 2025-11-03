@@ -36,11 +36,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate file type (allow common image formats)
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+    // Validate file type (allow common image and video formats)
+    const allowedTypes = [
+      // images
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+      // videos
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/quicktime",
+    ];
+
     if (!allowedTypes.includes(fileType)) {
       return NextResponse.json(
-        { error: "Invalid file type. Only image files are allowed." },
+        { error: "Invalid file type. Allowed types: " + allowedTypes.join(", ") },
         { status: 400 }
       );
     }
@@ -53,6 +67,8 @@ export async function POST(req: NextRequest) {
       folderPath = `${S3_PREFIX}products/`;
     } else if (folder === "gallery") {
       folderPath = `${S3_PREFIX}gallery/`;
+    } else if (folder === "carousel") {
+      folderPath = `${S3_PREFIX}carousel/`;
     }
 
     // Generate unique filename with timestamp

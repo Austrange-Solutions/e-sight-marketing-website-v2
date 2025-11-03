@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       key: img.s3Key,
       altText: img.altText || img.originalName || img.filename,
       url: urlMap.get(img.s3Key) || img.cloudFrontUrl || img.s3Url,
+      fileType: img.fileType,
     }));
 
     return NextResponse.json({ success: true, data: payload });
