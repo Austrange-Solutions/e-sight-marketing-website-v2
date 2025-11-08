@@ -5,22 +5,25 @@ import { Cashfree, CFEnvironment } from "cashfree-pg";
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Validate required environment variables
-if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
-  throw new Error("Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY in environment variables.");
-}
-
-// Initialize Cashfree
-const cashfree = new Cashfree(
-  process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
-    ? CFEnvironment.PRODUCTION 
-    : CFEnvironment.SANDBOX,
-  process.env.CASHFREE_APP_ID,
-  process.env.CASHFREE_SECRET_KEY
-);
+// Avoid eager evaluation at build time; validate and initialize inside the handler
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate env at request time (not at import/build time)
+    const appId = process.env.CASHFREE_APP_ID;
+    const secret = process.env.CASHFREE_SECRET_KEY;
+    if (!appId || !secret) {
+      return NextResponse.json(
+        { error: "Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY." },
+        { status: 500 }
+      );
+    }
+
+    const env = process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
+      ? CFEnvironment.PRODUCTION 
+      : CFEnvironment.SANDBOX;
+    const cashfree = new Cashfree(env, appId, secret);
+
     const body = await request.json();
     const { amount, currency = "INR", userDetails } = body;
 
@@ -59,7 +62,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Create order
-    const response = await cashfree.PGCreateOrder(orderRequest);
+  const response = await cashfree.PGCreateOrder(orderRequest);
 
     if (!response || !response.data) {
       return NextResponse.json(

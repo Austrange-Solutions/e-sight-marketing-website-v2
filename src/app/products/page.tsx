@@ -2,6 +2,7 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import ProductCard from '@/components/ProductCard';
+import ProductHero from '@/components/products/ProductHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,9 +67,10 @@ export default function ProductsPage() {
   }, [hasMore, loading]);
 
   return (
-    <div className="mt-[5%] min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8 lg:py-12">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 md:mb-12 text-center text-gray-900">Our Products</h1>
+    <div className="pt-16 ">
+      {/* Hero section */}
+      <ProductHero />
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-12">
         <div className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
             {products.map((product: Product) => (
@@ -82,7 +84,7 @@ export default function ProductsPage() {
             ))}
           </div>
         </div>
-        <div ref={loaderRef} style={{ height: 1 }} />
+  <div ref={loaderRef} style={{ height: 1 }} />
         {!loading && products.length === 0 && (
           <div className="text-center py-8 sm:py-12">
             <div className="text-gray-500 text-base sm:text-lg">No products available</div>

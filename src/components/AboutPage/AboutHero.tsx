@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 
 export default function AboutHero() {
   return (
-    <section className="py-24 bg-gradient-to-br from-primary to-secondary text-white" aria-labelledby="about-hero-heading">
+    <section 
+      className="py-24 bg-gradient-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white" aria-labelledby="about-hero-heading"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

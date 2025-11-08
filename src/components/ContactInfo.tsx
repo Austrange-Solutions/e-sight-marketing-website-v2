@@ -8,6 +8,7 @@ import {
   Facebook,
   Twitter,
   Instagram,
+  Building
 } from "lucide-react";
 
 const ContactInfo = () => {
@@ -16,6 +17,7 @@ const ContactInfo = () => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       className="space-y-8"
+      suppressHydrationWarning
     >
       <h2 className="text-3xl font-bold text-foreground mb-8">
         Contact Information
@@ -61,29 +63,51 @@ const ContactInfo = () => {
 
         <div className="flex items-center space-x-4">
           <div className="bg-primary/10 p-3 rounded-full">
+            <MapPin className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-muted-foreground">Address</p>
+            <div className="text-lg font-medium text-foreground">
+              Office 1: CIEL - Room 409, Chetana College, Bandra (East), Mumbai 400051
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-primary/10 p-3 rounded-full">
             <MapPin className="h-6 w-6 text-primary" />
           </div>
           <div>
             <p className="text-muted-foreground">Address</p>
-            <p className="text-lg font-medium text-foreground">
-              Not yet, we are online
-            </p>
+            <div className="text-lg font-medium text-foreground">
+              Office 2: Riidl - Room 520, Bhaskaracharya Building, Somaiya Vidyavihar, Mumbai 400077
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-8 border-t border-border">
+      {/* Updated Business section to match the structure of other sections */}
+        <div className="flex items-center space-x-4">
+          <div className="bg-primary/10 p-3 rounded-full">
+            <Building className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-muted-foreground">Business</p>
+            <div className="text-lg font-medium text-foreground">
+              <div>Operated by <strong>Austrange Solutions Private Limited</strong>
+              <br/><strong>Merchant Legal entity name:</strong> AUSTRANGE SOLUTIONS PRIVATE LIMITED</div>
+            </div>
+          </div>
+        </div>
+
+
+
+      {/* <div className="pt-8 border-t border-border">
         <h3 className="text-sm text-muted-foreground">Business</h3>
         <p className="text-sm text-foreground mt-2">Operated by <strong>Austrange Solutions Private Limited</strong></p>
         <div className="text-sm text-foreground mt-2">
           <div><strong>Merchant Legal entity name:</strong> AUSTRANGE SOLUTIONS PRIVATE LIMITED</div>
-          <div className="mt-1"><strong>Registered Address:</strong> R No 403, Lakdiwali Lane, Behram Nagar, A K Road, Madina, Bandra East, Mumbai, Maharashtra, PIN: 400051</div>
-          <div className="mt-1"><strong>Operational Address:</strong> R No 403, Lakdiwali Lane, Behram Nagar, A K Road, Madina, Bandra East, Mumbai, Maharashtra, PIN: 400051</div>
-          <div className="mt-1"><strong>Telephone No:</strong> 8433887840</div>
-          <div className="mt-1"><strong>E-Mail ID:</strong> <a href="mailto:austrange.india@gmail.com" className="text-primary">austrange.india@gmail.com</a></div>
         </div>
-        <p className="text-xs text-muted-foreground mt-3">Last updated on 24-10-2025 13:37:14</p>
-      </div>
+      </div> */}
 
       <div className="pt-8">
         <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -91,19 +115,19 @@ const ContactInfo = () => {
         </h3>
         <div className="flex space-x-4">
           <a
-            href="#"
+            href="https://www.facebook.com/people/Austrange-Solutions/61575298985988/"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Facebook className="h-6 w-6" />
           </a>
           <a
-            href="#"
+            href="https://x.com/austrangesolns"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Twitter className="h-6 w-6" />
           </a>
           <a
-            href="#"
+            href="https://www.instagram.com/austrangesolutions/"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Instagram className="h-6 w-6" />

@@ -54,6 +54,7 @@ const Navbar = () => {
       { path: "/products", label: "Products" },
       { path: "/about", label: "About" },
       { path: "/contact", label: "Contact" },
+      { path: "/gallery", label: "Gallery" },
     ];
 
     if (isAuthenticated) {
@@ -159,7 +160,7 @@ const Navbar = () => {
   return (
     <>
 
-      <nav className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border">
+  <nav suppressHydrationWarning className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -173,7 +174,7 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
                 // If on donate subdomain, link to main domain
                 const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
@@ -207,64 +208,6 @@ const Navbar = () => {
                 );
               })}
 
-              {/* Resource Center Dropdown */}
-              <div className="relative">
-                <button
-                  onMouseEnter={() => mounted && setResourceDropdownOpen(true)}
-                  onMouseLeave={() => mounted && setResourceDropdownOpen(false)}
-                  onClick={() => mounted && setResourceDropdownOpen(!resourceDropdownOpen)}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 flex items-center gap-1 ${
-                    pathname?.startsWith('/resource-center')
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-primary"
-                  }`}
-                >
-                  Resource Center
-                  <svg className={`w-4 h-4 transition-transform duration-200 ${resourceDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                  {pathname?.startsWith('/resource-center') && (
-                    <motion.div
-                      layoutId="underline"
-                      className="absolute left-0 right-0 bottom-0 h-0.5 bg-primary"
-                    />
-                  )}
-                </button>
-
-                {/* Dropdown Menu */}
-                {mounted && resourceDropdownOpen && (
-                  <div
-                    onMouseEnter={() => setResourceDropdownOpen(true)}
-                    onMouseLeave={() => setResourceDropdownOpen(false)}
-                    className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50"
-                  >
-                    <Link
-                      href="/resource-center"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      All Resources
-                    </Link>
-                    <Link
-                      href="/resource-center/annual-reports"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Annual Reports
-                    </Link>
-                    <Link
-                      href="/resource-center/project-reports"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Project Reports
-                    </Link>
-                    <Link
-                      href="/resource-center/documents"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Documents
-                    </Link>
-                  </div>
-                )}
-              </div>
 
               {/* Donate Button */}
               <a 
@@ -304,7 +247,7 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-2">
+            <div className="lg:hidden flex items-center space-x-2">
               <button
                 onClick={() => openCart()}
                 className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
