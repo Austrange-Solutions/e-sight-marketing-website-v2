@@ -235,7 +235,7 @@ export default function CSRDonationsManager() {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-[oklch(0.70_0.15_160)] text-[oklch(1_0_0)] rounded-lg hover:bg-[oklch(0.65_0.15_160)] transition"
         >
           {showForm ? <X size={20} /> : <Plus size={20} />}
           {showForm ? 'Cancel' : 'Add CSR Donation'}
@@ -244,7 +244,7 @@ export default function CSRDonationsManager() {
 
       {/* Add CSR Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border-2 border-green-200 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border-2 border-[oklch(0.70_0.15_160)] space-y-4">
           <h3 className="text-lg font-semibold mb-4">New CSR Donation</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -250,7 +250,7 @@ export default function DonationPoolDashboard() {
       )}
 
       {/* Pool Fill Progress */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border-2 border-green-200">
+      <div className="bg-gradient-to-r from-[oklch(0.96_0.015_200)] to-[oklch(0.96_0.015_230)] rounded-lg p-6 border-2 border-[oklch(0.60_0.12_200)]">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Pool Fill Status</h3>
@@ -258,13 +258,13 @@ export default function DonationPoolDashboard() {
               {formatCurrency(pool.totalAmount)} of {formatCurrency(pool.totalBucketValue)} target
             </p>
           </div>
-          <div className="text-4xl font-bold text-green-600">
+          <div className="text-4xl font-bold text-[oklch(0.70_0.15_160)]">
             {pool.poolFillPercentage}%
           </div>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-green-500 to-blue-500 h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white text-xs font-semibold"
+            className="bg-gradient-to-r from-[oklch(0.70_0.15_160)] to-[oklch(0.65_0.14_230)] h-6 rounded-full transition-all duration-500 flex items-center justify-center text-[oklch(1_0_0)] text-xs font-semibold"
             style={{ width: `${Math.min(pool.poolFillPercentage, 100)}%` }}
           >
             {pool.poolFillPercentage > 10 && `${pool.poolFillPercentage}%`}
@@ -275,31 +275,31 @@ export default function DonationPoolDashboard() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Pool */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[oklch(0.60_0.12_200)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Pool</p>
               <p className="text-2xl font-bold text-gray-900">{formatCurrency(pool.totalAmount)}</p>
             </div>
-            <Heart className="w-12 h-12 text-purple-500 opacity-20" />
+            <Heart className="w-12 h-12 text-[oklch(0.60_0.12_200)] opacity-20" />
           </div>
         </div>
 
         {/* Online Donations - Company Share */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[oklch(0.65_0.14_230)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Individual Donors</p>
               <p className="text-2xl font-bold text-gray-900">{formatCurrency(pool.online.companyShare)}</p>
               <p className="text-xs text-gray-500 mt-1">{pool.online.donorCount} donors ({pool.online.percentage}%)</p>
-              <p className="text-xs text-blue-600 mt-1">To Company from donations</p>
+              <p className="text-xs text-[oklch(0.65_0.14_230)] mt-1">To Company from donations</p>
             </div>
-            <Users className="w-12 h-12 text-blue-500 opacity-20" />
+            <Users className="w-12 h-12 text-[oklch(0.65_0.14_230)] opacity-20" />
           </div>
         </div>
 
         {/* CSR Donations */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-[oklch(0.70_0.15_160)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">CSR Contributions</p>
@@ -308,7 +308,7 @@ export default function DonationPoolDashboard() {
                 {pool.csr.companyCount} companies • {pool.csr.beneficiaries} beneficiaries ({pool.csr.percentage}%)
               </p>
             </div>
-            <Building2 className="w-12 h-12 text-green-500 opacity-20" />
+            <Building2 className="w-12 h-12 text-[oklch(0.70_0.15_160)] opacity-20" />
           </div>
         </div>
       </div>
@@ -336,10 +336,10 @@ export default function DonationPoolDashboard() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-blue-600">
+                  <p className="text-sm text-[oklch(0.65_0.14_230)]">
                     Online: {formatCurrency(foundation.online.amount)} ({foundation.online.donorCount} donors)
                   </p>
-                  <p className="text-sm text-green-600">
+                  <p className="text-sm text-[oklch(0.70_0.15_160)]">
                     CSR: {formatCurrency(foundation.csr.amount)} ({foundation.csr.companyCount} companies)
                   </p>
                 </div>
@@ -357,13 +357,13 @@ export default function DonationPoolDashboard() {
                       </div>
                       <div>
                         <p className="text-gray-600">Foundation Share</p>
-                        <p className="font-semibold text-blue-600">
+                        <p className="font-semibold text-[oklch(0.70_0.15_160)]">
                           {formatCurrency(foundation.feeBreakdown.foundationShare)}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-600">Company Share</p>
-                        <p className="font-semibold text-green-600">
+                        <p className="font-semibold text-[oklch(0.65_0.14_230)]">
                           {formatCurrency(foundation.feeBreakdown.companyShare)}
                         </p>
                       </div>
@@ -387,7 +387,7 @@ export default function DonationPoolDashboard() {
                             {foundation.online.donations.map((d) => (
                               <tr 
                                 key={d._id} 
-                                className="border-t hover:bg-blue-50 cursor-pointer transition-colors"
+                                className="border-t hover:bg-[oklch(0.96_0.015_230)] cursor-pointer transition-colors"
                                 onClick={() => handleDonorClick(d._id)}
                               >
                                 <td className="p-2">
@@ -474,7 +474,7 @@ export default function DonationPoolDashboard() {
                   <span className="text-sm text-gray-600">
                     {bucket.bucketQuantity} buckets × {formatCurrency(bucket.totalPrice)}
                   </span>
-                  <span className="font-semibold text-green-600">
+                  <span className="font-semibold text-[oklch(0.70_0.15_160)]">
                     {formatCurrency(bucket.totalBucketValue)}
                   </span>
                 </div>
