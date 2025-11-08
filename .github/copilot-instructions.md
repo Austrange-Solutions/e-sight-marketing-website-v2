@@ -18,6 +18,25 @@ Next.js 15 e-commerce/donation platform for MACEAZY (E-Kaathi Pro) with dual fun
 - **APIs accept:** Both foundation code AND ObjectId (code preferred)
 - **Only 2 required fields:** Foundation Name + Foundation Share % (rest optional: logo, description, contact)
 
+**CSR Donation System:** Corporate donations tracked separately from individual donations
+- **Model:** `src/models/CSRDonation.ts` - company name, amount, numberOfPeople, foundation ref
+- **APIs:** `/api/admin/csr-donations` (CRUD for CSR donations)
+- **Component:** `CSRDonationsManager.tsx` (inline edits, audit log)
+- **Features:** Full audit trail (createdBy, lastEditedBy, field-level change tracking), status workflow (pending → verified → received → certificate_issued)
+
+**Donation Pool & Bucket System:** Aggregates donations and tracks product distribution bundles
+- **Model:** `src/models/DonationBucket.ts` - product bundles with auto-calculated pricing
+- **Admin APIs:** 
+  - `/api/admin/donation-pool` - Aggregates online + CSR donations by foundation with date filters
+  - `/api/admin/donation-buckets` - CRUD for donation buckets (product bundles)
+- **Public API:** `/api/donation-pool/progress` - Real-time pool fill percentage
+- **Components:**
+  - `DonationPoolDashboard.tsx` - Admin analytics (donor stats, CSR stats, foundation breakdown)
+  - `DonationBucketManager.tsx` - Create/edit product bundles, auto-price calculation
+  - `DonationPoolProgress.tsx` - Public progress bar with animated fill percentage
+- **Key Formula:** Pool Fill % = (Total Online + CSR Amount) / Total Bucket Value × 100%
+- **Bucket Structure:** Each bucket contains multiple products with quantities; price auto-calculated from product prices
+
 **Two-tier fee calculation** (implemented in `foundationSettingsModel.ts:calculateBreakdown()`):
 ```javascript
 // Step 1: Platform Fee
@@ -178,7 +197,10 @@ const imageUrl = `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
 4. Orders - Order tracking and fulfillment
 5. Delivery Areas - Serviceable locations
 6. Disabled Persons - Registration tracking (accessibility feature)
-7. **Donations** - View all donations with complete fee breakdowns
+7. **Donations** - Three sub-tabs:
+   - **Donation Pool** - Aggregated analytics + bucket management (default)
+   - **Online Donations** - Individual donor transactions
+   - **CSR Donations** - Corporate contribution tracking
 8. **Foundation Settings** - Edit configurable percentages per foundation
 9. **Foundations** - Dynamic foundation management (add/edit/delete)
 
@@ -256,6 +278,10 @@ RESEND_API_KEY=re_...
 - **Lean queries:** Use `.lean()` for read-only operations (better performance)
 
 ### API Routes
+- **Runtime declaration:** Force Node.js runtime for routes using JWT/crypto:
+  ```typescript
+  export const runtime = 'nodejs'; // At top of route file
+  ```
 - **Error handling:** Always use try-catch with proper status codes
 - **Validation:** Use Zod schemas for input validation
 - **Response format:** 
@@ -268,6 +294,13 @@ RESEND_API_KEY=re_...
 - **Strict mode enabled** - no implicit `any`
 - **Type imports:** Use `import type { ... }` for type-only imports
 - **Model types:** Define interfaces for Mongoose documents (e.g., `UserDocument extends Document`)
+
+### Client-Side State Management
+- **Auth Context:** `src/contexts/AuthContext.tsx` - JWT-based user auth with cookie storage
+- **Cart Context:** `src/contexts/CartContext.tsx` - Server-synced cart with localStorage fallback
+  - Hydration-aware: Use `isHydrated` flag before accessing localStorage
+  - Pending sync queue for offline operations
+  - Auto-syncs with `/api/cart` when authenticated
 
 ---
 

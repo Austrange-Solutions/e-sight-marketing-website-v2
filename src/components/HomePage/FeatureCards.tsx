@@ -8,14 +8,14 @@ const FeatureCards = () => {
   const features = [
     {
       icon: <Eye className="w-8 h-8" />,
-      title: "Object Detection",
+      title: "Obstacle Detection",
       description:
-        "Advanced AI-powered detection system for identifying obstacles",
+        "Advanced detection system for identifying obstacles",
     },
     {
       icon: <Navigation2 className="w-8 h-8" />,
       title: "GPS Integration",
-      description: "Turn-by-turn directions with voice guidance",
+      description: "Offers constant location visibility and real-time updates",
     },
     {
       icon: <Battery className="w-8 h-8" />,

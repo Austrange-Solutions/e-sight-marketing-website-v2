@@ -19,13 +19,31 @@ export async function GET(req: NextRequest) {
 
     // Get query parameters
     const searchParams = req.nextUrl.searchParams;
+    const id = searchParams.get("id"); // Fetch single donation by ID
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const status = searchParams.get("status"); // pending, completed, failed
     const foundation = searchParams.get("foundation"); // vsf, cf
     const search = searchParams.get("search"); // search by name or email
 
-    console.log('Query params:', { page, limit, status, foundation, search });
+    console.log('Query params:', { id, page, limit, status, foundation, search });
+
+    // If ID is provided, fetch single donation
+    if (id && mongoose.Types.ObjectId.isValid(id)) {
+      const donation = await Donation.findById(id)
+        .populate('foundation', '_id foundationName code displayName icon primaryColor logoUrl')
+        .lean();
+      
+      if (!donation) {
+        return NextResponse.json({ error: "Donation not found" }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        donations: [donation],
+        pagination: { currentPage: 1, totalPages: 1, totalDonations: 1, limit: 1 },
+      });
+    }
 
     // Build query
     const query: Record<string, unknown> = {};
@@ -77,7 +95,8 @@ export async function GET(req: NextRequest) {
           count: { $sum: 1 },
           totalAmount: { $sum: "$amount" },
           totalPlatformFee: { $sum: "$platformFee" },
-          totalNetAmount: { $sum: "$netAmount" },
+          totalFoundationAmount: { $sum: "$foundationAmount" }, // Amount that goes to foundations
+          totalCompanyAmount: { $sum: "$companyAmount" }, // Amount that goes to company
         },
       },
     ]);
@@ -150,7 +169,8 @@ export async function GET(req: NextRequest) {
       count: 0, 
       totalAmount: 0, 
       totalPlatformFee: 0, 
-      totalNetAmount: 0 
+      totalFoundationAmount: 0,
+      totalCompanyAmount: 0
     };
 
     const stats = {
@@ -160,7 +180,8 @@ export async function GET(req: NextRequest) {
       failed: totals.find((t) => t._id === "failed")?.count || 0,
       totalRevenue: completedTotals.totalAmount,
       totalPlatformFees: completedTotals.totalPlatformFee,
-      totalNetAmount: completedTotals.totalNetAmount,
+      totalNetAmount: completedTotals.totalFoundationAmount, // Sum of all foundation amounts = what goes to foundations
+      totalCompanyAmount: completedTotals.totalCompanyAmount, // Sum of all company amounts
       byFoundation: foundationTotalsMap, // Dynamic foundation stats
     };
 

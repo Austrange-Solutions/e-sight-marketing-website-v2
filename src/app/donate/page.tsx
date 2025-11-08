@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart, IndianRupee, Users, Award, CheckCircle2, AlertCircle } from "lucide-react";
 import Leaderboard from "@/components/donate/Leaderboard";
+import DonationPoolProgress from "@/components/donate/DonationPoolProgress";
 import CashfreeDonateButton from "@/components/donate/CashfreeDonateButton";
 
 const STICK_PRICE = 1499;
@@ -603,8 +604,9 @@ export default function DonatePage() {
               </motion.div>
             </div>
 
-            {/* Sidebar with Leaderboard */}
-            <div className="lg:col-span-1">
+            {/* Sidebar with Pool Progress & Leaderboard */}
+            <div className="lg:col-span-1 space-y-6">
+              <DonationPoolProgress />
               <Leaderboard />
             </div>
           </div>

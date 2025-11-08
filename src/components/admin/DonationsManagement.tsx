@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Search, Filter, Download, Heart, IndianRupee } from "lucide-react";
+import DonationDetailsModal from "./DonationDetailsModal";
+import DonorInfoTooltip from "./DonorInfoTooltip";
 
 // Foundation mapping constants
 const foundationLabels: Record<string, string> = {
@@ -31,6 +33,7 @@ interface Donation {
   sticksEquivalent: number;
   paymentId?: string;
   orderId?: string;
+  signature?: string;
   status: "pending" | "completed" | "failed";
   foundation: any; // Can be string (legacy) or populated foundation object
   message?: string;
@@ -38,6 +41,10 @@ interface Donation {
   platformFeePercent?: number;
   foundationSharePercent?: number;
   companySharePercent?: number;
+  address?: string;
+  city?: string;
+  state?: string;
+  pan?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -77,6 +84,8 @@ export default function DonationsManagement() {
   const [foundationFilter, setFoundationFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDonations();
@@ -166,6 +175,49 @@ export default function DonationsManagement() {
     });
   };
 
+  const handleRowClick = (donation: Donation) => {
+    setSelectedDonation(donation);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedDonation(null);
+  };
+
+  const handleAnonymityToggle = async (donationId: string, newStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/donations/${donationId}/anonymity`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isAnonymous: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update anonymity status");
+      }
+
+      // Update local state
+      setDonations((prevDonations) =>
+        prevDonations.map((donation) =>
+          donation._id === donationId
+            ? { ...donation, isAnonymous: newStatus }
+            : donation
+        )
+      );
+
+      // Update selected donation if it's the one being modified
+      if (selectedDonation?._id === donationId) {
+        setSelectedDonation({ ...selectedDonation, isAnonymous: newStatus });
+      }
+    } catch (error) {
+      console.error("Error toggling anonymity:", error);
+      throw error;
+    }
+  };
+
   const exportDonations = () => {
     // Create CSV content
     const headers = [
@@ -237,7 +289,7 @@ export default function DonationsManagement() {
       {/* Stats Cards */}
       {stats && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="bg-card border rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -248,22 +300,22 @@ export default function DonationsManagement() {
               </div>
             </div>
 
-            <div className="bg-card border rounded-lg p-6">
+            <div className="bg-card border-2 border-indigo-300 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Revenue</p>
-                  <p className="text-2xl font-bold text-foreground">
+                  <p className="text-2xl font-bold text-indigo-600">
                     ₹{stats.totalRevenue.toLocaleString("en-IN")}
                   </p>
                 </div>
-                <IndianRupee className="w-8 h-8 text-green-600" />
+                <IndianRupee className="w-8 h-8 text-indigo-600" />
               </div>
             </div>
 
             <div className="bg-card border border-orange-200 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Platform Fees (2%)</p>
+                  <p className="text-sm text-muted-foreground">Platform Fees</p>
                   <p className="text-2xl font-bold text-orange-600">
                     ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"}
                   </p>
@@ -277,13 +329,32 @@ export default function DonationsManagement() {
             <div className="bg-card border border-green-200 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Net to Foundations</p>
+                  <p className="text-sm text-muted-foreground">To Foundations</p>
                   <p className="text-2xl font-bold text-green-600">
                     ₹{stats.totalNetAmount?.toLocaleString("en-IN") || "0"}
                   </p>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold">
-                  ✓
+                  🏛️
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-blue-200 rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">To Company</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    ₹{(
+                      // Prefer server-aggregated value when present to avoid small rounding/logic differences
+                      (stats as any).totalCompanyAmount !== undefined
+                        ? (stats as any).totalCompanyAmount
+                        : (stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0))
+                    ).toLocaleString("en-IN")}
+                  </p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                  🏢
                 </div>
               </div>
             </div>
@@ -297,6 +368,108 @@ export default function DonationsManagement() {
                 <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold">
                   ⏱
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Revenue Breakdown Section */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              💰 Revenue Breakdown
+              <span className="text-sm font-normal text-gray-600">(How ₹{stats.totalRevenue.toLocaleString("en-IN")} is distributed)</span>
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Platform Fee */}
+              <div className="bg-white rounded-lg p-4 border-2 border-orange-300 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                    <span className="text-xl">🔧</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-orange-800 uppercase">Platform Fees</div>
+                    <div className="text-xs text-orange-600">Website & Payment Costs</div>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-orange-600 mb-1">
+                  ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"}
+                </div>
+                <div className="text-xs text-orange-700">
+                  {stats.totalRevenue > 0 
+                    ? `${((stats.totalPlatformFees / stats.totalRevenue) * 100).toFixed(1)}% of total revenue`
+                    : '0%'
+                  }
+                </div>
+              </div>
+
+              {/* To Foundations */}
+              <div className="bg-white rounded-lg p-4 border-2 border-green-300 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <span className="text-xl">🏛️</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-green-800 uppercase">To Foundations</div>
+                    <div className="text-xs text-green-600">NGO/Foundation Share</div>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-green-600 mb-1">
+                  ₹{stats.totalNetAmount?.toLocaleString("en-IN") || "0"}
+                </div>
+                <div className="text-xs text-green-700">
+                  {stats.totalRevenue > 0 
+                    ? `${((stats.totalNetAmount / stats.totalRevenue) * 100).toFixed(1)}% of total revenue`
+                    : '0%'
+                  }
+                </div>
+              </div>
+
+              {/* To Company */}
+              <div className="bg-white rounded-lg p-4 border-2 border-blue-300 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-xl">🏢</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-blue-800 uppercase">To Company</div>
+                    <div className="text-xs text-blue-600">MACEAZY Revenue Share</div>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-blue-600 mb-1">
+                  ₹{(
+                    (stats as any).totalCompanyAmount !== undefined
+                      ? (stats as any).totalCompanyAmount
+                      : (stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0))
+                  ).toLocaleString("en-IN")}
+                </div>
+                <div className="text-xs text-blue-700">
+                  {stats.totalRevenue > 0 
+                    ? `${(((
+                        (stats as any).totalCompanyAmount !== undefined
+                          ? (stats as any).totalCompanyAmount
+                          : (stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0))
+                      ) / stats.totalRevenue) * 100).toFixed(1)}% of total revenue`
+                    : '0%'
+                  }
+                </div>
+              </div>
+            </div>
+
+            {/* Verification Summary */}
+            <div className="mt-4 pt-4 border-t border-blue-300">
+              <div className="flex flex-wrap justify-between items-center text-sm">
+                <div className="text-gray-700">
+                  <span className="font-semibold">Total Revenue:</span> ₹{stats.totalRevenue.toLocaleString("en-IN")}
+                </div>
+                <div className="text-gray-600">
+                  = ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"} (Platform) + 
+                  ₹{stats.totalNetAmount?.toLocaleString("en-IN") || "0"} (Foundations) + 
+                  ₹{(stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0)).toLocaleString("en-IN")} (Company)
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 flex items-center gap-1">
+                <span>👥</span>
+                <span><strong>{stats.completed}</strong> completed donations from <strong>{stats.completed}</strong> individual donors</span>
               </div>
             </div>
           </div>
@@ -475,21 +648,35 @@ export default function DonationsManagement() {
             </thead>
             <tbody className="bg-card divide-y divide-border">
               {donations.map((donation) => (
-                <tr key={donation._id} className="hover:bg-accent/50">
+                <tr 
+                  key={donation._id} 
+                  className="hover:bg-accent/50 cursor-pointer transition-colors"
+                  onClick={() => handleRowClick(donation)}
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {formatDate(donation.createdAt)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <div className="text-sm font-medium text-foreground">
-                        {donation.donorName}
+                    <DonorInfoTooltip
+                      donorName={donation.donorName}
+                      email={donation.email}
+                      phone={donation.phone}
+                      address={donation.address}
+                      city={donation.city}
+                      state={donation.state}
+                      pan={donation.pan}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="text-sm font-medium text-foreground">
+                          {donation.donorName}
+                        </div>
+                        {donation.isAnonymous && (
+                          <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700 border border-gray-300">
+                            🔒 Anonymous
+                          </span>
+                        )}
                       </div>
-                      {donation.isAnonymous && (
-                        <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700 border border-gray-300">
-                          🔒 Anonymous
-                        </span>
-                      )}
-                    </div>
+                    </DonorInfoTooltip>
                     <div className="text-sm text-muted-foreground">
                       {donation.sticksEquivalent.toFixed(1)} E-Kaathi Pro
                     </div>
@@ -593,6 +780,14 @@ export default function DonationsManagement() {
           </div>
         )}
       </div>
+
+      {/* Donation Details Modal */}
+      <DonationDetailsModal
+        donation={selectedDonation}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onAnonymityToggle={handleAnonymityToggle}
+      />
     </div>
   );
 }
