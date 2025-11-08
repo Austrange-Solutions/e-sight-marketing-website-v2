@@ -578,7 +578,7 @@ export default function DonationBucketManager() {
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           bucket.isActive
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-[oklch(0.95_0.02_160)] text-[oklch(0.70_0.15_160)]"
                             : "bg-gray-100 text-gray-700"
                         }`}
                       >

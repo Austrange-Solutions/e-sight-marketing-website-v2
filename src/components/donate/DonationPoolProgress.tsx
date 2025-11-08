@@ -106,7 +106,7 @@ export default function DonationPoolProgress() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 rounded-2xl p-6 md:p-8 shadow-xl border-2 border-green-200">
+    <div className="bg-gradient-to-br from-[oklch(0.97_0.01_160)] via-[oklch(0.96_0.015_230)] to-[oklch(0.97_0.01_200)] rounded-2xl p-6 md:p-8 shadow-xl border-2 border-[oklch(0.70_0.15_160)]">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -118,7 +118,7 @@ export default function DonationPoolProgress() {
           </p>
         </div>
         <div className="bg-white rounded-full p-3 shadow-md">
-          <TrendingUp className="w-8 h-8 text-green-600" />
+          <TrendingUp className="w-8 h-8 text-[oklch(0.70_0.15_160)]" />
         </div>
       </div>
 
@@ -136,11 +136,11 @@ export default function DonationPoolProgress() {
         {/* Progress Bar */}
         <div className="relative w-full bg-gray-200 rounded-full h-8 overflow-hidden shadow-inner">
           <div
-            className="absolute inset-0 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-full transition-all duration-1000 ease-out flex items-center justify-center"
+            className="absolute inset-0 bg-gradient-to-r from-[oklch(0.70_0.15_160)] via-[oklch(0.65_0.14_230)] to-[oklch(0.60_0.12_200)] rounded-full transition-all duration-1000 ease-out flex items-center justify-center"
             style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
           >
             {animatedPercentage > 15 && (
-              <span className="text-white font-bold text-sm md:text-base animate-pulse">
+              <span className="text-[oklch(1_0_0)] font-bold text-sm md:text-base animate-pulse">
                 {animatedPercentage}%
               </span>
             )}
@@ -166,13 +166,13 @@ export default function DonationPoolProgress() {
       {progress.buckets && progress.buckets.length > 0 && (
         <div className="mt-6 space-y-4">
           <h4 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <Package className="w-5 h-5 text-blue-600" />
+            <Package className="w-5 h-5 text-[oklch(0.65_0.14_230)]" />
             Active Donation Buckets
           </h4>
           {progress.buckets.map((bucket, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-5 shadow-md border-l-4 border-blue-500 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-xl p-5 shadow-md border-l-4 border-[oklch(0.65_0.14_230)] hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
@@ -186,7 +186,7 @@ export default function DonationPoolProgress() {
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-[oklch(0.70_0.15_160)]">
                     {formatCurrency(bucket.allocatedAmount)}
                   </p>
                   <p className="text-xs text-gray-500">Allocated</p>
