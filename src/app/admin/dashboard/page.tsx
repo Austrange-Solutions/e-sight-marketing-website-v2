@@ -170,7 +170,7 @@ export default function AdminDashboard() {
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [disabledPersons, setDisabledPersons] = useState<DisabledPerson[]>([]);
   const [disabledPersonsLoading, setDisabledPersonsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery'>('overview');
   const [donationSubTab, setDonationSubTab] = useState<'online' | 'csr' | 'pool'>('pool');
   const [poolSubTab, setPoolSubTab] = useState<'analytics' | 'buckets'>('analytics');
   const [loading, setLoading] = useState(true);
