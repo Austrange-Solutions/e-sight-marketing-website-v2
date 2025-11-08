@@ -332,7 +332,7 @@ export default function CSRDonationsManager() {
           <div className="flex gap-2 pt-4">
             <button
               type="submit"
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-6 py-2 bg-[oklch(0.70_0.15_160)] text-[oklch(1_0_0)] rounded-lg hover:bg-[oklch(0.65_0.15_160)]"
             >
               Add CSR Donation
             </button>
@@ -574,10 +574,10 @@ export default function CSRDonationsManager() {
                           </select>
                         ) : (
                           <span className={`px-2 py-1 rounded text-xs ${
-                            donation.status === 'verified' ? 'bg-green-100 text-green-800' :
+                            donation.status === 'verified' ? 'bg-[oklch(0.95_0.02_160)] text-[oklch(0.70_0.15_160)]' :
                             donation.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                             donation.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            'bg-blue-100 text-blue-800'
+                            'bg-[oklch(0.96_0.015_230)] text-[oklch(0.65_0.14_230)]'
                           }`}>
                             {donation.status.replace('_', ' ').toUpperCase()}
                           </span>
@@ -590,7 +590,7 @@ export default function CSRDonationsManager() {
                             <>
                               <button
                                 onClick={() => saveEdit(donation._id)}
-                                className="p-1 text-green-600 hover:bg-green-50 rounded"
+                                className="p-1 text-[oklch(0.70_0.15_160)] hover:bg-[oklch(0.95_0.02_160)] rounded"
                                 title="Save"
                               >
                                 <Save size={16} />
@@ -607,7 +607,7 @@ export default function CSRDonationsManager() {
                             <>
                               <button
                                 onClick={() => startEdit(donation)}
-                                className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                                className="p-1 text-[oklch(0.65_0.14_230)] hover:bg-[oklch(0.96_0.015_230)] rounded"
                                 title="Edit"
                               >
                                 <Pencil size={16} />
@@ -648,7 +648,7 @@ export default function CSRDonationsManager() {
                                     <li key={cidx} className="text-xs">
                                       <span className="font-medium">{change.field}:</span>{' '}
                                       <span className="text-red-600">{JSON.stringify(change.oldValue)}</span> →{' '}
-                                      <span className="text-green-600">{JSON.stringify(change.newValue)}</span>
+                                      <span className="text-[oklch(0.70_0.15_160)]">{JSON.stringify(change.newValue)}</span>
                                     </li>
                                   ))}
                                 </ul>

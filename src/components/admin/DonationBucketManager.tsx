@@ -290,7 +290,7 @@ export default function DonationBucketManager() {
             resetForm();
             setShowForm(!showForm);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-[oklch(0.70_0.15_160)] text-[oklch(1_0_0)] rounded-lg hover:bg-[oklch(0.65_0.15_160)] transition"
         >
           {showForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
           {showForm ? "Cancel" : "Create Bucket"}
@@ -299,7 +299,7 @@ export default function DonationBucketManager() {
 
       {/* Create/Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 border-2 border-green-200">
+        <div className="bg-white rounded-lg shadow-md p-6 border-2 border-[oklch(0.70_0.15_160)]">
           <h3 className="text-lg font-semibold mb-4">
             {editingId ? "Edit Bucket" : "Create New Bucket"}
           </h3>
@@ -406,7 +406,7 @@ export default function DonationBucketManager() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-[oklch(0.96_0.015_230)] rounded-lg">
               <input
                 type="checkbox"
                 id="isActive"
@@ -428,7 +428,7 @@ export default function DonationBucketManager() {
                 <button
                   type="button"
                   onClick={handleAddProduct}
-                  className="text-sm text-green-600 hover:text-green-700 flex items-center gap-1"
+                  className="text-sm text-[oklch(0.70_0.15_160)] hover:text-[oklch(0.65_0.15_160)] flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" /> Add Product
                 </button>
@@ -441,7 +441,7 @@ export default function DonationBucketManager() {
                   <button
                     type="button"
                     onClick={handleAddProduct}
-                    className="mt-2 text-sm text-green-600 hover:text-green-700"
+                    className="mt-2 text-sm text-[oklch(0.70_0.15_160)] hover:text-[oklch(0.65_0.15_160)]"
                   >
                     Add your first product
                   </button>
@@ -508,7 +508,7 @@ export default function DonationBucketManager() {
 
             {/* Price Summary */}
             {selectedProducts.length > 0 && (
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <div className="bg-[oklch(0.97_0.01_160)] rounded-lg p-4 border border-[oklch(0.85_0.04_160)]">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-medium text-gray-700">Price per Bucket:</span>
                   <span className="text-lg font-bold text-gray-900">
@@ -519,7 +519,7 @@ export default function DonationBucketManager() {
                   <span className="text-sm font-medium text-gray-700">
                     Total Value ({formData.bucketQuantity} buckets):
                   </span>
-                  <span className="text-xl font-bold text-green-600">
+                  <span className="text-xl font-bold text-[oklch(0.70_0.15_160)]">
                     {formatCurrency(calculateTotalPrice() * formData.bucketQuantity)}
                   </span>
                 </div>
@@ -540,7 +540,7 @@ export default function DonationBucketManager() {
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                className="flex items-center gap-2 px-6 py-2 bg-[oklch(0.70_0.15_160)] text-[oklch(1_0_0)] rounded-lg hover:bg-[oklch(0.65_0.15_160)] transition"
               >
                 <Save className="w-5 h-5" />
                 {editingId ? "Update Bucket" : "Create Bucket"}
@@ -562,7 +562,7 @@ export default function DonationBucketManager() {
             <p className="text-gray-600 mb-2">No donation buckets created yet</p>
             <button
               onClick={() => setShowForm(true)}
-              className="text-green-600 hover:text-green-700 text-sm font-medium"
+              className="text-[oklch(0.70_0.15_160)] hover:text-[oklch(0.65_0.15_160)] text-sm font-medium"
             >
               Create your first bucket
             </button>
@@ -607,10 +607,10 @@ export default function DonationBucketManager() {
 
                     {/* Allocation Info */}
                     <div className="flex gap-2 mb-3">
-                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                      <span className="px-2 py-1 text-xs bg-[oklch(0.96_0.015_230)] text-[oklch(0.65_0.14_230)] rounded-full">
                         Pool: {bucket.poolAllocationPercent}%
                       </span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                      <span className="px-2 py-1 text-xs bg-[oklch(0.95_0.02_160)] text-[oklch(0.70_0.15_160)] rounded-full">
                         Fill: {bucket.bucketFillPercent}%
                       </span>
                     </div>
