@@ -6,15 +6,21 @@ import dynamic from "next/dynamic";
 
 const GalleryGrid = dynamic(() => import("@/components/gallery/GalleryGrid"));
 
-type PageProps = { params: Promise<{ id: string }> };
+type PageProps = { params: Promise<{ slug: string }> };
 
 export default async function EventDetailPage({ params }: PageProps) {
-  const { id } = await params; // Next.js 15 requires awaiting params
+  const { slug } = await params; // slug param from URL
   await connect();
-  const event = await EventModel.findById(id)
-    .populate("thumbnailImage")
-    .populate("galleryImages")
-    .lean();
+
+  // Try to find by slug first; if not found and slug looks like ObjectId, try by id
+  let event = await EventModel.findOne({ slug }).populate("thumbnailImage").populate("galleryImages").lean();
+  if (!event) {
+    // fallback: if slug looks like an ObjectId, try as id
+    const maybeId = slug;
+    if (/^[0-9a-fA-F]{24}$/.test(maybeId)) {
+      event = await EventModel.findById(maybeId).populate("thumbnailImage").populate("galleryImages").lean();
+    }
+  }
 
   if (!event || event.isPublished === false) {
     return (
@@ -45,7 +51,7 @@ export default async function EventDetailPage({ params }: PageProps) {
   const dateStr = event.date ? new Date(event.date).toLocaleDateString() : null;
 
   return (
-    <div className="max-w-5xl mt-10 mx-auto px-4 py-10">
+    <div className="max-w-5xl mx-auto px-4 py-10">
       <div className="mb-4">
         <Link href="/gallery" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
           <span aria-hidden>←</span>
@@ -78,11 +84,7 @@ export default async function EventDetailPage({ params }: PageProps) {
         <div className="prose max-w-none mt-4 whitespace-pre-wrap">{event.description}</div>
       ) : null}
 
-      {/* Additional images: displayed below the description */}
       {images.length > 0 && (
-        // GalleryGrid is a client component that handles click-to-open and navigation
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         <GalleryGrid images={images} />
       )}
     </div>

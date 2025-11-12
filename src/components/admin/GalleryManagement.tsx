@@ -17,6 +17,7 @@ type UploadedImage = {
 type EventItem = {
   _id: string;
   title: string;
+  slug?: string;
   location?: string;
   date?: string;
   participants?: string;
@@ -81,6 +82,7 @@ export default function GalleryManagement() {
 
   // Create form state
   const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
   const [location, setLocation] = useState("");
   const [date, setDate] = useState<string>("");
   const [participants, setParticipants] = useState("");
@@ -119,6 +121,7 @@ export default function GalleryManagement() {
 
   const resetForm = () => {
     setTitle("");
+    setSlug("");
     setLocation("");
     setDate("");
     setParticipants("");
@@ -134,6 +137,7 @@ export default function GalleryManagement() {
       if (!title.trim()) { alert("Title is required"); return; }
       const body: any = {
         title,
+        slug: slug || undefined,
         location: location || undefined,
         date: date || undefined,
         participants: participants || undefined,
@@ -208,6 +212,7 @@ export default function GalleryManagement() {
   const startEdit = (ev: EventItem) => {
     setEditing(ev);
     setTitle(ev.title || "");
+    setSlug(ev.slug || "");
     setLocation(ev.location || "");
     setDate(ev.date ? ev.date.slice(0, 10) : "");
     setParticipants(ev.participants || "");
@@ -224,6 +229,7 @@ export default function GalleryManagement() {
     try {
       const body: any = {
         title,
+        slug: slug || undefined,
         location: location || undefined,
         date: date || undefined,
         participants: participants || undefined,
@@ -256,7 +262,9 @@ export default function GalleryManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <label className="block text-sm font-medium">Title</label>
-            <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <label className="block text-sm font-medium mt-2">Slug (optional)</label>
+                <input className="w-full border rounded px-3 py-2" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="optional-custom-slug" />
 
             <label className="block text-sm font-medium">Location</label>
             <input className="w-full border rounded px-3 py-2" value={location} onChange={(e) => setLocation(e.target.value)} />
@@ -381,6 +389,9 @@ export default function GalleryManagement() {
               <div className="space-y-3">
                 <label className="block text-sm font-medium">Title</label>
                 <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+
+                <label className="block text-sm font-medium mt-2">Slug (optional)</label>
+                <input className="w-full border rounded px-3 py-2" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="optional-custom-slug" />
 
                 <label className="block text-sm font-medium">Location</label>
                 <input className="w-full border rounded px-3 py-2" value={location} onChange={(e) => setLocation(e.target.value)} />

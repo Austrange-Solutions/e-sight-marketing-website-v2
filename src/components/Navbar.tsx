@@ -316,59 +316,6 @@ const Navbar = () => {
               );
             })}
 
-            {/* Mobile Resource Center */}
-            {mounted && (
-              <div className="space-y-1">
-                <button
-                  onClick={() => setResourceDropdownOpen(!resourceDropdownOpen)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    pathname?.startsWith('/resource-center')
-                      ? "text-primary bg-accent"
-                      : "text-muted-foreground hover:text-primary hover:bg-accent"
-                  }`}
-                >
-                  <span>Resource Center</span>
-                  <svg className={`w-4 h-4 transition-transform duration-200 ${resourceDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Mobile Resource Center Dropdown */}
-                {resourceDropdownOpen && (
-                  <div className="pl-4 space-y-1">
-                    <Link
-                      href="/resource-center"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      All Resources
-                    </Link>
-                    <Link
-                      href="/resource-center/annual-reports"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      Annual Reports
-                    </Link>
-                    <Link
-                      href="/resource-center/project-reports"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      Project Reports
-                    </Link>
-                    <Link
-                      href="/resource-center/documents"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      Documents
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Mobile Donate Button */}
             <a 
               href={process.env.NODE_ENV === 'development' ? 'http://localhost:3000/donate' : 'https://donate.maceazy.com'}
