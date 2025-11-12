@@ -18,6 +18,37 @@ Next.js 15 e-commerce/donation platform for MACEAZY (E-Kaathi Pro) with dual fun
 - **APIs accept:** Both foundation code AND ObjectId (code preferred)
 - **Only 2 required fields:** Foundation Name + Foundation Share % (rest optional: logo, description, contact)
 
+**CSR Donation System:** Corporate donations tracked separately from individual donations
+- **Model:** `src/models/CSRDonation.ts` - company name, amount, numberOfPeople, foundation ref
+- **APIs:** `/api/admin/csr-donations` (CRUD for CSR donations)
+- **Component:** `CSRDonationsManager.tsx` (inline edits, audit log)
+- **Features:** Full audit trail (createdBy, lastEditedBy, field-level change tracking), status workflow (pending → verified → received → certificate_issued)
+
+**Donation Pool & Bucket System:** Aggregates donations and tracks product distribution bundles
+- **Model:** `src/models/DonationBucket.ts` - foundation-agnostic product bundles with percentage-based allocation
+  - **Foundation field is OPTIONAL** - buckets can be foundation-specific OR pool-wide
+  - **Two-way percentage control:**
+    - `poolAllocationPercent` (0-100%) - How much of total pool goes to this bucket
+    - `bucketFillPercent` (0-100%) - How full to fill this bucket (allows partial fulfillment)
+  - **Active/Inactive toggle** - Manual control over which buckets count toward pool calculations
+  - **Price auto-calculation** - Sum of all products × quantities in bucket
+- **Admin APIs:** 
+  - `/api/admin/donation-pool` - Aggregates online + CSR donations by foundation with date filters
+  - `/api/admin/donation-buckets` - CRUD for donation buckets (product bundles)
+- **Public API:** `/api/donation-pool/progress` - Real-time pool fill percentage
+  - Returns null if no active buckets (hides progress bar on donate page)
+  - Calculates: `allocatedAmount = poolTotal × poolAllocationPercent% × bucketFillPercent%`
+- **Components:**
+  - `DonationPoolDashboard.tsx` - Admin analytics (donor stats, CSR stats, foundation breakdown)
+  - `DonationBucketManager.tsx` - Create/edit product bundles with percentage controls, active toggle
+  - `DonationPoolProgress.tsx` - Public progress bar (hidden when no buckets, no technical details shown)
+- **Key Formula:** 
+  - Total Pool = Online Donations (companyAmount) + CSR Donations (verified/received/certificate_issued)
+  - Per Bucket Allocation = Total Pool × poolAllocationPercent% × bucketFillPercent%
+  - Overall Fill % = Total Pool / Sum of All Active Bucket Allocations × 100%
+- **Bucket Structure:** Each bucket contains multiple products with quantities; price auto-calculated from product prices
+- **Critical:** UI must handle optional foundation (`bucket.foundation?.name || 'Pool-based'`)
+
 **Two-tier fee calculation** (implemented in `foundationSettingsModel.ts:calculateBreakdown()`):
 ```javascript
 // Step 1: Platform Fee
@@ -178,7 +209,10 @@ const imageUrl = `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
 4. Orders - Order tracking and fulfillment
 5. Delivery Areas - Serviceable locations
 6. Disabled Persons - Registration tracking (accessibility feature)
-7. **Donations** - View all donations with complete fee breakdowns
+7. **Donations** - Three sub-tabs:
+   - **Donation Pool** - Aggregated analytics + bucket management (default)
+   - **Online Donations** - Individual donor transactions
+   - **CSR Donations** - Corporate contribution tracking
 8. **Foundation Settings** - Edit configurable percentages per foundation
 9. **Foundations** - Dynamic foundation management (add/edit/delete)
 
@@ -252,10 +286,33 @@ RESEND_API_KEY=re_...
   const User = mongoose.models.User || mongoose.model("User", userSchema);
   export default User;
   ```
+- **Hot reload caching issue:** In development, Next.js may cache old schema versions
+  - **Solution:** Force delete cached model before registering new version
+  ```typescript
+  // Force delete to clear cache (needed when schema changes in dev)
+  delete mongoose.models.DonationBucket;
+  const DonationBucket = mongoose.model("DonationBucket", donationBucketSchema);
+  ```
 - **Use timestamps:** `{ timestamps: true }` in schema options
 - **Lean queries:** Use `.lean()` for read-only operations (better performance)
 
 ### API Routes
+- **Runtime declaration:** Force Node.js runtime for routes using JWT/crypto:
+  ```typescript
+  export const runtime = 'nodejs'; // At top of route file
+  ```
+- **Next.js 15 async params:** Dynamic route segments must be awaited:
+  ```typescript
+  // ❌ OLD (Next.js 14)
+  export async function GET(request: Request, { params }: { params: { id: string } }) {
+    const { id } = params;
+  }
+  
+  // ✅ NEW (Next.js 15)
+  export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+  }
+  ```
 - **Error handling:** Always use try-catch with proper status codes
 - **Validation:** Use Zod schemas for input validation
 - **Response format:** 
@@ -268,6 +325,13 @@ RESEND_API_KEY=re_...
 - **Strict mode enabled** - no implicit `any`
 - **Type imports:** Use `import type { ... }` for type-only imports
 - **Model types:** Define interfaces for Mongoose documents (e.g., `UserDocument extends Document`)
+
+### Client-Side State Management
+- **Auth Context:** `src/contexts/AuthContext.tsx` - JWT-based user auth with cookie storage
+- **Cart Context:** `src/contexts/CartContext.tsx` - Server-synced cart with localStorage fallback
+  - Hydration-aware: Use `isHydrated` flag before accessing localStorage
+  - Pending sync queue for offline operations
+  - Auto-syncs with `/api/cart` when authenticated
 
 ---
 
@@ -311,3 +375,6 @@ RESEND_API_KEY=re_...
 8. ❌ Creating duplicate Mongoose models (always check `mongoose.models` first)
 9. ❌ Mismatched Cashfree endpoints between server and client
 10. ❌ Not handling subdomain routing in middleware
+11. ❌ Forgetting to await `params` in Next.js 15 dynamic routes (`const { id } = await params`)
+12. ❌ Not handling optional foundation fields in UI (`bucket.foundation?.name || 'Pool-based'`)
+13. ❌ Calculating pool metrics on client-side (use server aggregations for consistency)

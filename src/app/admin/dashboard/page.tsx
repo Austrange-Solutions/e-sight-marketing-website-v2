@@ -9,6 +9,9 @@ import OrdersManagement from '@/components/admin/OrdersManagement';
 import DeliveryAreasManagement from '@/components/admin/DeliveryAreasManagement';
 import DisabledPersonsManagement from '@/components/admin/DisabledPersonsManagement';
 import DonationsManagement from '@/components/admin/DonationsManagement';
+import CSRDonationsManager from '@/components/admin/CSRDonationsManager';
+import DonationPoolDashboard from '@/components/admin/DonationPoolDashboard';
+import DonationBucketManager from '@/components/admin/DonationBucketManager';
 import FoundationSettingsManagement from '@/components/admin/FoundationSettingsManagement';
 import ResourcesManagement from '@/components/admin/ResourcesManagement';
 import CarouselManagement from '@/components/admin/CarouselManagement';
@@ -168,6 +171,8 @@ export default function AdminDashboard() {
   const [disabledPersons, setDisabledPersons] = useState<DisabledPerson[]>([]);
   const [disabledPersonsLoading, setDisabledPersonsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery'>('overview');
+  const [donationSubTab, setDonationSubTab] = useState<'online' | 'csr' | 'pool'>('pool');
+  const [poolSubTab, setPoolSubTab] = useState<'analytics' | 'buckets'>('analytics');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -379,7 +384,80 @@ export default function AdminDashboard() {
               disabledPersonsLoading ? <SkeletonTable rows={5} cols={6} /> : <DisabledPersonsManagement persons={disabledPersons} onRefresh={loadDisabledPersons} />
             )}
             {activeTab === 'donations' && (
-              <DonationsManagement />
+              <div className="space-y-6">
+                {/* Donation Sub-Tabs */}
+                <div className="bg-white rounded-lg border p-2">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setDonationSubTab('pool')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        donationSubTab === 'pool'
+                          ? 'bg-green-600 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      Donation Pool
+                    </button>
+                    <button
+                      onClick={() => setDonationSubTab('online')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        donationSubTab === 'online'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      Online Donations
+                    </button>
+                    <button
+                      onClick={() => setDonationSubTab('csr')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        donationSubTab === 'csr'
+                          ? 'bg-purple-600 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      CSR Donations
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-Tab Content */}
+                {donationSubTab === 'pool' && (
+                  <div className="space-y-6">
+                    {/* Pool Sub-Tabs */}
+                    <div className="bg-green-50 rounded-lg border border-green-200 p-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setPoolSubTab('analytics')}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                            poolSubTab === 'analytics'
+                              ? 'bg-green-600 text-white'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          Analytics & Reports
+                        </button>
+                        <button
+                          onClick={() => setPoolSubTab('buckets')}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                            poolSubTab === 'buckets'
+                              ? 'bg-green-600 text-white'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          Manage Buckets
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Pool Content */}
+                    {poolSubTab === 'analytics' && <DonationPoolDashboard />}
+                    {poolSubTab === 'buckets' && <DonationBucketManager />}
+                  </div>
+                )}
+                {donationSubTab === 'online' && <DonationsManagement />}
+                {donationSubTab === 'csr' && <CSRDonationsManager />}
+              </div>
             )}
             {activeTab === 'carousel' && (
               <CarouselManagement />

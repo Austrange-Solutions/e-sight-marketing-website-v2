@@ -2,6 +2,9 @@ import { connect } from "@/dbConfig/dbConfig";
 import EventModel from "@/models/Event";
 import { generatePresignedUrls } from "@/lib/s3-presigned";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const GalleryGrid = dynamic(() => import("@/components/gallery/GalleryGrid"));
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -42,10 +45,15 @@ export default async function EventDetailPage({ params }: PageProps) {
   const dateStr = event.date ? new Date(event.date).toLocaleDateString() : null;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <Link href="/gallery" className="text-primary underline">← Back to Gallery</Link>
+    <div className="max-w-5xl mt-10 mx-auto px-4 py-10">
+      <div className="mb-4">
+        <Link href="/gallery" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+          <span aria-hidden>←</span>
+          <span>Back to gallery</span>
+        </Link>
+      </div>
 
-      <h1 className="text-3xl font-bold mt-4">{event.title}</h1>
+      <h1 className="text-3xl font-bold mt-1">{event.title}</h1>
       <div className="text-sm text-muted-foreground mt-2">
         {event.location ? <span>{event.location}</span> : null}
         {event.location && dateStr ? <span> • </span> : null}
@@ -72,20 +80,10 @@ export default async function EventDetailPage({ params }: PageProps) {
 
       {/* Additional images: displayed below the description */}
       {images.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Gallery</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {images.map((img, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={img.url}
-                alt={img.alt || `${event.title} image ${i + 1}`}
-                className="w-full h-56 object-cover rounded-lg"
-              />
-            ))}
-          </div>
-        </div>
+        // GalleryGrid is a client component that handles click-to-open and navigation
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        <GalleryGrid images={images} />
       )}
     </div>
   );
