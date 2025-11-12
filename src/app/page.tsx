@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/assets/images/blind-person.png",
+        url: "/assets/images/maceazy-logo-white.jpg",
         width: 1200,
         height: 630,
         alt: "Person using E-Kaathi smart blind stick",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Maceazy - Making Life easier, For the Disabled",
     description: "Revolutionary smart blind stick with AI technology for enhanced mobility and independence.",
-    images: ["/assets/images/blind-person.png"],
+    images: ["/assets/images/maceazy-logo-white.jpg"],
   },
 };
 
