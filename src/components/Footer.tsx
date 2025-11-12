@@ -47,7 +47,7 @@ const Footer = () => {
               <img
                 src="/assets/images/maceazy-logo.png"
                 alt="Maceazy Logo"
-                className="h-8 w-20"
+                className="h-8 w-25"
               />
               {/* <span className="ml-2 text-xl font-bold">Maceazy</span> */}
             </div>
@@ -151,21 +151,30 @@ const Footer = () => {
             <div className="flex space-x-4">
               <a
                 href="https://www.facebook.com/people/Austrange-Solutions/61575298985988/"
+                aria-label="Visit Austrange Solutions on Facebook"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors duration-200"
               >
-                <Facebook className="h-6 w-6" />
+                <Facebook aria-hidden="true" className="h-6 w-6" />
               </a>
               <a
                 href="https://x.com/austrangesolns"
+                aria-label="Visit Austrange Solutions on Twitter"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors duration-200"
               >
-                <Twitter className="h-6 w-6" />
+                <Twitter aria-hidden="true" className="h-6 w-6" />
               </a>
               <a
                 href="https://www.instagram.com/austrangesolutions/"
+                aria-label="Visit Austrange Solutions on Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors duration-200"
               >
-                <Instagram className="h-6 w-6" />
+                <Instagram aria-hidden="true" className="h-6 w-6" />
               </a>
             </div>
           </div>
