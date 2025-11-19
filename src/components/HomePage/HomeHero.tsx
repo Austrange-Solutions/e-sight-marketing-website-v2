@@ -47,12 +47,12 @@ const HomeHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+              className="text-4xl sm:text-7xl lg:text-6xl font-bold mb-6 leading-tight"
             >
               Making Life easier,
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80">
-                For the Disabled
+              For Specially Abled
               </span>
             </motion.h1>
 
@@ -111,7 +111,7 @@ const HomeHero = () => {
                   size="lg"
                   className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
                 >
-                  Register as Disabled Person
+                  Register as Specially Abled Person
                 </Button>
               </Link>
               <a
@@ -130,13 +130,9 @@ const HomeHero = () => {
           </motion.div>
 
           {/* Right Visual */}
-          <div className="relative hidden lg:block">
-            {/* Carousel - loads images from admin-managed S3 carousel collection */}
+          <div className="relative hidden lg:block" style={{position: 'relative', right: '-3rem'}}>
             <div className="relative z-10">
-              <div className="p-4">
-                {/* Lazy load carousel component to avoid SSR issues */}
-                {/* Imported dynamically to keep HomeHero server-friendly */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div className="p-4 pb-16 ">
                 <React.Suspense fallback={<div className="w-full h-96 flex items-center justify-center bg-card rounded-2xl">Loading...</div>}>
                   {/* @ts-ignore */}
                   <DynamicCarousel />
