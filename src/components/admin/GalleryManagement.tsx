@@ -2,6 +2,24 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+// Convert a string to kebab-case suitable for slugs
+function toKebab(input: string) {
+  return (
+    input
+      .toString()
+      .trim()
+      .toLowerCase()
+      // remove non-alphanumeric characters (except spaces and hyphens)
+      .replace(/[^a-z0-9\s-]/g, "")
+      // replace whitespace with single hyphen
+      .replace(/\s+/g, "-")
+      // collapse multiple hyphens
+      .replace(/-+/g, "-")
+      // trim leading/trailing hyphens
+      .replace(/^-+|-+$/g, "")
+  );
+}
+
 type UploadedImage = {
   _id: string;
   originalName: string;
@@ -17,6 +35,7 @@ type UploadedImage = {
 type EventItem = {
   _id: string;
   title: string;
+  slug?: string;
   location?: string;
   date?: string;
   participants?: string;
@@ -81,6 +100,7 @@ export default function GalleryManagement() {
 
   // Create form state
   const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
   const [location, setLocation] = useState("");
   const [date, setDate] = useState<string>("");
   const [participants, setParticipants] = useState("");
@@ -119,6 +139,7 @@ export default function GalleryManagement() {
 
   const resetForm = () => {
     setTitle("");
+    setSlug("");
     setLocation("");
     setDate("");
     setParticipants("");
@@ -134,6 +155,7 @@ export default function GalleryManagement() {
       if (!title.trim()) { alert("Title is required"); return; }
       const body: any = {
         title,
+  slug: slug ? toKebab(slug) : undefined,
         location: location || undefined,
         date: date || undefined,
         participants: participants || undefined,
@@ -208,6 +230,8 @@ export default function GalleryManagement() {
   const startEdit = (ev: EventItem) => {
     setEditing(ev);
     setTitle(ev.title || "");
+  // Normalize existing slug (or fallback to kebabified title)
+  setSlug(ev.slug ? toKebab(ev.slug) : ev.title ? toKebab(ev.title) : "");
     setLocation(ev.location || "");
     setDate(ev.date ? ev.date.slice(0, 10) : "");
     setParticipants(ev.participants || "");
@@ -224,6 +248,7 @@ export default function GalleryManagement() {
     try {
       const body: any = {
         title,
+  slug: slug ? toKebab(slug) : undefined,
         location: location || undefined,
         date: date || undefined,
         participants: participants || undefined,
@@ -256,7 +281,15 @@ export default function GalleryManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <label className="block text-sm font-medium">Title</label>
-            <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <label className="block text-sm font-medium mt-2">Slug (optional)</label>
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  onBlur={(e) => setSlug(toKebab(e.target.value))}
+                  placeholder="optional-custom-slug"
+                />
 
             <label className="block text-sm font-medium">Location</label>
             <input className="w-full border rounded px-3 py-2" value={location} onChange={(e) => setLocation(e.target.value)} />
@@ -381,6 +414,15 @@ export default function GalleryManagement() {
               <div className="space-y-3">
                 <label className="block text-sm font-medium">Title</label>
                 <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+
+                <label className="block text-sm font-medium mt-2">Slug (optional)</label>
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  onBlur={(e) => setSlug(toKebab(e.target.value))}
+                  placeholder="optional-custom-slug"
+                />
 
                 <label className="block text-sm font-medium">Location</label>
                 <input className="w-full border rounded px-3 py-2" value={location} onChange={(e) => setLocation(e.target.value)} />

@@ -130,17 +130,21 @@ const Footer = () => {
               </li>
               <li className="flex items-start text-white/70">
                 <MapPin className="h-9 w-9 mr-2 mt-1" />
+                <a href="https://www.google.com/maps/place/Chetana's+Institute+of+Management+%26+Research/@19.0611309,72.845717,17z/data=!4m10!1m2!2m1!1sciel+chetana+college+bandra!3m6!1s0x3be7c9000496fab9:0x225542a39da6c430!8m2!3d19.060986!4d72.8480809!15sChtjaWVsIGNoZXRhbmEgY29sbGVnZSBiYW5kcmFaHSIbY2llbCBjaGV0YW5hIGNvbGxlZ2UgYmFuZHJhkgEPYnVzaW5lc3Nfc2Nob29smgEkQ2hkRFNVaE5NRzluUzBWSlEwRm5TVU4xTlhaTVZuWkJSUkFCqgFeEAEqGCIUY2llbCBjaGV0YW5hIGNvbGxlZ2UoADIfEAEiG-UNpCsNk2HAp9c1C3NR1FT83qibEktntiU65TIfEAIiG2NpZWwgY2hldGFuYSBjb2xsZWdlIGJhbmRyYeABAPoBBQiQARAs!16s%2Fg%2F1tg4jvtk?entry=ttu&g_ep=EgoyMDI1MTExMi4wIKXMDSoASAFQAw%3D%3D">
                 <div className="text-sm">
                   <div>Office 1: CIEL</div>
                   <div>Room 409, Chetana College, Bandra (East), Mumbai 400051</div>
                 </div>
+                </a>
               </li>
               <li className="flex items-start text-white/70">
                 <MapPin className="h-11 w-11 mr-2 mt-1" />
+                <a href="https://www.google.com/maps/place/riidl/@19.0724681,72.8977421,17z/data=!4m14!1m7!3m6!1s0x3be7c627731110d3:0xd9ce4d1935434d16!2sriidl!8m2!3d19.0724681!4d72.900317!16s%2Fg%2F124s_zcmr!3m5!1s0x3be7c627731110d3:0xd9ce4d1935434d16!8m2!3d19.0724681!4d72.900317!16s%2Fg%2F124s_zcmr?entry=ttu&g_ep=EgoyMDI1MTExMi4wIKXMDSoASAFQAw%3D%3D">
                 <div className="text-sm">
                   <div>Office 2: Riidl</div>
                   <div>Room 520, Bhaskaracharya Building, Somaiya Vidyavihar, Mumbai 400077</div>
                 </div>
+                </a>
               </li>
             </ul>
           </div>
@@ -168,7 +172,7 @@ const Footer = () => {
                 <Twitter aria-hidden="true" className="h-6 w-6" />
               </a>
               <a
-                href="https://www.instagram.com/austrangesolutions/"
+                href="https://www.instagram.com/maceazy__official/"
                 aria-label="Visit Austrange Solutions on Instagram"
                 target="_blank"
                 rel="noopener noreferrer"

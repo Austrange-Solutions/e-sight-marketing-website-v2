@@ -143,7 +143,7 @@ export default function CarouselManagement() {
   };
 
   return (
-    <div className="p-4">
+    <div className="lg:p-4 flex justify-center flex-col">
       <h2 className="text-xl font-semibold mb-4">Homepage Carousel</h2>
 
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">

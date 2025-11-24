@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       title,
+      slug,
       location,
       date,
       participants,
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
 
     const event = await EventModel.create({
       title,
+      slug: slug || undefined,
       location,
       date: date ? new Date(date) : undefined,
       participants,

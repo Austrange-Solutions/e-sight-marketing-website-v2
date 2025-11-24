@@ -5,9 +5,9 @@ export async function GET() {
 
     const lines = [
       'User-agent: googlebot, bingbot, slurp, duckduckbot, baiduspider, yandexbot, sogou, exabot, facebot, facebookexternalhit, twitterbot, linkedinbot, applebot, pinterestbot, petalbot, semrushbot, ahrefsbot, dotbot, mj12bot, seznambot, qwantify, alibaba, coccocbot, sogou web spider, yisou spider, 360spider, avgbot, megaindex, rogerbot, buzhash, wotbox, sitebot, linkpadbot, blexbot, ezooms, w3c_validator, archive.org_bot, magpie-crawler, oegp, trendictionbot, ucbrowser, yandeximages, sogou pic spider, googlebot-image, bingimagebot, facebot, pinterestbot, twitterbot, linkedinbot, applebot, petalbot, semrushbot, ahrefsbot, dotbot, mj12bot, seznambot, qwantify, alibaba, coccocbot, sogou web spider, yisou spider, 360spider, avgbot, megaindex, rogerbot, buzhash, wotbox, sitebot, linkpadbot, blexbot, ezooms, w3c_validator, archive.org_bot, magpie-crawler, oegp, trendictionbot, ucbrowser, yandeximages, sogou pic spider, googlebot-image',
-      'Disallow: /admin',
       'Disallow: /api/admin',
       'Disallow: /api/',
+      'Disallow: /_next',
       'Allow: /',
       `Sitemap: ${baseUrl}/sitemap.xml`
     ];

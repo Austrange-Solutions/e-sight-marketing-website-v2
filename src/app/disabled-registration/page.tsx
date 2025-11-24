@@ -28,7 +28,7 @@ export default function DisabledRegistrationPage() {
     provider: {
       "@type": "Organization",
       name: "e-Sight Technologies",
-      description: "Making Life easier, For the Disabled",
+      description: "Making Life easier, For Specially",
     },
     accessibilityAPI: ["ARIA"],
     accessibilityControl: [

@@ -27,7 +27,8 @@ export async function GET() {
     }
 
     for (const ev of events) {
-      const loc = `${baseUrl}/gallery/${ev._id}`;
+      const identifier = ev.slug || ev._id;
+      const loc = `${baseUrl}/gallery/${identifier}`;
       const lastmod = ev.updatedAt ? new Date(ev.updatedAt).toISOString() : undefined;
       urls.push({ loc, lastmod });
     }
