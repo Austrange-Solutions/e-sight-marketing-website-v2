@@ -107,7 +107,7 @@
   
   /* Chart colors - Brand-aligned palette */
   --chart-1: oklch(0.65 0.14 230); /* Primary blue */
- /* --chart-2: oklch(0.70 0.15 160) ; */ /* Success green*/
+  --chart-2: oklch(0.70 0.15 160); /* Success green */
   --chart-3: oklch(0.75 0.15 70); /* Warning amber */
   --chart-4: oklch(0.35 0.08 230); /* Navy blue */
   --chart-5: oklch(0.60 0.12 200); /* Lighter blue */

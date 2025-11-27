@@ -17,11 +17,17 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .lean();
 
-    return NextResponse.json({ products });
+    return NextResponse.json({ 
+      success: true,
+      products 
+    });
   } catch (error) {
     console.error("[GET_PRODUCTS_ERROR]", error);
     return NextResponse.json(
-      { message: "Failed to fetch products" },
+      { 
+        success: false,
+        message: "Failed to fetch products" 
+      },
       { status: 500 }
     );
   }
