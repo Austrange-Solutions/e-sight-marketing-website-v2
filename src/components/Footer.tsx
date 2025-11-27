@@ -154,8 +154,8 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
               <a
-                href="https://www.facebook.com/people/Austrange-Solutions/61575298985988/"
-                aria-label="Visit Austrange Solutions on Facebook"
+                href="https://www.facebook.com/people/maceazy-official/100063491654136/"
+                aria-label="Visit Maceazy on Facebook"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors duration-200"
@@ -163,8 +163,8 @@ const Footer = () => {
                 <Facebook aria-hidden="true" className="h-6 w-6" />
               </a>
               <a
-                href="https://x.com/austrangesolns"
-                aria-label="Visit Austrange Solutions on Twitter"
+                href="https://x.com/maceazyofficial"
+                aria-label="Visit Maceazy on Twitter"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors duration-200"
@@ -173,7 +173,7 @@ const Footer = () => {
               </a>
               <a
                 href="https://www.instagram.com/maceazy__official/"
-                aria-label="Visit Austrange Solutions on Instagram"
+                aria-label="Visit Maceazy on Instagram"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/70 hover:text-white transition-colors duration-200"

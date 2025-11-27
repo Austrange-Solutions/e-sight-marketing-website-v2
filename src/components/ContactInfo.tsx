@@ -125,7 +125,7 @@ const ContactInfo = () => {
             <Facebook className="h-6 w-6" />
           </a>
           <a
-            href="https://x.com/austrangesolns"
+            href="https://x.com/maceazyofficial"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Twitter className="h-6 w-6" />
