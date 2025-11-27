@@ -154,7 +154,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
               <a
-                href="https://www.facebook.com/people/maceazy-official/100063491654136/"
+                href="https://www.facebook.com/maceazyofficial"
                 aria-label="Visit Maceazy on Facebook"
                 target="_blank"
                 rel="noopener noreferrer"

@@ -119,7 +119,7 @@ const ContactInfo = () => {
         </h3>
         <div className="flex space-x-4">
           <a
-            href="https://www.facebook.com/people/Austrange-Solutions/61575298985988/"
+            href="https://www.facebook.com/maceazyofficial"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Facebook className="h-6 w-6" />
