@@ -187,7 +187,7 @@ const FoundationSchema: Schema = new Schema(
 );
 
 // Indexes for performance
-FoundationSchema.index({ code: 1 });
+// Note: code field has unique: true which automatically creates an index
 FoundationSchema.index({ isActive: 1, priority: 1 });
 FoundationSchema.index({ createdAt: -1 });
 
