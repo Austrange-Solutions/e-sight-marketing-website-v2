@@ -8,7 +8,8 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Building
+  Building,
+  Linkedin
 } from "lucide-react";
 
 const ContactInfo = () => {
@@ -135,6 +136,12 @@ const ContactInfo = () => {
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Instagram className="h-6 w-6" />
+          </a>
+          <a
+            href="https://www.linkedin.com/company/maceazyofficial/"
+            className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
+          >
+            <Linkedin className="h-6 w-6" />
           </a>
         </div>
       </div>

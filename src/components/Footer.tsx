@@ -8,6 +8,7 @@ import {
   Mail,
   Phone,
   MapPin,
+  Linkedin,
 } from "lucide-react";
 // import Image from "next/image"; // Removed unused import
 
@@ -179,6 +180,15 @@ const Footer = () => {
                 className="text-white/70 hover:text-white transition-colors duration-200"
               >
                 <Instagram aria-hidden="true" className="h-6 w-6" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/maceazyofficial/"
+                aria-label="Visit Maceazy on Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/70 hover:text-white transition-colors duration-200"
+              >
+                <Linkedin aria-hidden="true" className="h-6 w-6" />
               </a>
             </div>
           </div>
