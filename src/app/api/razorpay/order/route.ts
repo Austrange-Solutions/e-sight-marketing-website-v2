@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { connect as __ensureConnect } from "@/dbConfig/dbConfig";
 
-await __ensureConnect();
-
 export async function POST(request: NextRequest) {
+  await __ensureConnect();
   try {
     const body = await request.json();
     const { amount, currency = "INR", receipt, userDetails } = body;

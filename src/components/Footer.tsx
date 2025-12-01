@@ -65,6 +65,7 @@ const Footer = () => {
                 { href: "/about", label: "About" },
                 { href: "/products", label: "Products" },
                 { href: "/contact", label: "Contact" },
+                { href: "/support", label: "Support" },
                 { href: "/privacy", label: "Privacy Policy" },
                 { href: "/shipping-policy", label: "Shipping & Delivery" },
                 { href: "/refund-policy", label: "Refund & Cancellation" },

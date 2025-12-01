@@ -398,3 +398,140 @@ export async function sendDisabledStatusUpdateEmail(
     // don't throw - failure to notify guardian shouldn't block admin action
   }
 }
+
+export async function sendSupportTicketEmail(
+  email: string,
+  name: string,
+  ticketId: string,
+  problemCategory: string
+): Promise<void> {
+  const subject = `Support Ticket Created - ${ticketId}`;
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Support Ticket Created</title>
+    </head>
+    <body style="margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+      <div style="min-height: 100vh; padding: 40px 20px; display: flex; align-items: center; justify-content: center;">
+        <div style="max-width: 600px; width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 40px; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; font-weight: 700; margin: 0 0 8px 0;">Support Ticket Created</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 0;">We have received your request</p>
+          </div>
+          
+          <div style="padding: 32px 40px;">
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Hello <strong>${name}</strong>,
+            </p>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Your support ticket has been successfully created. Our team will review your issue and get back to you shortly.
+            </p>
+            
+            <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+              <p style="margin: 0 0 8px 0; color: #4b5563; font-size: 14px;"><strong>Ticket ID:</strong> <span style="color: #111827; font-family: monospace; font-size: 16px;">${ticketId}</span></p>
+              <p style="margin: 0; color: #4b5563; font-size: 14px;"><strong>Category:</strong> <span style="color: #111827;">${problemCategory}</span></p>
+            </div>
+
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              You can track the status of your ticket on our support page using your Ticket ID and email.
+            </p>
+            
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
+              If you have any additional information to add, please reply to this email.
+            </p>
+          </div>
+          
+          <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
+            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  await resend.emails.send({
+    from: "Maceazy Support <no-reply@austrangesolutions.com>",
+    to: email,
+    subject,
+    html,
+  });
+}
+
+export async function sendSupportStatusUpdateEmail(
+  email: string,
+  name: string,
+  ticketId: string,
+  status: string,
+  adminResponse?: string
+): Promise<void> {
+  const subject = `Support Ticket Updated - ${ticketId}`;
+  const statusColor = status === 'resolved' ? '#10b981' : status === 'in-progress' ? '#3b82f6' : '#f59e0b';
+  const statusText = status === 'resolved' ? 'Resolved' : status === 'in-progress' ? 'In Progress' : 'Pending';
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Support Ticket Updated</title>
+    </head>
+    <body style="margin: 0; padding: 0; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+      <div style="min-height: 100vh; padding: 40px 20px; display: flex; align-items: center; justify-content: center;">
+        <div style="max-width: 600px; width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 40px; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; font-weight: 700; margin: 0 0 8px 0;">Ticket Status Updated</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 0;">Your ticket status has changed</p>
+          </div>
+          
+          <div style="padding: 32px 40px;">
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Hello <strong>${name}</strong>,
+            </p>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              The status of your support ticket <strong>${ticketId}</strong> has been updated.
+            </p>
+            
+            <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+              <p style="margin: 0 0 8px 0; color: #4b5563; font-size: 14px;">Current Status</p>
+              <span style="display: inline-block; padding: 6px 16px; background-color: ${statusColor}; color: white; border-radius: 9999px; font-weight: 600; font-size: 14px;">
+                ${statusText}
+              </span>
+            </div>
+
+            ${adminResponse ? `
+            <div style="border-left: 4px solid #667eea; padding-left: 16px; margin-bottom: 24px;">
+              <p style="margin: 0 0 4px 0; color: #4b5563; font-size: 12px; font-weight: 600; text-transform: uppercase;">Support Team Response</p>
+              <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.6;">${adminResponse}</p>
+            </div>
+            ` : ''}
+            
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
+              Thank you for your patience.
+            </p>
+          </div>
+          
+          <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
+            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  await resend.emails.send({
+    from: "Maceazy Support <no-reply@austrangesolutions.com>",
+    to: email,
+    subject,
+    html,
+  });
+}
