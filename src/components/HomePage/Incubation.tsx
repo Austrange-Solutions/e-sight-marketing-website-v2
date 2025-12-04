@@ -26,7 +26,7 @@ const PARTNERS: Partner[] = [
   {
     name: "MSSU",
     href: "https://mssu.ac.in/",
-    logoSrc: "/assets/images/MSSU.png",
+    logoSrc: "/assets/images/mssu-ispark-logo.jpg",
     caption: "Skill acceleration partner via Maharashtra State Skills University.",
   },
   {
@@ -163,15 +163,15 @@ export default function IncubationCarousel() {
                     aria-label={partner.name}
                   >
                     <Tooltip>
-                      <TooltipTrigger asChild>
+                      {/* <TooltipTrigger asChild> */}
                         <Link
                           href={partner.href}
                           target="_blank"
                           rel="noreferrer noopener"
                           className="group relative flex h-48 w-full flex-col items-center justify-center gap-4 overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-6 text-center  ring-1 ring-border/40 transition-all duration-300 will-change-transform hover:-translate-y-2 hover:shadow-[0_28px_60px_-28px_rgba(18,30,73,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
-                          <span className="absolute inset-0 bg-gradient-to-br from-primary/12 via-transparent to-primary/20 opacity-0 transition group-hover:opacity-100" />
-                          <span className="pointer-events-none absolute inset-0 opacity-0 mix-blend-overlay transition group-hover:opacity-100" style={{ background: "radial-gradient(120% 120% at 50% 0%, rgba(24,119,242,0.25) 0%, transparent 52%)" }} />
+                          <span className="absolute inset-0 bg-gradient-to-br from-primary/12 via-transparent to-primary/20 opacity-0 transition" />
+                          <span className="pointer-events-none absolute inset-0 opacity-0 mix-blend-overlay transition " style={{ background: "radial-gradient(120% 120% at 50% 0%, rgba(24,119,242,0.25) 0%, transparent 52%)" }} />
                           <Image
                             src={partner.logoSrc}
                             alt={partner.name}
@@ -183,7 +183,7 @@ export default function IncubationCarousel() {
                             {partner.caption}
                           </span>
                         </Link>
-                      </TooltipTrigger>
+                      {/* </TooltipTrigger> */}
                       <TooltipContent side="top" sideOffset={12}>
                         {partner.name}
                       </TooltipContent>

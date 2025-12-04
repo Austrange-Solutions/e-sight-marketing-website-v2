@@ -1,10 +1,12 @@
 import AddToCartButton from './AddToCartButton';
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import Link from 'next/link';
 
 interface Product {
   _id: string;
   name: string;
+  slug?: string;
   image: string;
   description: string;
   type?: 'basic' | 'pro' | 'max';
@@ -70,8 +72,12 @@ export default function ProductCard({ product }: { product: Product }) {
     return stars;
   };
 
+  // Generate product URL - prefer slug over _id
+  const productUrl = `/products/${product.slug || product._id}`;
+
   return (
-    <Card className={`flex flex-col h-full w-full relative overflow-hidden border-border hover:border-primary transition-all duration-300 transform hover:scale-[1.02] ${isOutOfStock ? 'bg-muted' : ''}`}>
+    <Link href={productUrl} className="block h-full">
+      <Card className={`flex flex-col h-full w-full relative overflow-hidden border-border hover:border-primary transition-all duration-300 transform hover:scale-[1.02] ${isOutOfStock ? 'bg-muted' : ''}`}>
       {/* Type Badge - Mobile Optimized */}
       {product.type && !isOutOfStock && (
         <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 z-10">
@@ -179,5 +185,6 @@ export default function ProductCard({ product }: { product: Product }) {
         />
       </div>
     </Card>
+    </Link>
   );
 }

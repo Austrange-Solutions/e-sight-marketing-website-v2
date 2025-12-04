@@ -196,10 +196,15 @@ const HomeProductsSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {products.map((product, index) => {
-            const isOutOfStock = product.stock === 0 || product.status === 'out_of_stock';
-            const rating = 4.5; // Static rating for now
+        <div className="flex justify-center">
+          <div className={`grid gap-8 mb-12 w-full ${
+            products.length === 1 ? 'grid-cols-1 max-w-sm' :
+            products.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' :
+            'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl'
+          }`}>
+            {products.map((product, index) => {
+              const isOutOfStock = product.stock === 0 || product.status === 'out_of_stock';
+              const rating = 4.5; // Static rating for now
             
             return (
               <motion.div
@@ -288,6 +293,7 @@ const HomeProductsSection = () => {
               </motion.div>
             );
           })}
+          </div>
         </div>
 
         {/* Browse All Products Button */}
