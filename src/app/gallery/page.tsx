@@ -30,7 +30,7 @@ export default async function GalleryPage() {
             const thumb = (ev.thumbnailImage as any)?.fileUrl || (ev.thumbnailImage as any)?.cloudFrontUrl;
             const dateStr = ev.date ? new Date(ev.date).toLocaleDateString() : null;
             return (
-              <Link key={String(ev._id)} href={`/gallery/${ev._id}`} className="group rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+              <Link key={String(ev._id)} href={`/gallery/${ev.slug || ev._id}`} className="group rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
                 {thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={thumb} alt={ev.title} className="h-48 w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />

@@ -1,5 +1,7 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
+import { Alert, AlertTitle } from "@/components/ui/alert"
+import { AlertCircleIcon } from 'lucide-react';
 
 type Slide = {
   id: string;
@@ -67,7 +69,7 @@ export default function Carousel({ autoplay = true, interval = 4000 }: { autopla
   const goTo = (i: number) => setIndex((i + slides.length) % slides.length);
 
   return (
-    <div className="w-full h-96 relative rounded-2xl overflow-hidden bg-card">
+    <div className="w-100 h-100 relative rounded-2xl overflow-hidden bg-card">
       {slides.map((s, i) => (
         s.fileType && s.fileType.startsWith('video') ? (
           <video
@@ -94,7 +96,7 @@ export default function Carousel({ autoplay = true, interval = 4000 }: { autopla
       ))}
 
       {/* Prev / Next */}
-      <button
+      {/* <button
         aria-label="Previous"
         onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
         className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/40"
@@ -107,10 +109,10 @@ export default function Carousel({ autoplay = true, interval = 4000 }: { autopla
         className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/40"
       >
         ›
-      </button>
+      </button> */}
 
       {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      {/* <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
         {slides.map((_, i) => (
           <button
             key={i}
@@ -119,7 +121,11 @@ export default function Carousel({ autoplay = true, interval = 4000 }: { autopla
             aria-label={`Go to slide ${i + 1}`}
           />
         ))}
-      </div>
+      </div> */}
+      <Alert className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2 bg-black/30 text-white px-4 py-2 rounded-lg w-max" style={{ left: '9rem' }}>
+        <AlertCircleIcon />
+        <AlertTitle>AI-generated visuals, product may differ.</AlertTitle>
+      </Alert>
     </div>
   );
 }

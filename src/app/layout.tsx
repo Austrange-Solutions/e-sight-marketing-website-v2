@@ -11,7 +11,7 @@ import { getServerCart, ServerCartItem } from "@/lib/server/cart";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
-  title: "Maceazy - Making Life easier, For the Disabled",
+  title: "Maceazy - Making Life easier, For Specially Abled",
   description: "Experience independence with Maceazy's revolutionary smart blind stick.",
   icons: {
     icon: '/favicon.ico', // You can change this to point to your custom icon

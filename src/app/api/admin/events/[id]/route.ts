@@ -44,6 +44,7 @@ export async function PUT(
     const body = await request.json();
     const update: any = {};
     const allowed = [
+      "slug",
       "title",
       "location",
       "date",
