@@ -1,14 +1,12 @@
 import {connect} from "@/dbConfig/dbConfig";
-await connect();
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-connect()
-
 export async function POST(request: NextRequest){
+    await connect();
     try {
         const bodySchema = z.object({
             email: z.string().email("Invalid email address"),

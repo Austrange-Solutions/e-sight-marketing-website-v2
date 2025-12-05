@@ -6,13 +6,12 @@ import { getAdminFromRequest } from "@/middleware/adminAuth";
 import { sendDisabledStatusUpdateEmail } from "@/helpers/resendEmail";
 import mongoose from "mongoose";
 
-await __ensureConnect();
-
 // GET - Get individual disabled person details (Admin only)
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  await __ensureConnect();
   try {
     const adminData = getAdminFromRequest(request);
     if (!adminData) {
@@ -46,6 +45,7 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  await __ensureConnect();
   try {
     const adminData = getAdminFromRequest(request);
     if (!adminData) {
