@@ -232,6 +232,7 @@ const Navbar = () => {
               {/* Cart Button */}
               <button
                 onClick={() => openCart()}
+                aria-label="Shopping cart"
                 className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ShoppingCart size={22} />
@@ -251,6 +252,7 @@ const Navbar = () => {
             <div className="lg:hidden flex items-center space-x-2">
               <button
                 onClick={() => openCart()}
+                aria-label="Shopping cart"
                 className="cart-button relative p-2 rounded-md text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ShoppingCart size={22} />
@@ -266,6 +268,7 @@ const Navbar = () => {
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label="Shopping cart"
                 className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus:outline-none"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -282,7 +285,7 @@ const Navbar = () => {
             open: { opacity: 1, height: "auto" },
             closed: { opacity: 0, height: 0 },
           }}
-          className="md:hidden overflow-hidden bg-background border-b border-border"
+          className="lg:hidden overflow-hidden bg-background border-b border-border"
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
@@ -313,59 +316,6 @@ const Navbar = () => {
                 </Link>
               );
             })}
-
-            {/* Mobile Resource Center */}
-            {mounted && (
-              <div className="space-y-1">
-                <button
-                  onClick={() => setResourceDropdownOpen(!resourceDropdownOpen)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    pathname?.startsWith('/resource-center')
-                      ? "text-primary bg-accent"
-                      : "text-muted-foreground hover:text-primary hover:bg-accent"
-                  }`}
-                >
-                  <span>Resource Center</span>
-                  <svg className={`w-4 h-4 transition-transform duration-200 ${resourceDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Mobile Resource Center Dropdown */}
-                {resourceDropdownOpen && (
-                  <div className="pl-4 space-y-1">
-                    <Link
-                      href="/resource-center"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      All Resources
-                    </Link>
-                    <Link
-                      href="/resource-center/annual-reports"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      Annual Reports
-                    </Link>
-                    <Link
-                      href="/resource-center/project-reports"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      Project Reports
-                    </Link>
-                    <Link
-                      href="/resource-center/documents"
-                      onClick={() => setIsOpen(false)}
-                      className="block px-3 py-2 rounded-md text-sm transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
-                    >
-                      Documents
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Mobile Donate Button */}
             <a 

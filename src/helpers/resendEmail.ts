@@ -231,7 +231,7 @@ export async function sendDisabledRegistrationEmail(
           
           <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
             <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
-            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
+            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For Specially Abled"</p>
             <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.</p>
           </div>
         </div>
@@ -367,7 +367,7 @@ export async function sendDisabledStatusUpdateEmail(
           
           <div style="background: #f9fafb; padding: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
             <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 8px 0;">Maceazy</h3>
-            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For the Disabled"</p>
+            <p style="color: #6b7280; font-size: 13px; margin: 0; font-style: italic;">"Making Life easier, For Specially Abled People"</p>
             <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">© ${new Date().getFullYear()} Maceazy Technologies. All rights reserved.</p>
           </div>
         </div>
