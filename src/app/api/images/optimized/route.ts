@@ -108,15 +108,11 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: Get product image URL (for frontend use)
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ productId: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
     await connect();
-    
-    const params = await context.params;
-    const { productId } = params;
+    const url = new URL(request.url);
+    const productId = url.searchParams.get('productId');
 
     if (!productId) {
       return NextResponse.json(
