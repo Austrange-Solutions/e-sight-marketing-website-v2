@@ -47,6 +47,7 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
     category: 'Electronics',
     stock: 0,
     status: 'active',
+    slug: '',
     tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -457,6 +458,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
           category: 'Electronics',
           stock: 0,
           status: 'active',
+          slug: '',
           tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
           createdAt: new Date(),
           updatedAt: new Date()
@@ -1154,6 +1156,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     category: 'Electronics',
                     stock: 0,
                     status: 'active',
+                    slug: '',
                     tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
                     createdAt: new Date(),
                     updatedAt: new Date()
@@ -1403,6 +1406,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                       category: 'Electronics',
                       stock: 0,
                       status: 'active',
+                      slug: '',
                       tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
                       createdAt: new Date(),
                       updatedAt: new Date()

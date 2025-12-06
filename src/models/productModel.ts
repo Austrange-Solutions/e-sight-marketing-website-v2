@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export type TProduct = {
   _id: mongoose.Types.ObjectId;
   name: string;
+  slug: string;
   image: string;
   description: string;
   type: "basic" | "pro" | "max";
@@ -24,6 +25,11 @@ const productSchema = new mongoose.Schema<TProduct>({
   name: {
     type: String,
     required: [true, "Please provide a product name"],
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
   },
   image: {
     type: String,
@@ -92,6 +98,18 @@ productSchema.pre('save', function(next) {
     this.status = 'out_of_stock';
   } else if (this.status === 'out_of_stock' && this.stock > 0) {
     this.status = 'active';
+  }
+  next();
+});
+
+// Pre-save middleware to generate slug from name
+productSchema.pre('save', function(next) {
+  if (this.isModified('name') || !this.slug) {
+    this.slug = this.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
   }
   next();
 });
