@@ -16,6 +16,7 @@ import FoundationSettingsManagement from '@/components/admin/FoundationSettingsM
 import ResourcesManagement from '@/components/admin/ResourcesManagement';
 import CarouselManagement from '@/components/admin/CarouselManagement';
 import GalleryManagement from '@/components/admin/GalleryManagement';
+import SupportTicketManager from '@/components/admin/SupportTicketManager';
 import { TProduct } from '@/models/productModel';
 
 export const dynamic = 'force-dynamic';
@@ -170,7 +171,7 @@ export default function AdminDashboard() {
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [disabledPersons, setDisabledPersons] = useState<DisabledPerson[]>([]);
   const [disabledPersonsLoading, setDisabledPersonsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery' | 'support'>('overview');
   const [donationSubTab, setDonationSubTab] = useState<'online' | 'csr' | 'pool'>('pool');
   const [poolSubTab, setPoolSubTab] = useState<'analytics' | 'buckets'>('analytics');
   const [loading, setLoading] = useState(true);
@@ -315,7 +316,7 @@ export default function AdminDashboard() {
             <div className="sm:hidden">
               <select
                 value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery')}
+                onChange={(e) => setActiveTab(e.target.value as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery' | 'support')}
                 className="block w-full pl-3 pr-10 py-2 text-base border-border focus:outline-none focus:ring-ring focus:border-indigo-500 rounded-md"
               >
                 <option value="overview">Overview</option>
@@ -329,6 +330,7 @@ export default function AdminDashboard() {
                 <option value="donations">Donations</option>
                 <option value="foundation-settings">Foundation Settings</option>
                 <option value="resources">Resources</option>
+                <option value="support">Support Tickets</option>
               </select>
             </div>
             
@@ -347,10 +349,11 @@ export default function AdminDashboard() {
                   { key: 'donations', label: 'Donations' },
                   { key: 'foundation-settings', label: 'Foundation Settings' },
                   { key: 'resources', label: 'Resources' },
+                  { key: 'support', label: 'Support Tickets' },
                 ].map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveTab(tab.key as 'overview' | 'users' | 'products' | 'orders' | 'delivery-areas' | 'disabled-persons' | 'donations' | 'foundation-settings' | 'resources' | 'carousel' | 'gallery')}
+                    onClick={() => setActiveTab(tab.key as any)}
                     className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                       activeTab === tab.key
                         ? 'border-indigo-500 text-primary'
@@ -470,6 +473,9 @@ export default function AdminDashboard() {
             )}
             {activeTab === 'resources' && (
               <ResourcesManagement />
+            )}
+            {activeTab === 'support' && (
+              <SupportTicketManager />
             )}
           </div>
         </div>

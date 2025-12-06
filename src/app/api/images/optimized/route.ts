@@ -108,15 +108,17 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: Get product image URL (for frontend use)
+// NOTE: This is a static route; productId should be passed as query parameter
 export async function GET(request: NextRequest) {
   try {
     await connect();
-    const url = new URL(request.url);
-    const productId = url.searchParams.get('productId');
+    
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get('productId');
 
     if (!productId) {
       return NextResponse.json(
-        { error: "Product ID is required" },
+        { error: "Product ID is required as query parameter" },
         { status: 400 }
       );
     }

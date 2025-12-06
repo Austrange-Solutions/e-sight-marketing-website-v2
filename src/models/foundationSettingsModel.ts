@@ -80,7 +80,7 @@ FoundationSettingsSchema.methods.calculateBreakdown = function (amount: number) 
 };
 
 // Index for faster queries
-FoundationSettingsSchema.index({ foundationCode: 1 });
+// Note: foundationCode field has unique: true which automatically creates an index
 FoundationSettingsSchema.index({ isActive: 1 });
 
 const FoundationSettings: Model<IFoundationSettings> =
