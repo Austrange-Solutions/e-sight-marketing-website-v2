@@ -191,6 +191,7 @@ export async function GET() {
     
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
+      console.log("❌ [CHECKOUT_GET] Unauthorized - No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -202,16 +203,19 @@ export async function GET() {
       const User = (await import("@/models/userModel")).default;
       const userDoc = await User.findOne({ email: session.user.email });
       if (!userDoc) {
+        console.log("❌ [CHECKOUT_GET] User not found by email");
         return NextResponse.json({ error: "User not found" }, { status: 401 });
       }
       userObjectId = userDoc._id;
     } else {
+      console.log("❌ [CHECKOUT_GET] Invalid user ID format");
       return NextResponse.json({ error: "Invalid user ID format" }, { status: 401 });
     }
 
     const cart = await Cart.findOne({ userId: userObjectId }).populate('items.productId');
 
     if (!cart || cart.items.length === 0) {
+      console.log("⚠️ [CHECKOUT_GET] Cart is empty");
       return NextResponse.json({ 
         items: [], 
         orderSummary: { 
@@ -224,9 +228,39 @@ export async function GET() {
       });
     }
 
-    const items = cart.items.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-      _id: item._id,
-      productId: item.productId._id,
+    console.log(`✅ [CHECKOUT_GET] Found cart with ${cart.items.length} items`);
+
+    // Filter out items with null/deleted products and inactive products
+    const validItems = cart.items.filter((item: { _id: string, productId: any, quantity: number }) => {
+      if (!item.productId) {
+        console.warn(`⚠️ [CHECKOUT_GET] Skipping item with null product`);
+        return false;
+      }
+      if (item.productId.status && item.productId.status !== 'active') {
+        console.warn(`⚠️ [CHECKOUT_GET] Skipping inactive product: ${item.productId.name}`);
+        return false;
+      }
+      return true;
+    });
+
+    console.log(`✅ [CHECKOUT_GET] ${validItems.length} valid items after filtering`);
+
+    if (validItems.length === 0) {
+      console.log("⚠️ [CHECKOUT_GET] No valid items in cart after filtering");
+      return NextResponse.json({ 
+        items: [], 
+        orderSummary: { 
+          subtotal: 0, 
+          gst: 0, 
+          transactionFee: 0, 
+          deliveryCharges: 500, 
+          total: 500 
+        } 
+      });
+    }
+
+    const items = validItems.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
+      _id: item.productId._id,
       name: item.productId.name,
       price: item.productId.price,
       quantity: item.quantity,
@@ -241,6 +275,8 @@ export async function GET() {
     const { gst, transactionFee, deliveryCharges } = calculateCharges(subtotal, "Mumbai");
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
+    console.log(`✅ [CHECKOUT_GET] Returning ${items.length} items, total: ₹${total}`);
+
     return NextResponse.json({
       items,
       orderSummary: { 
@@ -253,6 +289,7 @@ export async function GET() {
     });
 
   } catch (error: unknown) {
+    console.error("❌ [CHECKOUT_GET] Error:", error);
     const errorMessage = error instanceof Error ? error.message : 'Error fetching checkout data';
     return NextResponse.json(
       { error: errorMessage },

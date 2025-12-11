@@ -6,6 +6,7 @@ import { TProduct } from '@/models/productModel';
 // Create a serialized version for client components
 interface Product extends Omit<TProduct, '_id'> {
   _id: string;
+  gallery?: string[]; // Array of gallery images
 }
 
 interface ProductsManagementProps {
@@ -30,6 +31,7 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [qtyInputs, setQtyInputs] = useState<{ [key: string]: string }>({});
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingGalleryImage, setUploadingGalleryImage] = useState(false);
   
   // Loading states for button operations
   const [isCreating, setIsCreating] = useState(false);
@@ -40,6 +42,7 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
   const [newProduct, setNewProduct] = useState<Omit<Product, '_id'>>({
     name: '',
     image: '',
+    gallery: [],
     description: '',
     type: 'basic',
     price: 0,
@@ -364,6 +367,95 @@ const deleteOldImage = async (oldImageUrl: string) => {
     }
   };
 
+  const handleGalleryImageUpload = async (file: File, isEditingProduct: boolean = false) => {
+    if (!file) return;
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+    
+    setUploadingGalleryImage(true);
+    
+    try {
+      // Step 1: Get signed URL from server
+      const signedUrlResponse = await fetch('/api/aws/signed-upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
+      });
+      
+      if (!signedUrlResponse.ok) {
+        const errorData = await signedUrlResponse.json();
+        throw new Error(errorData.error || 'Failed to get signed URL');
+      }
+      
+      const { signedUrl, viewUrl } = await signedUrlResponse.json();
+      
+      // Step 2: Upload file directly to S3 using signed URL
+      const uploadResponse = await fetch(signedUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+      
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('S3 upload failed:', errorText);
+        throw new Error(`Failed to upload file to S3: ${uploadResponse.status}`);
+      }
+      
+      // Step 3: Add to gallery array
+      if (isEditingProduct && editingProduct) {
+        setEditingProduct({
+          ...editingProduct,
+          gallery: [...(editingProduct.gallery || []), viewUrl]
+        });
+      } else {
+        setNewProduct({
+          ...newProduct,
+          gallery: [...(newProduct.gallery || []), viewUrl]
+        });
+      }
+      
+      toast.success('Image added to gallery');
+    } catch (error: unknown) {
+      console.error('Gallery image upload error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload gallery image');
+    } finally {
+      setUploadingGalleryImage(false);
+    }
+  };
+
+  const removeGalleryImage = (imageUrl: string, isEditingProduct: boolean = false) => {
+    if (isEditingProduct && editingProduct) {
+      setEditingProduct({
+        ...editingProduct,
+        gallery: (editingProduct.gallery || []).filter(img => img !== imageUrl)
+      });
+    } else {
+      setNewProduct({
+        ...newProduct,
+        gallery: (newProduct.gallery || []).filter(img => img !== imageUrl)
+      });
+    }
+    toast.success('Image removed from gallery');
+  };
+
   // Single-click disable product
   const disableProduct = async (productId: string) => {
     setUpdating(productId);
@@ -428,6 +520,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
         price: productData.price,
         category: productData.category,
         image: productData.image,
+        gallery: productData.gallery || [], // Include gallery images
         type: productData.type,
         stock: productData.stock,
         status: productData.status,
@@ -451,6 +544,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
         setNewProduct({
           name: '',
           image: '',
+          gallery: [],
           description: '',
           type: 'basic',
           price: 0,
@@ -549,6 +643,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
         price: updatedProduct.price,
         category: updatedProduct.category || 'Electronics', // Add fallback
         image: updatedProduct.image,
+        gallery: updatedProduct.gallery || [], // Include gallery images
         type: updatedProduct.type,
         stock: updatedProduct.stock,
         status: updatedProduct.status,
@@ -1094,6 +1189,63 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   )}
                 </div>
               </div>
+
+              {/* Gallery Images Section */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-3">Product Gallery Images (Optional)</label>
+                
+                {/* Upload Gallery Image Button */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Upload Gallery Images</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleGalleryImageUpload(file, true);
+                        }
+                      }}
+                      className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={uploadingGalleryImage}
+                    />
+                    {uploadingGalleryImage && (
+                      <div className="text-sm text-blue-600">Uploading...</div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                </div>
+
+                {/* Display Gallery Images */}
+                {editingProduct.gallery && editingProduct.gallery.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">Gallery Images ({editingProduct.gallery.length})</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {editingProduct.gallery.map((imageUrl, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Gallery ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border border-border"
+                            onError={(e) => {
+                              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryImage(imageUrl, true)}
+                            className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            title="Remove this image"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               
               <div className="flex justify-end space-x-3">
                 <button
@@ -1367,6 +1519,63 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     <span className="text-gray-500 ml-2">Optional field</span>
                   )}
                 </div>
+              </div>
+
+              {/* Gallery Images Section */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-3">Product Gallery Images (Optional)</label>
+                
+                {/* Upload Gallery Image Button */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Upload Gallery Images</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleGalleryImageUpload(file, false);
+                        }
+                      }}
+                      className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={uploadingGalleryImage}
+                    />
+                    {uploadingGalleryImage && (
+                      <div className="text-sm text-blue-600">Uploading...</div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                </div>
+
+                {/* Display Gallery Images */}
+                {newProduct.gallery && newProduct.gallery.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">Gallery Images ({newProduct.gallery.length})</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {newProduct.gallery.map((imageUrl, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Gallery ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border border-border"
+                            onError={(e) => {
+                              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryImage(imageUrl, false)}
+                            className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            title="Remove this image"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Debug Info for Add Product Form */}

@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       price,
       category,
       image,
+      gallery,
       type,
       stock,
       status,
@@ -67,13 +68,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new product (with optional description and details)
     const newProduct = new Product({
       name,
       description: description || "", // Default to empty string if not provided
       price,
       category,
       image,
+      gallery: Array.isArray(gallery) ? gallery : [],
       type,
       stock: stock || 0,
       status: status || 'active',
