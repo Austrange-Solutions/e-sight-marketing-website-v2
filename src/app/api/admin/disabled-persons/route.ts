@@ -4,10 +4,9 @@ import { connect as __ensureConnect } from "@/dbConfig/dbConfig";
 import DisabledPerson from "@/models/disabledPersonModel";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
 
-await __ensureConnect();
-
 // GET - Get all disabled person registrations (Admin only)
 export async function GET(request: NextRequest) {
+  await __ensureConnect();
   try {
     const adminData = getAdminFromRequest(request);
     if (!adminData) {

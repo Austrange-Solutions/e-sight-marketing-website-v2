@@ -66,3 +66,12 @@ BEFORE-AFTER.md
 CASHFREE_PRODUCTION_TROUBLESHOOTING.md
 COOLIFY_DEPLOYMENT.md
 docs/
+
+
+# IDE files
+.vscode
+
+build-output.log
+/        
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md
