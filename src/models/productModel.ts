@@ -5,6 +5,7 @@ export type TProduct = {
   name: string;
   slug: string;
   image: string;
+  gallery?: string[]; 
   description: string;
   type: "basic" | "pro" | "max";
   price: number;
@@ -34,6 +35,11 @@ const productSchema = new mongoose.Schema<TProduct>({
   image: {
     type: String,
     required: [true, "Please provide a product image URL"],
+  },
+  gallery: {
+    type: [String], // Array of image URLs for product gallery
+    required: false,
+    default: [],
   },
   description: {
     type: String,

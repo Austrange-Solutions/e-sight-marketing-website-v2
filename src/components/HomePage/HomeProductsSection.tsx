@@ -5,6 +5,7 @@ import { Loader2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
+  slug: string;
   _id: string;
   name: string;
   image: string;
@@ -207,16 +208,20 @@ const HomeProductsSection = () => {
               const rating = 4.5; // Static rating for now
             
             return (
-              <motion.div
+              <Link
+                href={`/products/${product.slug || product._id}`}
                 key={product._id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className={`bg-card border-2 border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary transition-all duration-300 ${
-                  isOutOfStock ? 'opacity-70' : 'hover:scale-105'
-                }`}
+                className="block"
               >
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className={`bg-card border-2 border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary transition-all duration-300 ${
+                    isOutOfStock ? 'opacity-70' : 'hover:scale-105'
+                  }`}
+                >
                 {/* Product Image */}
                 <div className={`relative w-full h-64 ${isOutOfStock ? 'filter grayscale' : ''}`}>
                   {product.image ? (
@@ -228,13 +233,13 @@ const HomeProductsSection = () => {
                         onError={(e) => {
                         console.error(`Image failed to load for ${product.name}:`, product.image);
                         const target = e.target as HTMLImageElement;
-                        target.src = '/assets/images/maceazy-logo.png';
+                        target.src = product.image;
                       }}
                     />
                       ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100">
                       <img
-                        src="/assets/images/maceazy-logo.png"
+                        src={product.image}
                         alt={product.name}
                         className="w-32 h-32 object-contain opacity-50"
                       />
@@ -290,7 +295,8 @@ const HomeProductsSection = () => {
                     </ul>
                   </div>
                 </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             );
           })}
           </div>

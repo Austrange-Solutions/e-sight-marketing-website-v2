@@ -185,11 +185,28 @@ const CheckoutPage = () => {
 
   const fetchCartData = async () => {
     try {
-      const res = await fetch("/api/checkout");
+      console.log("🛒 [CHECKOUT_PAGE] Fetching cart data...");
+      const res = await fetch("/api/checkout", {
+        credentials: 'include' // Ensure cookies are sent
+      });
+      
+      if (!res.ok) {
+        console.error("❌ [CHECKOUT_PAGE] Failed to fetch cart:", res.status, res.statusText);
+        const errorData = await res.json();
+        console.error("Error details:", errorData);
+        return;
+      }
+      
       const data = await res.json();
+      console.log("✅ [CHECKOUT_PAGE] Cart data received:", {
+        itemCount: data.items?.length || 0,
+        hasOrderSummary: !!data.orderSummary,
+        subtotal: data.orderSummary?.subtotal
+      });
+      
       setCartData(data);
     } catch (error) {
-      console.error("Error fetching cart data:", error);
+      console.error("❌ [CHECKOUT_PAGE] Error fetching cart data:", error);
     }
   };
 
