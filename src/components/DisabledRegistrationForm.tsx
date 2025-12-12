@@ -50,13 +50,28 @@ const formSchema = z.object({
   state: z.string().min(2, "Please select a state"),
   pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
   disabilityType: z.enum([
-    "Visual Impairment",
-    "Hearing Impairment",
+    "Blindness",
+    "Low Vision",
+    "Leprosy Cured Persons",
+    "Hearing Impairment (Deaf and hard of hearing)",
     "Locomotor Disability",
+    "Dwarfism",
     "Intellectual Disability",
     "Mental Illness",
-    "Multiple Disabilities",
-    "Other",
+    "Autism Spectrum Disorder",
+    "Cerebral Palsy",
+    "Muscular Dystrophy",
+    "Chronic Neurological Conditions",
+    "Specific Learning Disabilities (e.g., Dyslexia)",
+    "Multiple Sclerosis",
+    "Speech and Language Disability",
+    "Thalassemia",
+    "Hemophilia",
+    "Sickle Cell Disease",
+    "Multiple Disabilities (More than one of the above)",
+    "Acid Attack Victims",
+    "Parkinson’s Disease",
+    "Others"
   ], { message: "Please select a disability type" }),
   disabilityPercentage: z
     .number({ message: "Must be a number" })
@@ -871,7 +886,7 @@ export default function DisabledRegistrationForm() {
             )}
           </div>
 
-          {watchDisabilityType === "Other" && (
+          {watchDisabilityType === "Others" && (
             <div className="bg-muted/50 border border-border rounded-lg p-4">
               <p className="text-sm text-muted-foreground">
                 <strong>Note:</strong> Please provide comprehensive details about your specific disability in the description above.
