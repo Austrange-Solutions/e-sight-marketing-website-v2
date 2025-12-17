@@ -38,10 +38,20 @@ export default async function EventDetailPage({ params }: PageProps) {
     if (img?.s3Key) imageKeys.push(img.s3Key);
   }
 
-  const signedMap = imageKeys.length ? await generatePresignedUrls(imageKeys) : new Map<string, string>();
+  // Generate signed URLs with error handling
+  let signedMap = new Map<string, string>();
+  try {
+    if (imageKeys.length > 0) {
+      signedMap = await generatePresignedUrls(imageKeys);
+    }
+  } catch (error) {
+    console.error("Error generating presigned URLs:", error);
+    // Continue without presigned URLs - images might still work with cloudFront URLs
+  }
+
   for (let i = 0; i < imageKeys.length; i++) {
     const key = imageKeys[i];
-    const url = signedMap.get(key);
+    const url = signedMap.get(key) || `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || process.env.CLOUDFRONT_DOMAIN}/${key}`;
     if (url) {
       images.push({ url, alt: (gallery[i] as any)?.altText || event.title });
     }
