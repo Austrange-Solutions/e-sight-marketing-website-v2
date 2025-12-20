@@ -7,12 +7,18 @@ export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 async function getEvents() {
-  await connect();
-  const events = await EventModel.find({ isPublished: true })
-    .sort({ date: -1, createdAt: -1 })
-    .populate("thumbnailImage")
-    .lean();
-  return events as any[];
+  try {
+    await connect();
+    const events = await EventModel.find({ isPublished: true })
+      .sort({ date: -1, createdAt: -1 })
+      .populate("thumbnailImage")
+      .lean();
+    return events as any[];
+  } catch (err) {
+    console.error("Gallery getEvents() failed:", err);
+    // Fail gracefully to avoid a 500 on gallery page
+    return [] as any[];
+  }
 }
 
 export default async function GalleryPage() {
