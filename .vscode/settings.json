@@ -22,5 +22,18 @@
             "query": "default"
         }
     ],
-    "github.copilot.chat.languageContext.fix.typescript.enabled": true
+    "github.copilot.chat.languageContext.fix.typescript.enabled": true,
+    
+        "mcpServers": {
+          "TestSprite": {
+            "command": "npx",
+            "args": [
+              "@testsprite/testsprite-mcp@latest"
+            ],
+            "env": {
+              "API_KEY": "sk-user-2LdjU6AfgU3p...jYJrLhCtM-i31elhAgBY"
+            }
+          }
+        }
+      
 }
