@@ -1,0 +1,285 @@
+{
+  "meta": {
+    "project": "MACEAZY Donation Portal"
+  },
+  "product_overview": "MACEAZY Donation Portal is a dynamic, multi-foundation donation platform hosted primarily on the donate.maceazy.com subdomain. It offers a seamless donation experience with foundation-specific configurable percentage splits for donations, complete admin dashboard for foundation and donation management, CSR and disabled person registrations, a public donor wall, and robust integration with multiple payment gateways (Razorpay as primary, Cashfree as fallback). The platform supports detailed donation fee breakdowns, anonymous donations, CSR management, and accessibility features for visually impaired users.",
+  "core_goals": [
+    "Enable dynamic management of multiple foundations with configurable donation percentage splits.",
+    "Provide a seamless, no-login-required donation experience for individual and CSR donors.",
+    "Ensure financial transparency with detailed tracking of platform fees, foundation shares, and company revenue.",
+    "Offer robust admin tools for managing users, orders, donations, CSR donations, donation pools, buckets, and disabled registrations.",
+    "Integrate stable and secure payment gateway support with Razorpay and Cashfree with signature verification.",
+    "Implement full accessibility support including disabled person registration with document upload and status tracking.",
+    "Support global theming and brand consistency with a modern UI and dark mode support.",
+    "Ensure smooth deployment and routing including support for donate subdomain and seamless middleware-based routing."
+  ],
+  "key_features": [
+    "Multi-Foundation Donation System with dynamic foundation CRUD, fee splitting, and donation tracking.",
+    "Comprehensive Donation API Routes for order creation, payment verification, fetching donors and donation details.",
+    "Payment Gateway Integration with primary Cashfree and fallback Razorpay, including order creation and signature verification.",
+    "Advanced Admin Dashboard with tabs for users, products, orders, donations, CSR donations, donation pools, donation buckets, and foundation settings management.",
+    "Configurable Percentage System for platform fees and foundation shares, with real-time breakdown previews on both admin and donor sides.",
+    "Anonymous Donation Support allowing donors to hide their identity publicly with admin toggle control.",
+    "Public Donor Wall showcasing real-time top donors, total collections, and recent donations excluding anonymous contributors.",
+    "CSR Donation Pool System for manual CSR donation management, audit trail, and combined donation analytics with Excel export.",
+    "Disabled Person Registration System with document upload to S3, admin verification workflow, and status check UI.",
+    "AWS S3 Image Management with presigned URL generation and CloudFront CDN for secure image hosting.",
+    "Seamless subdomain routing with middleware for donate.maceazy.com and admin authentication middleware.",
+    "Modern UI with shadcn/ui components, Tailwind CSS v4, and MACEAZY brand theming including dark mode toggle."
+  ],
+  "user_flow_summary": [
+    "Users visit donate.maceazy.com and see dynamic foundation cards to select for donation.",
+    "Users enter personal info, donation amount, and optionally mark donation as anonymous.",
+    "DonationButton creates a Razorpay order and opens the Razorpay modal for payment.",
+    "After successful payment, payment is verified server-side, donation status updated, and user redirected to success page with confetti effect.",
+    "Donor details and total donations reflect immediately in public leaderboard and foundation statistics.",
+    "Admins log in via admin portal to manage foundations, donations, CSR donations, disabled registrations, and other system settings.",
+    "Admins can update foundation fee percentages with immediate effect reflected for new donations.",
+    "Admins can audit and edit CSR donations with detailed audit logs and export data to Excel.",
+    "Disabled persons register via accessible form, upload documents via S3, and check status; admins review and verify registrations.",
+    "Admins can view individual donor details with anonymity toggle via tooltip and modal in donation pool dashboard.",
+    "System handles routing and theming seamlessly including subdomains and brand colors."
+  ],
+  "validation_criteria": [
+    "Admin APIs validate foundation codes and ObjectId references for dynamic foundations.",
+    "Donation creation API must calculate and store accurate fee splits (platform fee, foundation share, company share) consistent with admin-configured percentages.",
+    "Payment verification endpoints confirm Razorpay and Cashfree signatures securely before marking donations completed.",
+    "Anonymous donation flag is respected in public displays while full info visible in admin dashboard.",
+    "Admin dashboard updates foundation statistics accurately after each donation completion.",
+    "CSR donations can be filtered and managed with complete audit trail and status updates.",
+    "Disabled registration forms validate all required fields with Zod schemas and enforce file type and size restrictions.",
+    "AWS S3 presigned URLs generated must allow secure uploads within configured expiry with valid region settings.",
+    "Subdomain routing delivers donate pages and admin panel separately with authentication check.",
+    "Frontend UI components adhere to MACEAZY brand colors and dark mode is toggleable and persisted.",
+    "Public donor wall excludes anonymous donors and displays accurate totals and pagination.",
+    "Admin actions such as foundation CRUD, donation anonymity toggle, and CSR entry editing perform atomically and reflect real-time updates."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js 15 (App Router)",
+      "React 18",
+      "MongoDB",
+      "Mongoose ODM",
+      "Tailwind CSS",
+      "Framer Motion",
+      "NextAuth.js",
+      "AWS S3",
+      "Cashfree Payment Gateway",
+      "Razorpay Payment Gateway",
+      "Bun Runtime"
+    ],
+    "features": [
+      {
+        "name": "Multi-Foundation Donation System",
+        "description": "Dynamic foundation management with configurable fee splitting, donation pool aggregation, and CSR donation tracking",
+        "files": [
+          "src/app/donate/page.tsx",
+          "src/app/donate/success/page.tsx",
+          "src/app/donate/donors/page.tsx",
+          "src/components/donate/DonateButton.tsx",
+          "src/components/donate/MultiFoundationDonateButtons.tsx",
+          "src/components/donate/DonationPoolProgress.tsx",
+          "src/models/Donation.ts",
+          "src/models/Foundation.ts",
+          "src/models/CSRDonation.ts",
+          "src/models/DonationBucket.ts"
+        ]
+      },
+      {
+        "name": "Donation API Routes",
+        "description": "Backend APIs for creating orders, verifying payments, fetching donors, and donation details",
+        "files": [
+          "src/app/api/donate/create/route.ts",
+          "src/app/api/donate/verify/route.ts",
+          "src/app/api/donate/donors/route.ts",
+          "src/app/api/donate/details/route.ts",
+          "src/app/api/donation-pool/progress/route.ts"
+        ]
+      },
+      {
+        "name": "Payment Gateway Integration",
+        "description": "Cashfree (primary) and Razorpay (fallback) payment integration with order creation and signature verification",
+        "files": [
+          "src/app/api/donate/create/route.ts",
+          "src/app/api/donate/verify/route.ts",
+          "src/components/donate/DonateButton.tsx",
+          "src/components/donate/MultiFoundationDonateButtons.tsx"
+        ]
+      },
+      {
+        "name": "Admin Dashboard",
+        "description": "Comprehensive admin panel with tabs for users, products, orders, donations, foundation settings, and more",
+        "files": [
+          "src/app/admin/dashboard/page.tsx",
+          "src/app/admin/login/page.tsx",
+          "src/components/admin/DashboardOverview.tsx",
+          "src/components/admin/UsersManagement.tsx",
+          "src/components/admin/ProductsManagementNew.tsx",
+          "src/components/admin/OrdersManagement.tsx",
+          "src/components/admin/DonationsManagement.tsx",
+          "src/components/admin/CSRDonationsManager.tsx",
+          "src/components/admin/DonationPoolDashboard.tsx",
+          "src/components/admin/DonationBucketManager.tsx",
+          "src/components/admin/FoundationSettingsManagement.tsx"
+        ]
+      },
+      {
+        "name": "Admin Donation Management APIs",
+        "description": "APIs for managing donations, CSR donations, donation pool, and donation buckets",
+        "files": [
+          "src/app/api/admin/donations/route.ts",
+          "src/app/api/admin/donations/[id]/route.ts",
+          "src/app/api/admin/donations/[id]/anonymity/route.ts",
+          "src/app/api/admin/csr-donations/route.ts",
+          "src/app/api/admin/csr-donations/[id]/route.ts",
+          "src/app/api/admin/donation-pool/route.ts",
+          "src/app/api/admin/donation-buckets/route.ts",
+          "src/app/api/admin/donation-buckets/[id]/route.ts"
+        ]
+      },
+      {
+        "name": "Foundation Management",
+        "description": "Dynamic foundation CRUD operations with logo upload, percentage configuration, and donation tracking",
+        "files": [
+          "src/app/api/admin/foundations/route.ts",
+          "src/app/api/admin/foundations/[id]/route.ts",
+          "src/components/admin/FoundationsManagement.tsx",
+          "src/models/Foundation.ts"
+        ]
+      },
+      {
+        "name": "User Authentication",
+        "description": "JWT-based authentication with NextAuth.js, login, signup, password reset, and profile management",
+        "files": [
+          "src/app/login/page.tsx",
+          "src/app/signup/page.tsx",
+          "src/app/profile/page.tsx",
+          "src/app/forgotpassword/page.tsx",
+          "src/app/resetpassword/page.tsx",
+          "src/app/api/users/login/route.ts",
+          "src/app/api/users/signup/route.ts",
+          "src/app/api/users/me/route.ts",
+          "src/models/userModel.ts",
+          "src/middleware/auth.ts"
+        ]
+      },
+      {
+        "name": "Admin Authentication",
+        "description": "Separate admin authentication system with admin-token cookie and middleware protection",
+        "files": [
+          "src/app/admin/login/page.tsx",
+          "src/app/api/admin/login/route.ts",
+          "src/app/api/admin/verify/route.ts",
+          "src/middleware/adminAuth.ts",
+          "src/middleware.ts"
+        ]
+      },
+      {
+        "name": "E-commerce Product Catalog",
+        "description": "Product listing, details, search, filtering, and cart functionality",
+        "files": [
+          "src/app/products/page.tsx",
+          "src/app/products/[slug]/page.tsx",
+          "src/app/api/products/route.ts",
+          "src/app/api/products/[slug]/route.ts",
+          "src/models/productModel.ts",
+          "src/components/ProductCard.tsx"
+        ]
+      },
+      {
+        "name": "Shopping Cart System",
+        "description": "Server-synced cart with localStorage fallback, add/remove/update quantity operations",
+        "files": [
+          "src/contexts/CartContext.tsx",
+          "src/app/api/cart/route.ts",
+          "src/app/api/cart/add/route.ts",
+          "src/app/api/cart/remove/route.ts",
+          "src/app/api/cart/update/route.ts",
+          "src/models/cartModel.ts",
+          "src/components/Navbar.tsx"
+        ]
+      },
+      {
+        "name": "Checkout and Orders",
+        "description": "Checkout flow with address validation, order creation, and order tracking",
+        "files": [
+          "src/app/checkout/page.tsx",
+          "src/app/orders/page.tsx",
+          "src/app/api/checkout/route.ts",
+          "src/app/api/orders/route.ts",
+          "src/models/orderModel.ts"
+        ]
+      },
+      {
+        "name": "AWS S3 Image Management",
+        "description": "Pre-signed URL generation for secure image uploads to S3 with CloudFront CDN",
+        "files": [
+          "src/app/api/images/generate-presigned-url/route.ts",
+          "src/lib/aws-utils.ts"
+        ]
+      },
+      {
+        "name": "Navigation and Routing",
+        "description": "Main navbar with subdomain detection (donate.maceazy.com), cart dropdown, and responsive mobile menu",
+        "files": [
+          "src/components/Navbar.tsx",
+          "src/components/Footer.tsx",
+          "src/middleware.ts"
+        ]
+      },
+      {
+        "name": "Disabled Persons Registration",
+        "description": "Accessibility feature for visually impaired users to register for free E-Kaathi devices",
+        "files": [
+          "src/app/disabled-registration/page.tsx",
+          "src/app/api/disabled-registration/route.ts",
+          "src/models/disabledPersonModel.ts",
+          "src/components/admin/DisabledPersonsManagement.tsx"
+        ]
+      },
+      {
+        "name": "Delivery Area Management",
+        "description": "Admin-controlled serviceable locations with city, state, pincode management",
+        "files": [
+          "src/app/api/delivery-areas/route.ts",
+          "src/components/admin/DeliveryAreasManagement.tsx",
+          "src/models/deliveryAreaModel.ts"
+        ]
+      },
+      {
+        "name": "Landing Page",
+        "description": "Homepage with hero section, product showcase, donation CTA, and animated UI elements",
+        "files": [
+          "src/app/page.tsx"
+        ]
+      },
+      {
+        "name": "Static Pages",
+        "description": "About, Contact, Privacy Policy, Refund Policy, Shipping Policy, Terms of Use pages",
+        "files": [
+          "src/app/about/page.tsx",
+          "src/app/contact/page.tsx",
+          "src/app/privacy/page.tsx",
+          "src/app/refund-policy/page.tsx",
+          "src/app/shipping-policy/page.tsx",
+          "src/app/donate/terms-of-use/page.tsx"
+        ]
+      },
+      {
+        "name": "Database Configuration",
+        "description": "MongoDB connection with caching to prevent connection exhaustion",
+        "files": [
+          "src/dbConfig/dbConfig.ts"
+        ]
+      },
+      {
+        "name": "Subdomain Middleware",
+        "description": "Middleware for handling donate.maceazy.com subdomain routing and admin authentication",
+        "files": [
+          "src/middleware.ts"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "ali@gmail.com",
+  "loginPassword": "adminali",
+  "executionArgs": {
+    "projectName": "e-sight-marketing-website-v2",
+    "projectPath": "C:\\Users\\ALI\\OneDrive\\Documents\\GitHub\\e-sight-marketing-website-v2",
+    "testIds": [],
+    "additionalInstruction": "Execute ALL 103 test cases from TC001 through TC103. Fresh test run from the beginning. Track execution progress in localStorage: for each test completion, store test ID, status (passed/failed/skipped), timestamp, and duration to 'testsprite_execution_log' array. Monitor token expiry during long test run - if user/admin token expires (30min/2hr), pause execution, prompt re-authentication, and resume from last checkpoint. Generate comprehensive markdown report with all test results.",
+    "envs": {
+      "API_KEY": "sk-user-fM-N-Zxx_dKdtfabB8ZxznvQd4dwUEERq2d3xLrEFjHvISJfGwmrUxtcoL6vIBqLBawzYwu6wdwLsHUlsf_0wzoK055OWhpZ3TZ-i9BxONC1p_uBzg2hsc2iug2Hx2bdcVw"
+    }
+  },
+  "proxy": "http://3c5da07c-a937-456c-80ee-5a77aa820493:LVrVWWY1c8Wc1p4QB3AzjwTaFUGd83vX@tun.testsprite.com:8080"
+}
