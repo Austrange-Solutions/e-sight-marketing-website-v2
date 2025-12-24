@@ -6,6 +6,7 @@ import VideoSection from "@/components/HomePage/VideoSection";
 import HomeProductsSection from "@/components/HomePage/HomeProductsSection";
 import Faqs from "@/components/HomePage/Faqs";
 import IncubationCarousel from "@/components/HomePage/Incubation";
+import ImageGallery from "@/components/HomePage/ImageGallery";
 
 // Generate metadata for SEO
 export const metadata: Metadata = {
@@ -39,7 +40,10 @@ const Home = () => {
       {/* Hero Section - Client Component with animations */}
       <HomeHero />
 
-      {/* Hero Section - Client Component with animations */}
+      {/* Image Gallery - Pinterest-style masonry grid */}
+      <ImageGallery />
+
+      {/* Incubation Carousel */}
       <IncubationCarousel />
 
       {/* Products Section - Dynamic products from database */}

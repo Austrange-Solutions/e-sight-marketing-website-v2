@@ -34,6 +34,8 @@
               "API_KEY": "sk-user-2LdjU6AfgU3p...jYJrLhCtM-i31elhAgBY"
             }
           }
-        }
+        },
+        "snyk.advanced.organization": "16db7afb-be74-48bc-a577-09bf811c3b98",
+        "snyk.advanced.autoSelectOrganization": true
       
 }
