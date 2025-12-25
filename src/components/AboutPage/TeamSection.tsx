@@ -8,7 +8,7 @@ const ceoData = {
   position: "CEO",
   image: "/assets/images/ceo.jpg",
   description:
-    "Visionary leader driving business strategy, growth, and overall company success.",
+    "Leading with empathy and purpose to create assistive technologies that improve independence and quality of life for the specially abled.",
 };
 
 // Other team members that will be randomly ordered
