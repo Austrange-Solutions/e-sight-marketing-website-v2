@@ -68,20 +68,35 @@ export const disabledRegistrationSchema = z.object({
     .regex(/^\d{6}$/, "Pincode must be a valid 6-digit number"),
 
   // Disability Information
-  disabilityType: z.enum(
-    [
-      "Visual Impairment",
-      "Hearing Impairment",
-      "Locomotor Disability",
-      "Intellectual Disability",
-      "Mental Illness",
-      "Multiple Disabilities",
-      "Other",
-    ],
-    {
-      message: "Please select a valid disability type",
-    }
-  ),
+  disabilityType: z.string()
+    .min(1, "Please select a disability type")
+    .refine(
+      (value) => [
+        "Blindness",
+        "Low Vision",
+        "Leprosy Cured Persons",
+        "Hearing Impairment (Deaf and hard of hearing)",
+        "Locomotor Disability",
+        "Dwarfism",
+        "Intellectual Disability",
+        "Mental Illness",
+        "Autism Spectrum Disorder",
+        "Cerebral Palsy",
+        "Muscular Dystrophy",
+        "Chronic Neurological Conditions",
+        "Specific Learning Disabilities (e.g., Dyslexia)",
+        "Multiple Sclerosis",
+        "Speech and Language Disability",
+        "Thalassemia",
+        "Hemophilia",
+        "Sickle Cell Disease",
+        "Multiple Disabilities (More than one of the above)",
+        "Acid Attack Victims",
+        "Parkinson's Disease",
+        "Others"
+      ].includes(value),
+      "Please select a valid disability type"
+    ),
 
   disabilityPercentage: z
     .number({

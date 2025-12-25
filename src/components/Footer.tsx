@@ -39,7 +39,7 @@ const Footer = () => {
   return (
     <footer className="text-white">
       {/* full-bleed background wrapper */}
-      <div className="relative left-1/2 right-1/2 -translate-x-1/2 w-screen bg-[oklch(0.35_0.08_230)]">
+      <div className="relative left-1/2 right-1/2 -translate-x-1/2 w-full bg-[oklch(0.35_0.08_230)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-8">
           {/* Company Info */}

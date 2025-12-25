@@ -192,11 +192,11 @@ uploadedImageSchema.statics.getUploadStats = function() {
   ]);
 };
 
-// Ensure model is recompiled in dev/hot-reload environments
-if (mongoose.models && mongoose.models.UploadedImage) {
-  // Delete the cached model so the updated schema (enum additions) is applied
-  delete mongoose.models.UploadedImage;
-}
+// // Ensure model is recompiled in dev/hot-reload environments
+// if (mongoose.models && mongoose.models.UploadedImage) {
+//   // Delete the cached model so the updated schema (enum additions) is applied
+//   delete mongoose.models.UploadedImage;
+// }
 
 const UploadedImage = mongoose.models.UploadedImage || mongoose.model<IUploadedImage>('UploadedImage', uploadedImageSchema);
 
