@@ -17,6 +17,7 @@
 /.next/
 /out/
 
+
 # production
 /build
 
@@ -33,6 +34,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env
 .env.local
+.env.sentry-build-plugin
+.env.*.local
+
+
 
 # vercel
 .vercel
@@ -75,3 +80,6 @@ build-output.log
 /        
 # Snyk Security Extension - AI Rules (auto-generated)
 .github/instructions/snyk_rules.instructions.md
+
+# Sentry Config File
+.env.sentry-build-plugin
