@@ -55,6 +55,7 @@ const Navbar = () => {
       { path: "/about", label: "About" },
       { path: "/contact", label: "Contact" },
       { path: "/gallery", label: "Gallery" },
+      { path: "/support", label: "Support" },
     ];
 
     if (isAuthenticated) {
@@ -210,14 +211,14 @@ const Navbar = () => {
 
 
               {/* Donate Button */}
-              <a 
+              {/* <a 
                 href={process.env.NODE_ENV === 'development' ? 'http://donate.localhost:3000' : 'https://donate.'+process.env.NEXT_PUBLIC_HOSTNAME}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1"
               >
-                ❤️ Donate
-              </a>
+                ❤️ Donate Now
+              </a> */}
 
               {/* Auth Status */}
               {isAuthenticated && user && (

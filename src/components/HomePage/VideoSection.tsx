@@ -27,13 +27,13 @@ const VideoSection = () => {
           className="relative overflow-hidden rounded-2xl shadow-xl mx-auto border border-border"
           style={{
             paddingTop: "56.25%" /* 16:9 aspect ratio */,
-            maxWidth: "80%",
+            maxWidth: "100%",
             width: "100%",
             margin: "0 auto",
           }}
         >
           <iframe
-            src="https://www.youtube.com/embed/uCmFiOVW0A8"
+            src="https://www.youtube.com/embed/-dqg8zQ9v90?si=WS5kGbDl19A1ejOr"
             title="e-Kaathi Informational Video"
             className="absolute top-0 left-0 w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

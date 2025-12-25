@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import User from '@/models/userModel';
 import { connect } from '@/dbConfig/dbConfig';
-
-await connect();
 import { sendPasswordResetEmail } from '@/helpers/resendEmail';
 
 export async function POST(req: Request) {
+  await connect();
   try {
     const { email } = await req.json();
     if (!email) {

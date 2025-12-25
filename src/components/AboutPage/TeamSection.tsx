@@ -1,58 +1,20 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
-// CEO data that will always be displayed first
-const ceoData = {
-  name: "Samad Qureshi",
-  position: "CEO",
-  image: "/assets/images/ceo.jpg",
-  description:
-    "Leading with empathy and purpose to create assistive technologies that improve independence and quality of life for the specially abled.",
-};
-
-// Other team members that will be randomly ordered
-const otherTeamMembers = [
-  {
-    name: "Sahil Mane",
-    position: "CTO",
-    image: "/assets/images/cto.jpg",
-    description: "Technical expert specializing in innovative solutions.",
-  },
-  {
-    name: "Harsh Gupta",
-    position: "CIO",
-    image: "/assets/images/cio.jpg",
-    description:
-      "Leader in managing and implementing IT strategies, optimizing technology for business growth.",
-  },
-  {
-    name: "Vishnuraj Vishwakarma",
-    position: "COO",
-    image: "/assets/images/coo.jpg",
-    description:
-      "Executive overseeing daily operations, optimizing efficiency, and ensuring business execution.",
-  },
-];
-
-// Define team member interface
-interface TeamMember {
-  name: string;
-  position: string;
-  image: string;
-  description: string;
-}
+import type { TeamMember } from "@/lib/team";
+import { TEAM_MEMBERS } from "@/lib/team";
+import { slugify } from "@/lib/team";
 
 export default function TeamSection() {
-  // State to hold the randomized team members
   const [displayTeam, setDisplayTeam] = useState<TeamMember[]>([]);
 
-  // Randomize team members on component mount
   useEffect(() => {
-    // Shuffle the other team members (excluding CEO)
-    const shuffled = [...otherTeamMembers].sort(() => Math.random() - 0.5);
-    // Place CEO first, then the shuffled team
-    setDisplayTeam([ceoData, ...shuffled]);
+    // Keep CEO first, randomize the rest
+    const [ceo, ...others] = TEAM_MEMBERS;
+    // const shuffled = [...others].sort(() => Math.random() - 0.5);
+    setDisplayTeam([ceo, ...others]);
   }, []);
 
   if (displayTeam.length === 0) {
@@ -103,35 +65,38 @@ export default function TeamSection() {
         </motion.div>
 
         <div className="grid md:grid-cols-4 gap-8" role="list">
-          {displayTeam.map((member, index) => (
-            <motion.article
-              key={`${member.name}-${index}`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="bg-card rounded-xl shadow-lg overflow-hidden hover:shadow-xl border border-border hover:border-primary transition-all duration-300"
-              role="listitem"
-            >
-              <div className="aspect-w-1 aspect-h-1">
-                <img
-                  src={member.image}
-                  alt={`${member.name}, ${member.position} at Maceazy`}
-                  className="w-full md:h-64 h-74 object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-primary font-medium mb-4" aria-label="Position">
-                  {member.position}
-                </p>
-                <p className="text-muted-foreground">{member.description}</p>
-              </div>
-            </motion.article>
-          ))}
+          {displayTeam.map((member, index) => {
+            const slug = slugify(member.name);
+            return (
+              <motion.article
+                key={`${member.name}-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.15 }}
+                viewport={{ once: true }}
+                className="bg-card rounded-xl shadow-lg overflow-hidden hover:shadow-xl border border-border hover:border-primary transition-all duration-300"
+                role="listitem"
+              >
+                <Link href={`/about/team/${slug}`} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                  <div className="aspect-w-1 aspect-h-1">
+                    <img
+                      src={member.image}
+                      alt={`${member.name}, ${member.position} at Maceazy`}
+                      className="w-full md:h-64 h-74 object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-foreground mb-2">{member.name}</h3>
+                    <p className="text-primary font-medium mb-4" aria-label="Position">
+                      {member.position}
+                    </p>
+                    <p className="text-muted-foreground">{member.description}</p>
+                  </div>
+                </Link>
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>

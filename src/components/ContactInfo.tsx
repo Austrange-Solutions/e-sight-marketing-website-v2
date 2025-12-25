@@ -8,7 +8,8 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Building
+  Building,
+  Linkedin
 } from "lucide-react";
 
 const ContactInfo = () => {
@@ -119,13 +120,13 @@ const ContactInfo = () => {
         </h3>
         <div className="flex space-x-4">
           <a
-            href="https://www.facebook.com/people/Austrange-Solutions/61575298985988/"
+            href="https://www.facebook.com/maceazyofficial"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Facebook className="h-6 w-6" />
           </a>
           <a
-            href="https://x.com/austrangesolns"
+            href="https://x.com/maceazyofficial"
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Twitter className="h-6 w-6" />
@@ -135,6 +136,12 @@ const ContactInfo = () => {
             className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
           >
             <Instagram className="h-6 w-6" />
+          </a>
+          <a
+            href="https://www.linkedin.com/company/maceazyofficial/"
+            className="bg-primary/10 p-3 rounded-full text-primary hover:bg-primary/20 transition-colors duration-200"
+          >
+            <Linkedin className="h-6 w-6" />
           </a>
         </div>
       </div>

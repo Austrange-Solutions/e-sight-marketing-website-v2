@@ -108,7 +108,13 @@ export async function POST(req: NextRequest) {
             });
             
             // Generate CloudFront URL for viewing
-            const viewUrl = `https://${process.env.CLOUDFRONT_DOMAIN}/${s3Key}`;
+            let cloudfrontDomain = process.env.CLOUDFRONT_DOMAIN || '';
+            if (cloudfrontDomain.startsWith('https://')) {
+              cloudfrontDomain = cloudfrontDomain.replace('https://', '');
+            } else if (cloudfrontDomain.startsWith('http://')) {
+              cloudfrontDomain = cloudfrontDomain.replace('http://', '');
+            }
+            const viewUrl = `https://${cloudfrontDomain}/${s3Key}`;
             
             console.log('Signed URL generated successfully');
 

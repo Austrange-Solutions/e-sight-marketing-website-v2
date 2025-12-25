@@ -6,6 +6,7 @@ import { TProduct } from '@/models/productModel';
 // Create a serialized version for client components
 interface Product extends Omit<TProduct, '_id'> {
   _id: string;
+  gallery?: string[]; // Array of gallery images
 }
 
 interface ProductsManagementProps {
@@ -30,6 +31,7 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [qtyInputs, setQtyInputs] = useState<{ [key: string]: string }>({});
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingGalleryImage, setUploadingGalleryImage] = useState(false);
   
   // Loading states for button operations
   const [isCreating, setIsCreating] = useState(false);
@@ -37,9 +39,16 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
   const [deletingProduct, setDeletingProduct] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   
+  // Reviews state
+  const [reviews, setReviews] = useState<Array<any>>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [editingReview, setEditingReview] = useState<any | null>(null);
+  const [deletingReview, setDeletingReview] = useState<string | null>(null);
+  
   const [newProduct, setNewProduct] = useState<Omit<Product, '_id'>>({
     name: '',
     image: '',
+    gallery: [],
     description: '',
     type: 'basic',
     price: 0,
@@ -47,12 +56,67 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
     category: 'Electronics',
     stock: 0,
     status: 'active',
+    slug: '',
     tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
     createdAt: new Date(),
     updatedAt: new Date()
   });
 
   const categories = ["Electronics", "Accessories", "Home", "Sports", "Health", "Other"];
+
+  const fetchReviews = async (productId: string) => {
+    try {
+      setReviewsLoading(true);
+      const res = await fetch(`/api/products/${productId}/reviews`);
+      if (!res.ok) {
+        setReviews([]);
+        return;
+      }
+      const data = await res.json();
+      setReviews(data.reviews || []);
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const updateReview = async (reviewId: string, updatedData: { rating: number; comment: string }) => {
+    try {
+      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+      if (!res.ok) throw new Error('Failed to update review');
+      toast.success('Review updated successfully');
+      if (selectedProduct) {
+        fetchReviews(selectedProduct._id);
+      }
+      setEditingReview(null);
+    } catch (error) {
+      console.error('Update review error:', error);
+      toast.error('Failed to update review');
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    try {
+      setDeletingReview(reviewId);
+      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete review');
+      toast.success('Review deleted successfully');
+      setReviews(prev => prev.filter(r => r._id !== reviewId));
+    } catch (error) {
+      console.error('Delete review error:', error);
+      toast.error('Failed to delete review');
+    } finally {
+      setDeletingReview(null);
+    }
+  };
 
   const updateStock = async (productId: string, newStock: number) => {
     if (newStock < 0) return;
@@ -363,6 +427,95 @@ const deleteOldImage = async (oldImageUrl: string) => {
     }
   };
 
+  const handleGalleryImageUpload = async (file: File, isEditingProduct: boolean = false) => {
+    if (!file) return;
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+    
+    setUploadingGalleryImage(true);
+    
+    try {
+      // Step 1: Get signed URL from server
+      const signedUrlResponse = await fetch('/api/aws/signed-upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
+      });
+      
+      if (!signedUrlResponse.ok) {
+        const errorData = await signedUrlResponse.json();
+        throw new Error(errorData.error || 'Failed to get signed URL');
+      }
+      
+      const { signedUrl, viewUrl } = await signedUrlResponse.json();
+      
+      // Step 2: Upload file directly to S3 using signed URL
+      const uploadResponse = await fetch(signedUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+      
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('S3 upload failed:', errorText);
+        throw new Error(`Failed to upload file to S3: ${uploadResponse.status}`);
+      }
+      
+      // Step 3: Add to gallery array
+      if (isEditingProduct && editingProduct) {
+        setEditingProduct({
+          ...editingProduct,
+          gallery: [...(editingProduct.gallery || []), viewUrl]
+        });
+      } else {
+        setNewProduct({
+          ...newProduct,
+          gallery: [...(newProduct.gallery || []), viewUrl]
+        });
+      }
+      
+      toast.success('Image added to gallery');
+    } catch (error: unknown) {
+      console.error('Gallery image upload error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload gallery image');
+    } finally {
+      setUploadingGalleryImage(false);
+    }
+  };
+
+  const removeGalleryImage = (imageUrl: string, isEditingProduct: boolean = false) => {
+    if (isEditingProduct && editingProduct) {
+      setEditingProduct({
+        ...editingProduct,
+        gallery: (editingProduct.gallery || []).filter(img => img !== imageUrl)
+      });
+    } else {
+      setNewProduct({
+        ...newProduct,
+        gallery: (newProduct.gallery || []).filter(img => img !== imageUrl)
+      });
+    }
+    toast.success('Image removed from gallery');
+  };
+
   // Single-click disable product
   const disableProduct = async (productId: string) => {
     setUpdating(productId);
@@ -427,6 +580,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
         price: productData.price,
         category: productData.category,
         image: productData.image,
+        gallery: productData.gallery || [], // Include gallery images
         type: productData.type,
         stock: productData.stock,
         status: productData.status,
@@ -450,6 +604,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
         setNewProduct({
           name: '',
           image: '',
+          gallery: [],
           description: '',
           type: 'basic',
           price: 0,
@@ -457,6 +612,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
           category: 'Electronics',
           stock: 0,
           status: 'active',
+          slug: '',
           tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
           createdAt: new Date(),
           updatedAt: new Date()
@@ -547,6 +703,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
         price: updatedProduct.price,
         category: updatedProduct.category || 'Electronics', // Add fallback
         image: updatedProduct.image,
+        gallery: updatedProduct.gallery || [], // Include gallery images
         type: updatedProduct.type,
         stock: updatedProduct.stock,
         status: updatedProduct.status,
@@ -761,7 +918,10 @@ const deleteOldImage = async (oldImageUrl: string) => {
               {/* Actions */}
               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                 <button
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => {
+                    setSelectedProduct(product);
+                    fetchReviews(product._id);
+                  }}
                   className="flex items-center space-x-1 text-primary hover:text-indigo-800 text-xs sm:text-sm"
                 >
                   <Eye size={12} />
@@ -823,18 +983,22 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Product Details Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-card">
+          <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 max-w-5xl shadow-lg rounded-md bg-card mb-8">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-foreground">Product Details</h3>
               <button
-                onClick={() => setSelectedProduct(null)}
+                onClick={() => {
+                  setSelectedProduct(null);
+                  setReviews([]);
+                  setEditingReview(null);
+                }}
                 className="text-gray-400 hover:text-muted-foreground"
               >
                 ✕
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div>
                 <img
                   src={selectedProduct.image || '/assets/images/maceazy-logo.png'}
@@ -878,15 +1042,127 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   </div>
                 </div>
                 
-                <div>
-                  <span className="font-medium block mb-2">Product Details:</span>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    {selectedProduct.details.map((detail, index) => (
-                      <li key={index}>{detail}</li>
-                    ))}
-                  </ul>
-                </div>
+                {selectedProduct.details && selectedProduct.details.length > 0 && (
+                  <div>
+                    <span className="font-medium block mb-2">Product Details:</span>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                      {selectedProduct.details.map((detail, index) => (
+                        <li key={index}>{detail}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="border-t border-border pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-medium text-foreground">Customer Reviews ({reviews.length})</h4>
+              </div>
+
+              {reviewsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No reviews yet for this product.</p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {reviews.map((review) => (
+                    <div key={review._id} className="bg-accent/50 p-4 rounded-lg border border-border">
+                      {editingReview?._id === review._id ? (
+                        // Edit Mode
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium">Rating:</label>
+                            <select
+                              value={editingReview.rating}
+                              onChange={(e) => setEditingReview({ ...editingReview, rating: Number(e.target.value) })}
+                              className="px-2 py-1 border border-border rounded text-sm"
+                            >
+                              {[1, 2, 3, 4, 5].map(n => (
+                                <option key={n} value={n}>{n} Star{n > 1 ? 's' : ''}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <textarea
+                            value={editingReview.comment}
+                            onChange={(e) => setEditingReview({ ...editingReview, comment: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                            rows={3}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => updateReview(review._id, { rating: editingReview.rating, comment: editingReview.comment })}
+                              className="px-3 py-1.5 bg-primary text-white rounded text-sm hover:bg-primary/90"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingReview(null)}
+                              className="px-3 py-1.5 border border-border rounded text-sm hover:bg-accent"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // View Mode
+                        <div>
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium text-sm">{review.username}</span>
+                                <div className="flex items-center">
+                                  {Array.from({ length: review.rating }).map((_, i) => (
+                                    <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-muted-foreground mb-2">
+                                {new Date(review.createdAt).toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                              <p className="text-sm text-foreground">{review.comment}</p>
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => setEditingReview(review)}
+                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                title="Edit review"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() => deleteReview(review._id)}
+                                disabled={deletingReview === review._id}
+                                className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                                title="Delete review"
+                              >
+                                {deletingReview === review._id ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <Trash2 size={16} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1092,6 +1368,63 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   )}
                 </div>
               </div>
+
+              {/* Gallery Images Section */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-3">Product Gallery Images (Optional)</label>
+                
+                {/* Upload Gallery Image Button */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Upload Gallery Images</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleGalleryImageUpload(file, true);
+                        }
+                      }}
+                      className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={uploadingGalleryImage}
+                    />
+                    {uploadingGalleryImage && (
+                      <div className="text-sm text-blue-600">Uploading...</div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                </div>
+
+                {/* Display Gallery Images */}
+                {editingProduct.gallery && editingProduct.gallery.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">Gallery Images ({editingProduct.gallery.length})</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {editingProduct.gallery.map((imageUrl, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Gallery ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border border-border"
+                            onError={(e) => {
+                              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryImage(imageUrl, true)}
+                            className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            title="Remove this image"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               
               <div className="flex justify-end space-x-3">
                 <button
@@ -1154,6 +1487,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     category: 'Electronics',
                     stock: 0,
                     status: 'active',
+                    slug: '',
                     tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
                     createdAt: new Date(),
                     updatedAt: new Date()
@@ -1365,6 +1699,63 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   )}
                 </div>
               </div>
+
+              {/* Gallery Images Section */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-3">Product Gallery Images (Optional)</label>
+                
+                {/* Upload Gallery Image Button */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Upload Gallery Images</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleGalleryImageUpload(file, false);
+                        }
+                      }}
+                      className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={uploadingGalleryImage}
+                    />
+                    {uploadingGalleryImage && (
+                      <div className="text-sm text-blue-600">Uploading...</div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                </div>
+
+                {/* Display Gallery Images */}
+                {newProduct.gallery && newProduct.gallery.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">Gallery Images ({newProduct.gallery.length})</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {newProduct.gallery.map((imageUrl, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Gallery ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border border-border"
+                            onError={(e) => {
+                              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryImage(imageUrl, false)}
+                            className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            title="Remove this image"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               
               {/* Debug Info for Add Product Form */}
               <div className="mb-4 p-3 bg-accent rounded-md text-sm">
@@ -1403,6 +1794,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                       category: 'Electronics',
                       stock: 0,
                       status: 'active',
+                      slug: '',
                       tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
                       createdAt: new Date(),
                       updatedAt: new Date()
