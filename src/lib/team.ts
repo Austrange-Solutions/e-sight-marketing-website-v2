@@ -17,10 +17,10 @@ export const TEAM_MEMBERS: TeamMember[] = [
     position: "CEO",
     image: "/assets/images/ceo.jpg",
     description:
-      "Visionary leader driving business strategy, growth, and overall company success.",
+      "Leading with empathy and purpose to create assistive technologies that improve independence and quality of life for the specially abled.",
     social: {
       linkedin: "https://www.linkedin.com/in/abdussamadqureshi84/",
-      email: "samad@example.com",
+      email: "samad.austrange@gmail.com",
       twitter: "https://twitter.com/samadq",
     },
   },
