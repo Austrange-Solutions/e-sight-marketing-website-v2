@@ -1,6 +1,7 @@
 // Example usage for the updated CloudFront system
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { getImageUrl, uploadFileToS3 } from '@/lib/aws-utils';
 
 // Example 1: Display image with CloudFront URL
@@ -34,9 +35,11 @@ function ProductImage({ imageKey }: { imageKey: string }) {
   }
 
   return (
-    <img 
+    <Image 
       src={imageUrl} 
       alt="Product" 
+      width={400}
+      height={192}
       className="w-full h-48 object-cover"
     />
   );
@@ -138,7 +141,7 @@ function FileUploadExample() {
         <div className="mt-4">
           <p>Uploaded successfully!</p>
           <p><strong>CloudFront URL:</strong> {uploadedUrl}</p>
-          <img src={uploadedUrl} alt="Uploaded" className="mt-2 max-w-xs" />
+          <Image src={uploadedUrl} alt="Uploaded" width={300} height={200} className="mt-2 max-w-xs" />
         </div>
       )}
     </div>

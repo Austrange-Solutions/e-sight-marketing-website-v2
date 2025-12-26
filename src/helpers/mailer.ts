@@ -7,8 +7,8 @@ export async function sendEmail({ email, code }: { email: string, code: string }
             host: "sandbox.smtp.mailtrap.io",
             port: 2525,
             auth: {
-                user: "dfa97f550bafbc",
-                pass: "a9f61db8af9ff1"
+                user: process.env.MAILTRAP_USER || "dfa97f550bafbc",
+                pass: process.env.MAILTRAP_PASSWORD || ""
             }
   });
 
@@ -40,8 +40,8 @@ export const sendmail = async({email, emailType, userId}: {email: string, emailT
             host: "sandbox.smtp.mailtrap.io",
             port: 2525,
             auth: {
-                user: "dfa97f550bafbc",
-                pass: "a9f61db8af9ff1"
+                user: process.env.MAILTRAP_USER || "dfa97f550bafbc",
+                pass: process.env.MAILTRAP_PASSWORD || ""
             }
         });
 

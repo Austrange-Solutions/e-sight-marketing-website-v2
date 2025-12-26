@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import SupportTicket from "@/models/SupportTicket";
+import { escapeRegex } from "@/lib/validation";
 
 export async function GET(request: Request) {
   try {
@@ -19,9 +20,11 @@ export async function GET(request: Request) {
     let tickets = await SupportTicket.find({ ticketId: query });
 
     // If no tickets found by ID, try by Email (case-insensitive)
+    // Sanitize input to prevent ReDoS attacks
     if (tickets.length === 0) {
-      tickets = await SupportTicket.find({ 
-        email: { $regex: new RegExp(`^${query}$`, 'i') } 
+      const sanitizedQuery = escapeRegex(query);
+      tickets = await SupportTicket.find({
+        email: { $regex: new RegExp(`^${sanitizedQuery}$`, "i") },
       }).sort({ createdAt: -1 });
     }
 

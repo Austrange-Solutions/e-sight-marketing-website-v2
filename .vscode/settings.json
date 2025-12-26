@@ -1,41 +1,37 @@
 {
-    "githubPullRequests.queries": [
+  "githubPullRequests.queries": [
+    {
+      "label": "Copilot on My Behalf",
+      "query": "repo:${owner}/${repository} is:open author:copilot involves:${user}"
+    },
+    {
+      "label": "Local Pull Request Branches",
+      "query": "default"
+    },
+    {
+      "label": "Waiting For My Review",
+      "query": "repo:${owner}/${repository} is:open review-requested:${user}"
+    },
+    {
+      "label": "Created By Me",
+      "query": "repo:${owner}/${repository} is:open author:${user}"
+    },
+    {
+      "label": "All Open",
+      "query": "default"
+    }
+  ],
+  "github.copilot.chat.languageContext.fix.typescript.enabled": true,
 
-        {
-            "label": "Copilot on My Behalf",
-            "query": "repo:${owner}/${repository} is:open author:copilot involves:${user}"
-        },
-        {
-            "label": "Local Pull Request Branches",
-            "query": "default"
-        },
-        {
-            "label": "Waiting For My Review",
-            "query": "repo:${owner}/${repository} is:open review-requested:${user}"
-        },
-        {
-            "label": "Created By Me",
-            "query": "repo:${owner}/${repository} is:open author:${user}"
-        },
-        {
-            "label": "All Open",
-            "query": "default"
-        }
-    ],
-    "github.copilot.chat.languageContext.fix.typescript.enabled": true,
-    
-        "mcpServers": {
-          "TestSprite": {
-            "command": "npx",
-            "args": [
-              "@testsprite/testsprite-mcp@latest"
-            ],
-            "env": {
-              "API_KEY": "sk-user-2LdjU6AfgU3p...jYJrLhCtM-i31elhAgBY"
-            }
-          }
-        },
-        "snyk.advanced.organization": "16db7afb-be74-48bc-a577-09bf811c3b98",
-        "snyk.advanced.autoSelectOrganization": true
-      
+  "mcpServers": {
+    "TestSprite": {
+      "command": "npx",
+      "args": ["@testsprite/testsprite-mcp@latest"],
+      "env": {
+        "API_KEY": "sk-user-2LdjU6AfgU3p...jYJrLhCtM-i31elhAgBY"
+      }
+    }
+  },
+  "snyk.advanced.organization": "e6479657-bb9d-4fdf-b749-690febdc75da",
+  "snyk.advanced.autoSelectOrganization": true
 }

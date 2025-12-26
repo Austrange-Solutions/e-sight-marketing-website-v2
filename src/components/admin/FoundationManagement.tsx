@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Plus, Edit2, Trash2, Save, X, Power, PowerOff, Upload, AlertCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -501,9 +502,11 @@ export default function FoundationManagement() {
               </label>
               <div className="flex items-center gap-4">
                 {formData.logoUrl && (
-                  <img
+                  <Image
                     src={formData.logoUrl}
                     alt="Logo preview"
+                    width={64}
+                    height={64}
                     className="w-16 h-16 object-contain rounded-lg border border-border"
                   />
                 )}
@@ -653,9 +656,11 @@ export default function FoundationManagement() {
                     }}
                   >
                     {foundation.logoUrl ? (
-                      <img
+                      <Image
                         src={foundation.logoUrl}
                         alt={foundation.foundationName}
+                        width={96}
+                        height={96}
                         className="w-full h-full object-contain rounded-lg"
                       />
                     ) : (

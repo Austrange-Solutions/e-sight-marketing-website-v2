@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -78,12 +79,13 @@ export default function TeamSection() {
                 role="listitem"
               >
                 <Link href={`/about/team/${slug}`} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                  <div className="aspect-w-1 aspect-h-1">
-                    <img
+                  <div className="relative aspect-square md:h-64 h-74">
+                    <Image
                       src={member.image}
                       alt={`${member.name}, ${member.position} at Maceazy`}
-                      className="w-full md:h-64 h-74 object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                   <div className="p-6">

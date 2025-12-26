@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import { Edit, Trash2, Plus, Minus, ShoppingBag, Package2, Eye, DollarSign, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { TProduct } from '@/models/productModel';
@@ -817,13 +818,11 @@ const deleteOldImage = async (oldImageUrl: string) => {
           <div key={product._id} className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow">
             {/* Product Image */}
             <div className="relative h-40 sm:h-48 bg-accent">
-              <img
+              <Image
                 src={product.image || '/assets/images/maceazy-logo.png'}
                 alt={product.name}
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = '/assets/images/maceazy-logo.png';
-                }}
+                fill
+                className="object-contain"
               />
               <div className="absolute top-2 right-2">
                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status, product.stock)}`}>
@@ -999,11 +998,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-              <div>
-                <img
+              <div className="relative h-48 sm:h-64">
+                <Image
                   src={selectedProduct.image || '/assets/images/maceazy-logo.png'}
                   alt={selectedProduct.name}
-                  className="w-full h-48 sm:h-64 object-cover rounded-lg"
+                  fill
+                  className="object-cover rounded-lg"
                 />
               </div>
               
@@ -1295,13 +1295,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   {/* Current Image Preview */}
                   {editingProduct.image && (
                     <div className="flex items-center space-x-3">
-                      <img 
+                      <Image 
                         src={editingProduct.image} 
                         alt="Product preview" 
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-cover rounded-md border"
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
-                        }}
                       />
                       <span className="text-sm text-muted-foreground">Current product image</span>
                     </div>
@@ -1403,13 +1402,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                       {editingProduct.gallery.map((imageUrl, idx) => (
                         <div key={idx} className="relative">
-                          <img
+                          <Image
                             src={imageUrl}
                             alt={`Gallery ${idx + 1}`}
+                            width={96}
+                            height={96}
                             className="w-full h-24 object-cover rounded-lg border border-border"
-                            onError={(e) => {
-                              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
-                            }}
                           />
                           <button
                             type="button"
@@ -1620,13 +1618,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   {/* Current Image Preview */}
                   {newProduct.image && (
                     <div className="flex items-center space-x-3">
-                      <img 
+                      <Image 
                         src={newProduct.image} 
                         alt="Product preview" 
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-cover rounded-md border"
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
-                        }}
                       />
                       <button
                         type="button"
@@ -1734,13 +1731,12 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                       {newProduct.gallery.map((imageUrl, idx) => (
                         <div key={idx} className="relative">
-                          <img
+                          <Image
                             src={imageUrl}
                             alt={`Gallery ${idx + 1}`}
+                            width={96}
+                            height={96}
                             className="w-full h-24 object-cover rounded-lg border border-border"
-                            onError={(e) => {
-                              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMSAyM0MxOS44OTU0IDIzIDE5IDIzLjg5NTQgMTkgMjVWMzlDMTkgNDAuMTA0NiAxOS44OTU0IDQxIDIxIDQxSDQzQzQ0LjEwNDYgNDEgNDUgNDAuMTA0NiA0NSAzOVYyNUM0NSAyMy44OTU0IDQ0LjEwNDYgMjMgNDMgMjNIMjFaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyOSIgY3k9IjI5IiByPSIzIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJtMzUgMzUgNSA1IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=';
-                            }}
                           />
                           <button
                             type="button"

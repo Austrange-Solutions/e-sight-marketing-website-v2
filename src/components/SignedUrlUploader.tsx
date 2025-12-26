@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface SignedUrlUploaderProps {
   onUploadComplete?: (url: string) => void;
@@ -121,9 +122,11 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
             <div className="text-sm font-medium text-green-600">
               ✅ Upload successful!
             </div>
-            <img
+            <Image
               src={uploadedUrl}
               alt="Uploaded"
+              width={400}
+              height={128}
               className="w-full h-32 object-cover rounded-md border"
             />
             <div className="text-xs text-gray-500 break-all">

@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 
 export default function CarouselManagement() {
@@ -167,11 +168,11 @@ export default function CarouselManagement() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {images.map(img => (
             <div key={img._id} className="border p-2 rounded bg-card flex flex-col">
-              <div className="w-full h-40 bg-gray-100 rounded overflow-hidden">
+              <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
                 {((img.fileType || '') as string).startsWith('video') ? (
                   <video src={img.cloudFrontUrl || img.s3Url} controls className="w-full h-full object-cover" />
                 ) : (
-                  <img src={img.cloudFrontUrl || img.s3Url} alt={img.altText || img.originalName} className="w-full h-full object-cover" />
+                  <Image src={img.cloudFrontUrl || img.s3Url} alt={img.altText || img.originalName} fill className="object-cover" />
                 )}
               </div>
               <div className="mt-2 text-sm font-medium truncate">{img.filename}</div>
@@ -194,11 +195,11 @@ export default function CarouselManagement() {
             <h3 className="text-lg font-semibold mb-2">Edit Slide</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
-                <div className="w-full h-48 bg-gray-100 rounded overflow-hidden">
+                <div className="relative w-full h-48 bg-gray-100 rounded overflow-hidden">
                   {((editing.fileType || '') as string).startsWith('video') ? (
                     <video src={editing.cloudFrontUrl || editing.s3Url} controls className="w-full h-full object-cover" />
                   ) : (
-                    <img src={editing.cloudFrontUrl || editing.s3Url} alt={editing.altText || editing.originalName} className="w-full h-full object-cover" />
+                    <Image src={editing.cloudFrontUrl || editing.s3Url} alt={editing.altText || editing.originalName} fill className="object-cover" />
                   )}
                 </div>
               </div>

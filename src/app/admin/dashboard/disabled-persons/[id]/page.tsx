@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ArrowLeft, Download, FileText, Image as ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { sanitizeUrl } from "@/lib/validation";
 
 interface DocumentType {
   fileName: string;
@@ -273,21 +275,38 @@ export default function DisabledPersonDetailPage({
             </div>
           </div>
           <a
-            href={doc.fileUrl}
+            href={sanitizeUrl(doc.fileUrl)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-600 hover:text-indigo-500"
+            onClick={(e) => {
+              if (sanitizeUrl(doc.fileUrl) === '#') {
+                e.preventDefault();
+              }
+            }}
           >
             <Download size={18} />
           </a>
         </div>
         {isImage && (
-          <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
-            <img
-              src={doc.fileUrl}
-              alt={label}
-              className="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80"
-            />
+          <a 
+            href={sanitizeUrl(doc.fileUrl)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (sanitizeUrl(doc.fileUrl) === '#') {
+                e.preventDefault();
+              }
+            }}
+          >
+            <div className="relative w-full h-32">
+              <Image
+                src={doc.fileUrl}
+                alt={label}
+                fill
+                className="object-cover rounded border cursor-pointer hover:opacity-80"
+              />
+            </div>
           </a>
         )}
       </div>

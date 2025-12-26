@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, ShoppingCart, Plus, Minus, Trash2, User, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
@@ -166,9 +167,11 @@ const Navbar = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <img
+                <Image
                   src="/assets/images/maceazy-logo.png"
                   alt="Maceazy Logo"
+                  width={120}
+                  height={32}
                   className="ml-2 h-8"
                 />
               </Link>
@@ -484,13 +487,12 @@ const Navbar = () => {
                       >
                         {/* Product Image */}
                         <div className="relative">
-                          <img
+                          <Image
                             src={item.image || '/placeholder-image.jpg'}
                             alt={item.name || 'Product'}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded-lg"
-                            onError={(e) => {
-                              e.currentTarget.src = '/placeholder-image.jpg';
-                            }}
                           />
                         </div>
 

@@ -2,6 +2,7 @@ import AddToCartButton from './AddToCartButton';
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   _id: string;
@@ -107,11 +108,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Image Section - Responsive Height */}
       <div className={`relative w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80 ${isOutOfStock ? 'filter grayscale opacity-70' : ''}`}>
-        <img
+        <Image
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-contain rounded-t-xl sm:rounded-t-2xl"
-          loading="lazy"
+          fill
+          className="object-contain rounded-t-xl sm:rounded-t-2xl"
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
       </div>
 

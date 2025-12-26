@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 
 // Convert a string to kebab-case suitable for slugs
 function toKebab(input: string) {
@@ -322,8 +323,7 @@ export default function GalleryManagement() {
             </div>
             {thumbnailImage ? (
               <div className="border rounded p-2 inline-flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""} alt={thumbnailImage.altText || thumbnailImage.originalName} className="h-16 w-16 object-cover rounded" />
+                <Image src={thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""} alt={thumbnailImage.altText || thumbnailImage.originalName} width={64} height={64} className="h-16 w-16 object-cover rounded" />
                 <div className="text-sm">
                   <div className="font-medium">{thumbnailImage.originalName}</div>
                   <button className="text-red-600 text-xs underline" onClick={() => setThumbnailImage(null)}>Remove</button>
@@ -343,8 +343,7 @@ export default function GalleryManagement() {
               <div className="grid grid-cols-3 gap-2">
                 {galleryImages.map((img) => (
                   <div key={img._id} className="relative group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.cloudFrontUrl || img.fileUrl || ""} alt={img.altText || img.originalName} className="h-20 w-full object-cover rounded" />
+                    <Image src={img.cloudFrontUrl || img.fileUrl || ""} alt={img.altText || img.originalName} width={80} height={80} className="h-20 w-full object-cover rounded" />
                     <button className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100" onClick={() => removeGalleryImage(img._id)}>Remove</button>
                   </div>
                 ))}
@@ -455,8 +454,7 @@ export default function GalleryManagement() {
                 </div>
                 {thumbnailImage ? (
                   <div className="border rounded p-2 inline-flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""} alt={thumbnailImage.altText || thumbnailImage.originalName} className="h-16 w-16 object-cover rounded" />
+                    <Image src={thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""} alt={thumbnailImage.altText || thumbnailImage.originalName} width={64} height={64} className="h-16 w-16 object-cover rounded" />
                     <div className="text-sm">
                       <div className="font-medium">{thumbnailImage.originalName}</div>
                       <button className="text-red-600 text-xs underline" onClick={() => setThumbnailImage(null)}>Remove</button>
@@ -476,8 +474,7 @@ export default function GalleryManagement() {
                   <div className="grid grid-cols-3 gap-2">
                     {galleryImages.map((img) => (
                       <div key={img._id} className="relative group">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img.cloudFrontUrl || img.fileUrl || ""} alt={img.altText || img.originalName} className="h-20 w-full object-cover rounded" />
+                        <Image src={img.cloudFrontUrl || img.fileUrl || ""} alt={img.altText || img.originalName} width={80} height={80} className="h-20 w-full object-cover rounded" />
                         <button className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100" onClick={() => removeGalleryImage(img._id)}>Remove</button>
                       </div>
                     ))}

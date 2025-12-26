@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 
 type Props = {
   images: { url: string; alt?: string }[];
@@ -19,12 +20,13 @@ export default function EventImageCarousel({ images }: Props) {
   if (count === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+    <div className="relative w-full h-80 sm:h-96 overflow-hidden rounded-lg">
+      <Image
         src={images[index].url}
         alt={images[index].alt || `Slide ${index + 1}`}
-        className="w-full h-80 sm:h-96 object-cover"
+        fill
+        className="object-cover"
+        priority
       />
       {count > 1 ? (
         <>

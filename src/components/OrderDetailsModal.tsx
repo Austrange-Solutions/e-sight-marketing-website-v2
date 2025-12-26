@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { X, Package, CreditCard, MapPin, Phone, Mail, User, Calendar, Truck } from 'lucide-react';
 
 interface OrderDetailsModalProps {
@@ -167,14 +168,12 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
             <div className="space-y-4">
               {order.items.map((item, index) => (
                 <div key={index} className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
-                  <img
+                  <Image
                     src={item.image || item.productId?.image || '/assets/images/maceazy-logo.png'}
                     alt={item.name}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 object-cover rounded-lg border border-border"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/assets/images/maceazy-logo.png';
-                    }}
                   />
                   <div className="flex-1">
                     <h4 className="font-semibold text-foreground">{item.name}</h4>

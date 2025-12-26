@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface UploadResult {
   success: boolean;
@@ -175,9 +176,11 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
           {result.type.startsWith('image/') && (
             <div className="mt-3">
               <p className="font-medium mb-2">Preview:</p>
-              <img 
+              <Image 
                 src={result.viewUrl} 
                 alt="Uploaded" 
+                width={400}
+                height={192}
                 className="max-w-full h-48 object-cover rounded border"
               />
             </div>

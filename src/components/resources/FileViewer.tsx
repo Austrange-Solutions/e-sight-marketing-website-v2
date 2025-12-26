@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { X, Eye, FileText, Image as ImageIcon, Download } from 'lucide-react';
 
 interface FileViewerProps {
@@ -70,17 +71,20 @@ const FileViewer: React.FC<FileViewerProps> = ({
     ) {
       return (
         <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-          <img
-            src={fileUrl}
-            alt={fileName}
-            className="max-w-full max-h-full object-contain"
-            onLoad={() => setLoading(false)}
-            onError={() => {
-              setLoading(false);
-              setError('Failed to load image');
-            }}
-            onContextMenu={(e) => disableDownload && e.preventDefault()}
-          />
+          <div className="relative w-full h-full">
+            <Image
+              src={fileUrl}
+              alt={fileName}
+              fill
+              className="object-contain"
+              onLoad={() => setLoading(false)}
+              onError={() => {
+                setLoading(false);
+                setError('Failed to load image');
+              }}
+              onContextMenu={(e) => disableDownload && e.preventDefault()}
+            />
+          </div>
         </div>
       );
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import ImageGallery from '@/components/ImageGallery';
 import FileUploadForm from '@/components/FileUploadForm';
 import SignedUrlUploader from '@/components/SignedUrlUploader';
@@ -346,10 +347,12 @@ export default function ImageManagementPage() {
                   <div className="space-y-3">
                     {stats.recentUploads.map((upload) => (
                       <div key={upload._id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                        <img
+                        <Image
                           src={upload.cloudFrontUrl}
                           alt={upload.originalName}
-                          className="w-12 h-12 object-cover rounded"
+                          width={48}
+                          height={48}
+                          className="object-cover rounded"
                         />
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">{upload.originalName}</p>

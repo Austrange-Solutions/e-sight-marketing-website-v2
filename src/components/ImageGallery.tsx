@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   Trash2, 
   Edit, 
@@ -13,6 +14,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
+import { isValidUrl, sanitizeUrl } from '@/lib/validation';
 
 interface UploadedImage {
   _id: string;
@@ -394,9 +396,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             >
               {/* Image Preview */}
               <div className="relative">
-                <img
+                <Image
                   src={image.cloudFrontUrl}
                   alt={image.altText || image.originalName}
+                  width={400}
+                  height={192}
                   className="w-full h-48 object-cover cursor-pointer"
                   onClick={() => onImageSelect?.(image)}
                 />
@@ -410,15 +414,25 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 </div>
                 <div className="absolute top-2 right-2 flex space-x-1">
                   <button
-                    onClick={() => window.open(image.cloudFrontUrl, '_blank')}
+                    onClick={() => {
+                      const safeUrl = sanitizeUrl(image.cloudFrontUrl);
+                      if (safeUrl !== '#') {
+                        window.open(safeUrl, '_blank', 'noopener,noreferrer');
+                      }
+                    }}
                     className="p-1 bg-black bg-opacity-50 text-white rounded hover:bg-opacity-70"
                     title="View Full Size"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <a
-                    href={image.cloudFrontUrl}
+                    href={sanitizeUrl(image.cloudFrontUrl)}
                     download={image.originalName}
+                    onClick={(e) => {
+                      if (sanitizeUrl(image.cloudFrontUrl) === '#') {
+                        e.preventDefault();
+                      }
+                    }}
                     className="p-1 bg-black bg-opacity-50 text-white rounded hover:bg-opacity-70"
                     title="Download"
                   >

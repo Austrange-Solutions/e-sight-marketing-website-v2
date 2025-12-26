@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { FileText } from 'lucide-react';
 import FileViewer from '@/components/resources/FileViewer';
 
@@ -113,10 +114,11 @@ const ResourceCenterPage = () => {
                   onClick={() => handleViewResource(resource)}
                 >
                   {resource.fileType.startsWith('image/') ? (
-                    <img
+                    <Image
                       src={resource.fileUrl}
                       alt={resource.title}
-                      className="w-full h-full object-contain bg-white"
+                      fill
+                      className="object-contain bg-white"
                     />
                   ) : resource.fileType.toLowerCase().includes('pdf') ? (
                     <div className="w-full h-full flex items-center justify-center bg-white">

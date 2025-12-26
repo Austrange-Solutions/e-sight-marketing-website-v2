@@ -1,6 +1,7 @@
 import { connect } from "@/dbConfig/dbConfig";
 import EventModel from "@/models/Event";
 import Link from "next/link";
+import Image from "next/image";
 import GalleryHero from "@/components/gallery/GalleryHero";
 
 export const dynamic = "force-dynamic";
@@ -37,8 +38,9 @@ export default async function GalleryPage() {
             return (
               <Link key={String(ev._id)} href={`/gallery/${ev.slug || ev._id}`} className="group rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
                 {thumb ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={thumb} alt={ev.title} className="h-48 w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  <div className="relative h-48 w-full">
+                    <Image src={thumb} alt={ev.title} fill className="object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  </div>
                 ) : (
                   <div className="h-48 w-full bg-muted" />
                 )}

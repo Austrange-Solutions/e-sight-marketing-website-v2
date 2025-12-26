@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Search, Filter, CheckCircle, Clock, AlertCircle, ExternalLink } from "lucide-react";
+import { sanitizeUrl } from "@/lib/validation";
 
 interface Ticket {
   _id: string;
@@ -189,14 +191,28 @@ export default function SupportTicketManager() {
                 <div className="mb-8">
                   <h4 className="text-xs font-bold text-gray-500 uppercase mb-3">Attachments</h4>
                   <div className="flex gap-4 overflow-x-auto pb-2">
-                    {selectedTicket.photos.map((photo, idx) => (
-                      <a key={idx} href={photo} target="_blank" rel="noopener noreferrer" className="block w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity relative group">
-                        <img src={photo} alt={`Attachment ${idx + 1}`} className="w-full h-full object-cover" />
+                    {selectedTicket.photos.map((photo, idx) => {
+                      const safeUrl = sanitizeUrl(photo);
+                      return (
+                        <a 
+                          key={idx} 
+                          href={safeUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          onClick={(e) => {
+                            if (safeUrl === '#') {
+                              e.preventDefault();
+                            }
+                          }}
+                          className="block w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity relative group"
+                        >
+                        <Image src={photo} alt={`Attachment ${idx + 1}`} fill className="object-cover" />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
                           <ExternalLink className="text-white opacity-0 group-hover:opacity-100" />
                         </div>
                       </a>
-                    ))}
+                    );
+                    })}
                   </div>
                 </div>
               )}

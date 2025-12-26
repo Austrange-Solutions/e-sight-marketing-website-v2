@@ -50,7 +50,7 @@ export const authOptions: NextAuthOptions = {
           await UserModel.create({
             username: user.name || user.email?.split('@')[0] || 'GoogleUser',
             email: user.email,
-            password: '',
+            password: Math.random().toString(36).slice(-16) + Date.now().toString(36),
             isVerified: true,
             isAdmin: false,
           });

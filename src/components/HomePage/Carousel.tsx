@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import { Alert, AlertTitle } from "@/components/ui/alert"
 import { AlertCircleIcon } from 'lucide-react';
 
@@ -83,14 +84,16 @@ export default function Carousel({ autoplay = true, interval = 4000 }: { autopla
             autoPlay={autoplay}
           />
         ) : (
-          <img
+          <Image
             key={s.id}
             src={s.url}
             alt={s.altText || `Slide ${i + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
+            fill
+            className={`object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
             style={{
               transitionProperty: 'opacity, transform'
             }}
+            priority={i === 0}
           />
         )
       ))}

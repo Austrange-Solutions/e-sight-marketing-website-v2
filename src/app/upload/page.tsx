@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Upload, X, Check, AlertCircle, Copy, Eye, Trash2 } from 'lucide-react';
 
 interface UploadedFile {
@@ -283,11 +284,14 @@ export default function S3FileUploader() {
                 {/* File Preview */}
                 <div className="relative">
                   {file.type.startsWith('image/') ? (
-                    <img
-                      src={file.viewUrl}
-                      alt={file.name}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                    <div className="relative w-full h-32">
+                      <Image
+                        src={file.viewUrl}
+                        alt={file.name}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
                   ) : (
                     <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
                       <Upload className="h-8 w-8 text-gray-400" />

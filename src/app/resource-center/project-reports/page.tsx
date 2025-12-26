@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, FileText, Image as ImageIcon } from 'lucide-react';
 import FileViewer from '@/components/resources/FileViewer';
 
@@ -111,11 +112,14 @@ const ProjectReportsPage = () => {
                   {/* Document Preview */}
                   <div className="bg-gray-50 rounded-md overflow-hidden flex items-center justify-center">
                     {resource.fileType.startsWith('image/') ? (
-                      <img 
-                        src={resource.fileUrl} 
-                        alt={resource.title}
-                        className="w-full h-full object-contain bg-white"
-                      />
+                      <div className="relative w-full h-full">
+                        <Image 
+                          src={resource.fileUrl} 
+                          alt={resource.title}
+                          fill
+                          className="object-contain bg-white"
+                        />
+                      </div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-white">
                         <FileText className="w-16 h-16 text-gray-400" />

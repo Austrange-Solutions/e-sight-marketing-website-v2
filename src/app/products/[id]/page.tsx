@@ -335,10 +335,11 @@ export default function ProductDetailPage() {
                     }`}
                     aria-label={`View image ${index + 1}`}
                   >
-                    <img
+                    <Image
                       src={image}
                       alt={`${product.name} view ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </button>
                 ))}
@@ -366,10 +367,12 @@ export default function ProductDetailPage() {
                 )}
 
                 <div className={`relative h-64 sm:h-80 lg:h-96 flex items-center justify-center ${isOutOfStock ? "filter grayscale opacity-70" : ""}`}>
-                  <img
+                  <Image
                     src={galleryImages[selectedImageIndex]}
                     alt={product.name}
-                    className="h-full w-auto object-contain max-w-full transition-all duration-300"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 50vw"
                   />
                 </div>
               </div>

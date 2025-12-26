@@ -2,6 +2,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import EventModel from "@/models/Event";
 import { generatePresignedUrls } from "@/lib/s3-presigned";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 
 const GalleryGrid = dynamic(() => import("@/components/gallery/GalleryGrid"));
@@ -80,8 +81,9 @@ export default async function EventDetailPage({ params }: PageProps) {
       {/* Main image: display the thumbnail as the primary image */}
       <div className="mt-6">
         {thumbUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={thumbUrl} alt={event.title} className="w-full h-80 sm:h-96 object-cover rounded-lg" />
+          <div className="relative w-full h-80 sm:h-96">
+            <Image src={thumbUrl} alt={event.title} fill className="object-cover rounded-lg" />
+          </div>
         ) : (
           <div className="w-full h-80 bg-muted rounded-lg" />
         )}

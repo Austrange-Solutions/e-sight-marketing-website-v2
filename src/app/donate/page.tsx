@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Heart, IndianRupee, Users, Award, CheckCircle2, AlertCircle } from "lucide-react";
 import Leaderboard from "@/components/donate/Leaderboard";
@@ -551,10 +552,12 @@ export default function DonatePage() {
                             >
                               <div className="flex items-start gap-3 mb-2">
                                 {foundation.logoUrl ? (
-                                  <img
+                                  <Image
                                     src={foundation.logoUrl}
                                     alt={foundation.foundationName}
-                                    className="w-10 h-10 object-contain rounded"
+                                    width={40}
+                                    height={40}
+                                    className="object-contain rounded"
                                   />
                                 ) : (
                                   <span className="text-3xl">{foundation.icon || "❤️"}</span>

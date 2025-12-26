@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Loader2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -225,23 +226,21 @@ const HomeProductsSection = () => {
                 {/* Product Image */}
                 <div className={`relative w-full h-64 ${isOutOfStock ? 'filter grayscale' : ''}`}>
                   {product.image ? (
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-contain"
-                      loading="lazy"
-                        onError={(e) => {
-                        console.error(`Image failed to load for ${product.name}:`, product.image);
-                        const target = e.target as HTMLImageElement;
-                        target.src = product.image;
-                      }}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
-                      ) : (
+                  ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-32 h-32 object-contain opacity-50"
+                      <Image
+                        src="/assets/images/placeholder.svg"
+                        alt="No image available"
+                        width={128}
+                        height={128}
+                        className="object-contain opacity-50"
                       />
                     </div>
                   )}

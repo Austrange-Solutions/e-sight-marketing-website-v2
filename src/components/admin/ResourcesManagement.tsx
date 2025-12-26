@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Upload, Trash2, Eye, FileText, Search, Filter, AlertCircle, CheckCircle } from 'lucide-react';
+import { sanitizeUrl } from '@/lib/validation';
 
 interface Resource {
   _id: string;
@@ -439,9 +440,14 @@ const ResourcesManagement = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
                         <a
-                          href={resource.fileUrl}
+                          href={sanitizeUrl(resource.fileUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => {
+                            if (sanitizeUrl(resource.fileUrl) === '#') {
+                              e.preventDefault();
+                            }
+                          }}
                           className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                           title="View resource"
                         >

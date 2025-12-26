@@ -187,11 +187,14 @@ export default function DisabledPersonsManagement({
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                // Validate blob URL format
+                if (url.startsWith('blob:')) {
+                  a.href = url;
+                  a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.csv`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                }
                 window.URL.revokeObjectURL(url);
               } catch (err) {
                 console.error(err);
@@ -211,11 +214,14 @@ export default function DisabledPersonsManagement({
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.xlsx`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                // Validate blob URL format
+                if (url.startsWith('blob:')) {
+                  a.href = url;
+                  a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                }
                 window.URL.revokeObjectURL(url);
               } catch (err) {
                 console.error(err);

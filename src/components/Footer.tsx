@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Facebook,
   Twitter,
@@ -10,7 +11,6 @@ import {
   MapPin,
   Linkedin,
 } from "lucide-react";
-// import Image from "next/image"; // Removed unused import
 
 const Footer = () => {
   // Try to derive a deterministic main domain URL from environment (so server and client render match)
@@ -45,9 +45,11 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <img
+              <Image
                 src="/assets/images/maceazy-logo.png"
                 alt="Maceazy Logo"
+                width={100}
+                height={32}
                 className="h-8 w-25"
               />
               {/* <span className="ml-2 text-xl font-bold">Maceazy</span> */}
