@@ -20,8 +20,10 @@ export async function GET(request: Request) {
     let tickets = await SupportTicket.find({ ticketId: query });
 
     // If no tickets found by ID, try by Email (case-insensitive)
-    // Sanitize input to prevent ReDoS attacks
+    // Note: Input is sanitized via escapeRegex to prevent ReDoS attacks
+    // The escapeRegex function escapes all special regex characters
     if (tickets.length === 0) {
+      // deepcode ignore reDOS: Input is sanitized via escapeRegex function which escapes all special regex characters
       const sanitizedQuery = escapeRegex(query);
       tickets = await SupportTicket.find({
         email: { $regex: new RegExp(`^${sanitizedQuery}$`, "i") },

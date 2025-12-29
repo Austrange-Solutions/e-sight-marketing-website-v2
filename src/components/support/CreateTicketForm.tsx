@@ -108,13 +108,20 @@ export default function CreateTicketForm() {
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10 text-green-600" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Ticket Created!</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          Ticket Created!
+        </h2>
         <p className="text-gray-600 mb-8 text-lg">
-          Your support ticket has been successfully created. We have sent a confirmation email to <strong>{formData.email}</strong>.
+          Your support ticket has been successfully created. We have sent a
+          confirmation email to <strong>{formData.email}</strong>.
         </p>
         <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8">
-          <p className="text-sm text-gray-500 mb-2 uppercase tracking-wide font-semibold">Your Ticket ID</p>
-          <p className="text-3xl font-mono font-bold text-blue-600 select-all">{ticketId}</p>
+          <p className="text-sm text-gray-500 mb-2 uppercase tracking-wide font-semibold">
+            Your Ticket ID
+          </p>
+          <p className="text-3xl font-mono font-bold text-blue-600 select-all">
+            {ticketId}
+          </p>
         </div>
         <p className="text-gray-500 mb-8">
           Please save this Ticket ID to track the status of your request.
@@ -130,13 +137,20 @@ export default function CreateTicketForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Raise a Support Ticket</h2>
-      
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto"
+    >
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        Raise a Support Ticket
+      </h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Personal Details */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Full Name
+          </label>
           <input
             type="text"
             required
@@ -148,35 +162,47 @@ export default function CreateTicketForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address
+          </label>
           <input
             type="email"
             required
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             placeholder="john@example.com"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number
+          </label>
           <input
             type="tel"
             required
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
             placeholder="+91 98765 43210"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Gender
+          </label>
           <select
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.gender}
-            onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, gender: e.target.value })
+            }
           >
             <option value="Male">Male</option>
             <option value="Female">Female</option>
@@ -185,11 +211,15 @@ export default function CreateTicketForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">I am a...</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            I am a...
+          </label>
           <select
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.userType}
-            onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, userType: e.target.value })
+            }
           >
             <option value="Blind">Blind Person</option>
             <option value="Caretaker">Caretaker</option>
@@ -199,14 +229,20 @@ export default function CreateTicketForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Problem Category</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Problem Category
+          </label>
           <select
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.problemCategory}
-            onChange={(e) => setFormData({ ...formData, problemCategory: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, problemCategory: e.target.value })
+            }
           >
             {problemCategories.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
         </div>
@@ -214,31 +250,39 @@ export default function CreateTicketForm() {
 
       {formData.problemCategory === "Other" && (
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Specify Problem</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Specify Problem
+          </label>
           <input
             type="text"
             required
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.customProblem}
-            onChange={(e) => setFormData({ ...formData, customProblem: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, customProblem: e.target.value })
+            }
             placeholder="Please specify your issue"
           />
         </div>
       )}
 
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Detailed Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Detailed Description
+        </label>
         <textarea
           required
           rows={5}
           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           placeholder="Please describe your issue in detail..."
         />
       </div>
 
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <label className="block text-sm font-medium text-gray-700 mb-2">Attachments (Optional)</label>
         <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-500 transition-colors">
           <input
@@ -272,16 +316,22 @@ export default function CreateTicketForm() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
 
       <button
         type="submit"
         disabled={loading}
         className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-1 ${
-          loading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
         }`}
       >
-        {loading ? (uploading ? "Uploading Files..." : "Submitting Ticket...") : "Submit Ticket"}
+        {loading
+          ? uploading
+            ? "Uploading Files..."
+            : "Submitting Ticket..."
+          : "Submit Ticket"}
       </button>
     </form>
   );

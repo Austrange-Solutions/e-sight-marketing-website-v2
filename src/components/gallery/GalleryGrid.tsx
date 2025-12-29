@@ -16,8 +16,14 @@ export default function GalleryGrid({ images }: { images: ImageItem[] }) {
 
   const close = () => setOpen(false);
 
-  const prev = useCallback(() => setIndex((i) => (i - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setIndex((i) => (i + 1) % images.length), [images.length]);
+  const prev = useCallback(
+    () => setIndex((i) => (i - 1 + images.length) % images.length),
+    [images.length]
+  );
+  const next = useCallback(
+    () => setIndex((i) => (i + 1) % images.length),
+    [images.length]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -37,7 +43,11 @@ export default function GalleryGrid({ images }: { images: ImageItem[] }) {
       <h2 className="text-xl font-semibold mb-4">Gallery</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {images.map((img, i) => (
-          <div key={i} className="relative w-full h-56 cursor-pointer hover:opacity-90 transition-opacity" onClick={() => openAt(i)}>
+          <div
+            key={i}
+            className="relative w-full h-56 cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => openAt(i)}
+          >
             <Image
               src={img.url}
               alt={img.alt || `image-${i}`}
@@ -78,7 +88,13 @@ export default function GalleryGrid({ images }: { images: ImageItem[] }) {
 
             <div className="w-full h-full flex items-center justify-center">
               <div className="relative max-w-full max-h-[80vh]">
-                <Image src={images[index].url} alt={images[index].alt || `image-${index}`} width={1200} height={800} className="max-w-full max-h-[80vh] rounded object-contain" />
+                <Image
+                  src={images[index].url}
+                  alt={images[index].alt || `image-${index}`}
+                  width={1200}
+                  height={800}
+                  className="max-w-full max-h-[80vh] rounded object-contain"
+                />
               </div>
             </div>
 

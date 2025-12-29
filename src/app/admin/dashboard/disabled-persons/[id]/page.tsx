@@ -3,9 +3,21 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Download, FileText, Image as ImageIcon, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  FileText,
+  Image as ImageIcon,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { sanitizeUrl } from "@/lib/validation";
@@ -88,7 +100,9 @@ export default function DisabledPersonDetailPage({
   const [guardianForm, setGuardianForm] = useState<any>({});
   const [addressForm, setAddressForm] = useState<any>({});
   const [disabilityForm, setDisabilityForm] = useState<any>({});
-  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(
+    null
+  );
 
   useEffect(() => {
     params.then((p) => setResolvedParams(p));
@@ -105,7 +119,9 @@ export default function DisabledPersonDetailPage({
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/disabled-persons/${resolvedParams.id}`);
+      const response = await fetch(
+        `/api/admin/disabled-persons/${resolvedParams.id}`
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -140,13 +156,17 @@ export default function DisabledPersonDetailPage({
       });
       setNewStatus(data.person.verificationStatus);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load person details");
+      setError(
+        err instanceof Error ? err.message : "Failed to load person details"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const saveEdits = async (group: "personal" | "guardian" | "address" | "disability") => {
+  const saveEdits = async (
+    group: "personal" | "guardian" | "address" | "disability"
+  ) => {
     if (!resolvedParams) return;
     setUpdating(true);
     try {
@@ -156,11 +176,14 @@ export default function DisabledPersonDetailPage({
       if (group === "address") body.addressUpdates = addressForm;
       if (group === "disability") body.disabilityUpdates = disabilityForm;
 
-      const response = await fetch(`/api/admin/disabled-persons/${resolvedParams.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const response = await fetch(
+        `/api/admin/disabled-persons/${resolvedParams.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to save edits");
@@ -191,16 +214,19 @@ export default function DisabledPersonDetailPage({
     setUpdating(true);
 
     try {
-      const response = await fetch(`/api/admin/disabled-persons/${resolvedParams.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          verificationStatus: newStatus,
-          adminNotes: adminComments, // Changed from 'comments' to 'adminNotes'
-        }),
-      });
+      const response = await fetch(
+        `/api/admin/disabled-persons/${resolvedParams.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            verificationStatus: newStatus,
+            adminNotes: adminComments, // Changed from 'comments' to 'adminNotes'
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -271,16 +297,19 @@ export default function DisabledPersonDetailPage({
             <div>
               <p className="font-medium text-sm text-gray-900">{label}</p>
               <p className="text-xs text-gray-500">{doc.fileName}</p>
-              <p className="text-xs text-gray-400">{formatFileSize(doc.fileSize)}</p>
+              <p className="text-xs text-gray-400">
+                {formatFileSize(doc.fileSize)}
+              </p>
             </div>
           </div>
+          {/* deepcode ignore DOMXSS: URL validated via sanitizeUrl which checks against CloudFront/S3 allowlist */}
           <a
             href={sanitizeUrl(doc.fileUrl)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-600 hover:text-indigo-500"
             onClick={(e) => {
-              if (sanitizeUrl(doc.fileUrl) === '#') {
+              if (sanitizeUrl(doc.fileUrl) === "#") {
                 e.preventDefault();
               }
             }}
@@ -289,12 +318,13 @@ export default function DisabledPersonDetailPage({
           </a>
         </div>
         {isImage && (
-          <a 
-            href={sanitizeUrl(doc.fileUrl)} 
-            target="_blank" 
+          {/* deepcode ignore DOMXSS: URL validated via sanitizeUrl which checks against CloudFront/S3 allowlist */}
+          <a
+            href={sanitizeUrl(doc.fileUrl)}
+            target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
-              if (sanitizeUrl(doc.fileUrl) === '#') {
+              if (sanitizeUrl(doc.fileUrl) === "#") {
                 e.preventDefault();
               }
             }}
@@ -325,7 +355,11 @@ export default function DisabledPersonDetailPage({
     return (
       <div className="min-h-screen bg-accent p-8">
         <div className="max-w-7xl mx-auto">
-          <Button variant="outline" onClick={() => router.back()} className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="mb-4"
+          >
             <ArrowLeft size={18} className="mr-2" />
             Back
           </Button>
@@ -342,14 +376,22 @@ export default function DisabledPersonDetailPage({
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Button variant="outline" onClick={() => router.back()} className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="mb-4"
+          >
             <ArrowLeft size={18} className="mr-2" />
             Back to List
           </Button>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{person.fullName}</h1>
-              <p className="text-sm text-gray-500">Registration ID: {person._id}</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {person.fullName}
+              </h1>
+              <p className="text-sm text-gray-500">
+                Registration ID: {person._id}
+              </p>
             </div>
             <span
               className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
@@ -374,38 +416,68 @@ export default function DisabledPersonDetailPage({
                   <div className="flex justify-between items-start">
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Full Name</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.fullName}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Email</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.email}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Aadhaar Number</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{(person as any).aadharNumber || '—'}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.phone}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Date of Birth</dt>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Full Name
+                        </dt>
                         <dd className="text-sm text-gray-900 mt-1">
-                          {new Date(person.dateOfBirth).toLocaleDateString("en-IN", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {person.fullName}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Gender</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.gender}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Email
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.email}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Aadhaar Number
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {(person as any).aadharNumber || "—"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Phone
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.phone}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Date of Birth
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {new Date(person.dateOfBirth).toLocaleDateString(
+                            "en-IN",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Gender
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.gender}
+                        </dd>
                       </div>
                     </dl>
                     <div className="ml-4">
-                      <Button variant="outline" onClick={() => setEditingPersonal(true)}>Edit</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingPersonal(true)}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -413,27 +485,86 @@ export default function DisabledPersonDetailPage({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label>Full Name</Label>
-                        <input className="input" value={personalForm.fullName || ''} onChange={(e) => setPersonalForm({...personalForm, fullName: e.target.value})} />
+                        <input
+                          className="input"
+                          value={personalForm.fullName || ""}
+                          onChange={(e) =>
+                            setPersonalForm({
+                              ...personalForm,
+                              fullName: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Aadhaar Number</Label>
-                        <input className="input" value={(personalForm as any).aadharNumber || ''} onChange={(e) => setPersonalForm({...personalForm, aadharNumber: e.target.value})} />
+                        <input
+                          className="input"
+                          value={(personalForm as any).aadharNumber || ""}
+                          onChange={(e) =>
+                            setPersonalForm({
+                              ...personalForm,
+                              aadharNumber: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Email</Label>
-                        <input className="input" value={personalForm.email || ''} onChange={(e) => setPersonalForm({...personalForm, email: e.target.value})} />
+                        <input
+                          className="input"
+                          value={personalForm.email || ""}
+                          onChange={(e) =>
+                            setPersonalForm({
+                              ...personalForm,
+                              email: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Phone</Label>
-                        <input className="input" value={personalForm.phone || ''} onChange={(e) => setPersonalForm({...personalForm, phone: e.target.value})} />
+                        <input
+                          className="input"
+                          value={personalForm.phone || ""}
+                          onChange={(e) =>
+                            setPersonalForm({
+                              ...personalForm,
+                              phone: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Date of Birth</Label>
-                        <input className="input" type="date" value={new Date(personalForm.dateOfBirth || '').toISOString().split('T')[0]} onChange={(e) => setPersonalForm({...personalForm, dateOfBirth: e.target.value})} />
+                        <input
+                          className="input"
+                          type="date"
+                          value={
+                            new Date(personalForm.dateOfBirth || "")
+                              .toISOString()
+                              .split("T")[0]
+                          }
+                          onChange={(e) =>
+                            setPersonalForm({
+                              ...personalForm,
+                              dateOfBirth: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Gender</Label>
-                        <select className="input" value={personalForm.gender || ''} onChange={(e) => setPersonalForm({...personalForm, gender: e.target.value})}>
+                        <select
+                          className="input"
+                          value={personalForm.gender || ""}
+                          onChange={(e) =>
+                            setPersonalForm({
+                              ...personalForm,
+                              gender: e.target.value,
+                            })
+                          }
+                        >
                           <option value="">Select</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
@@ -442,8 +573,18 @@ export default function DisabledPersonDetailPage({
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={() => saveEdits('personal')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
-                      <Button variant="ghost" onClick={() => setEditingPersonal(false)}>Cancel</Button>
+                      <Button
+                        onClick={() => saveEdits("personal")}
+                        disabled={updating}
+                      >
+                        {updating ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setEditingPersonal(false)}
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -460,24 +601,45 @@ export default function DisabledPersonDetailPage({
                   <div className="flex justify-between items-start">
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2">
-                        <dt className="text-sm font-medium text-gray-500">Address</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.address}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Address
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.address}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">City</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.city}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          City
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.city}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">State</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.state}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          State
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.state}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Pincode</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.pincode}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Pincode
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.pincode}
+                        </dd>
                       </div>
                     </dl>
                     <div className="ml-4">
-                      <Button variant="outline" onClick={() => setEditingAddress(true)}>Edit</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingAddress(true)}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -485,24 +647,70 @@ export default function DisabledPersonDetailPage({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2">
                         <Label>Address</Label>
-                        <input className="input" value={addressForm.address || ''} onChange={(e) => setAddressForm({...addressForm, address: e.target.value})} />
+                        <input
+                          className="input"
+                          value={addressForm.address || ""}
+                          onChange={(e) =>
+                            setAddressForm({
+                              ...addressForm,
+                              address: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>City</Label>
-                        <input className="input" value={addressForm.city || ''} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} />
+                        <input
+                          className="input"
+                          value={addressForm.city || ""}
+                          onChange={(e) =>
+                            setAddressForm({
+                              ...addressForm,
+                              city: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>State</Label>
-                        <input className="input" value={addressForm.state || ''} onChange={(e) => setAddressForm({...addressForm, state: e.target.value})} />
+                        <input
+                          className="input"
+                          value={addressForm.state || ""}
+                          onChange={(e) =>
+                            setAddressForm({
+                              ...addressForm,
+                              state: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Pincode</Label>
-                        <input className="input" value={addressForm.pincode || ''} onChange={(e) => setAddressForm({...addressForm, pincode: e.target.value})} />
+                        <input
+                          className="input"
+                          value={addressForm.pincode || ""}
+                          onChange={(e) =>
+                            setAddressForm({
+                              ...addressForm,
+                              pincode: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={() => saveEdits('address')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
-                      <Button variant="ghost" onClick={() => setEditingAddress(false)}>Cancel</Button>
+                      <Button
+                        onClick={() => saveEdits("address")}
+                        disabled={updating}
+                      >
+                        {updating ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setEditingAddress(false)}
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -519,22 +727,37 @@ export default function DisabledPersonDetailPage({
                   <div className="flex justify-between items-start">
                     <dl className="space-y-4">
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Disability Type</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.disabilityType}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Disability Type
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.disabilityType}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Disability Percentage</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.disabilityPercentage}%</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Disability Percentage
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.disabilityPercentage}%
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Description</dt>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Description
+                        </dt>
                         <dd className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
                           {person.disabilityDescription}
                         </dd>
                       </div>
                     </dl>
                     <div className="ml-4">
-                      <Button variant="outline" onClick={() => setEditingDisability(true)}>Edit</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingDisability(true)}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -542,20 +765,58 @@ export default function DisabledPersonDetailPage({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label>Disability Type</Label>
-                        <input className="input" value={disabilityForm.disabilityType || ''} onChange={(e) => setDisabilityForm({...disabilityForm, disabilityType: e.target.value})} />
+                        <input
+                          className="input"
+                          value={disabilityForm.disabilityType || ""}
+                          onChange={(e) =>
+                            setDisabilityForm({
+                              ...disabilityForm,
+                              disabilityType: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Disability Percentage</Label>
-                        <input className="input" type="number" value={disabilityForm.disabilityPercentage || 0} onChange={(e) => setDisabilityForm({...disabilityForm, disabilityPercentage: Number(e.target.value)})} />
+                        <input
+                          className="input"
+                          type="number"
+                          value={disabilityForm.disabilityPercentage || 0}
+                          onChange={(e) =>
+                            setDisabilityForm({
+                              ...disabilityForm,
+                              disabilityPercentage: Number(e.target.value),
+                            })
+                          }
+                        />
                       </div>
                       <div className="sm:col-span-2">
                         <Label>Description</Label>
-                        <textarea className="input" value={disabilityForm.disabilityDescription || ''} onChange={(e) => setDisabilityForm({...disabilityForm, disabilityDescription: e.target.value})} />
+                        <textarea
+                          className="input"
+                          value={disabilityForm.disabilityDescription || ""}
+                          onChange={(e) =>
+                            setDisabilityForm({
+                              ...disabilityForm,
+                              disabilityDescription: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={() => saveEdits('disability')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
-                      <Button variant="ghost" onClick={() => setEditingDisability(false)}>Cancel</Button>
+                      <Button
+                        onClick={() => saveEdits("disability")}
+                        disabled={updating}
+                      >
+                        {updating ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setEditingDisability(false)}
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -574,19 +835,31 @@ export default function DisabledPersonDetailPage({
                       {person.guardianName && (
                         <>
                           <div>
-                            <dt className="text-sm font-medium text-gray-500">Guardian Name</dt>
-                            <dd className="text-sm text-gray-900 mt-1">{person.guardianName}</dd>
+                            <dt className="text-sm font-medium text-gray-500">
+                              Guardian Name
+                            </dt>
+                            <dd className="text-sm text-gray-900 mt-1">
+                              {person.guardianName}
+                            </dd>
                           </div>
                           {person.guardianEmail && (
                             <div>
-                              <dt className="text-sm font-medium text-gray-500">Guardian Email</dt>
-                              <dd className="text-sm text-gray-900 mt-1">{person.guardianEmail}</dd>
+                              <dt className="text-sm font-medium text-gray-500">
+                                Guardian Email
+                              </dt>
+                              <dd className="text-sm text-gray-900 mt-1">
+                                {person.guardianEmail}
+                              </dd>
                             </div>
                           )}
                           {person.guardianPhone && (
                             <div>
-                              <dt className="text-sm font-medium text-gray-500">Guardian Phone</dt>
-                              <dd className="text-sm text-gray-900 mt-1">{person.guardianPhone}</dd>
+                              <dt className="text-sm font-medium text-gray-500">
+                                Guardian Phone
+                              </dt>
+                              <dd className="text-sm text-gray-900 mt-1">
+                                {person.guardianPhone}
+                              </dd>
                             </div>
                           )}
                         </>
@@ -594,14 +867,18 @@ export default function DisabledPersonDetailPage({
                       {person.emergencyContactName && (
                         <>
                           <div>
-                            <dt className="text-sm font-medium text-gray-500">Emergency Contact</dt>
+                            <dt className="text-sm font-medium text-gray-500">
+                              Emergency Contact
+                            </dt>
                             <dd className="text-sm text-gray-900 mt-1">
                               {person.emergencyContactName}
                             </dd>
                           </div>
                           {person.emergencyContactPhone && (
                             <div>
-                              <dt className="text-sm font-medium text-gray-500">Contact Phone</dt>
+                              <dt className="text-sm font-medium text-gray-500">
+                                Contact Phone
+                              </dt>
                               <dd className="text-sm text-gray-900 mt-1">
                                 {person.emergencyContactPhone}
                               </dd>
@@ -609,7 +886,9 @@ export default function DisabledPersonDetailPage({
                           )}
                           {person.emergencyContactRelation && (
                             <div>
-                              <dt className="text-sm font-medium text-gray-500">Relation</dt>
+                              <dt className="text-sm font-medium text-gray-500">
+                                Relation
+                              </dt>
                               <dd className="text-sm text-gray-900 mt-1">
                                 {person.emergencyContactRelation}
                               </dd>
@@ -618,11 +897,18 @@ export default function DisabledPersonDetailPage({
                         </>
                       )}
                       {!person.guardianName && !person.emergencyContactName && (
-                        <div className="sm:col-span-2 text-sm text-gray-500">No guardian or emergency contact provided.</div>
+                        <div className="sm:col-span-2 text-sm text-gray-500">
+                          No guardian or emergency contact provided.
+                        </div>
                       )}
                     </dl>
                     <div className="ml-4">
-                      <Button variant="outline" onClick={() => setEditingGuardian(true)}>Edit</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingGuardian(true)}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -630,20 +916,57 @@ export default function DisabledPersonDetailPage({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label>Guardian Name</Label>
-                        <input className="input" value={guardianForm.guardianName || ''} onChange={(e) => setGuardianForm({...guardianForm, guardianName: e.target.value})} />
+                        <input
+                          className="input"
+                          value={guardianForm.guardianName || ""}
+                          onChange={(e) =>
+                            setGuardianForm({
+                              ...guardianForm,
+                              guardianName: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Guardian Email</Label>
-                        <input className="input" value={guardianForm.guardianEmail || ''} onChange={(e) => setGuardianForm({...guardianForm, guardianEmail: e.target.value})} />
+                        <input
+                          className="input"
+                          value={guardianForm.guardianEmail || ""}
+                          onChange={(e) =>
+                            setGuardianForm({
+                              ...guardianForm,
+                              guardianEmail: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label>Guardian Phone</Label>
-                        <input className="input" value={guardianForm.guardianPhone || ''} onChange={(e) => setGuardianForm({...guardianForm, guardianPhone: e.target.value})} />
+                        <input
+                          className="input"
+                          value={guardianForm.guardianPhone || ""}
+                          onChange={(e) =>
+                            setGuardianForm({
+                              ...guardianForm,
+                              guardianPhone: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={() => saveEdits('guardian')} disabled={updating}>{updating ? 'Saving...' : 'Save'}</Button>
-                      <Button variant="ghost" onClick={() => setEditingGuardian(false)}>Cancel</Button>
+                      <Button
+                        onClick={() => saveEdits("guardian")}
+                        disabled={updating}
+                      >
+                        {updating ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setEditingGuardian(false)}
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -663,25 +986,39 @@ export default function DisabledPersonDetailPage({
                   <dl className="space-y-4">
                     {person.employmentStatus && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Employment Status</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.employmentStatus}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Employment Status
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.employmentStatus}
+                        </dd>
                       </div>
                     )}
                     {person.monthlyIncome && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Monthly Income</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.monthlyIncome}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Monthly Income
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.monthlyIncome}
+                        </dd>
                       </div>
                     )}
                     {person.EducationLevel && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Education Level</dt>
-                        <dd className="text-sm text-gray-900 mt-1">{person.EducationLevel}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Education Level
+                        </dt>
+                        <dd className="text-sm text-gray-900 mt-1">
+                          {person.EducationLevel}
+                        </dd>
                       </div>
                     )}
                     {person.additionalNotes && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Additional Notes</dt>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Additional Notes
+                        </dt>
                         <dd className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
                           {person.additionalNotes}
                         </dd>
@@ -696,17 +1033,27 @@ export default function DisabledPersonDetailPage({
             <Card>
               <CardHeader>
                 <CardTitle>Uploaded Documents</CardTitle>
-                <CardDescription>Click on documents to view or download</CardDescription>
+                <CardDescription>
+                  Click on documents to view or download
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {renderDocument("Passport Photo", person.documents.passportPhoto)}
+                  {renderDocument(
+                    "Passport Photo",
+                    person.documents.passportPhoto
+                  )}
                   {renderDocument("Aadhar Card", person.documents.aadharCard)}
                   {renderDocument("PAN Card", person.documents.panCard)}
-                  {renderDocument("Disability Certificate", person.documents.disabilityCertificate)}
+                  {renderDocument(
+                    "Disability Certificate",
+                    person.documents.disabilityCertificate
+                  )}
                   {renderDocument("UDID Card", person.documents.udidCard)}
                   {person.documents.additionalDocuments?.map((doc, index) => (
-                    <div key={index}>{renderDocument(`Additional Document ${index + 1}`, doc)}</div>
+                    <div key={index}>
+                      {renderDocument(`Additional Document ${index + 1}`, doc)}
+                    </div>
                   ))}
                 </div>
               </CardContent>
@@ -719,7 +1066,9 @@ export default function DisabledPersonDetailPage({
             <Card>
               <CardHeader>
                 <CardTitle>Update Status</CardTitle>
-                <CardDescription>Change verification status and add comments</CardDescription>
+                <CardDescription>
+                  Change verification status and add comments
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleStatusUpdate} className="space-y-4">
@@ -749,7 +1098,8 @@ export default function DisabledPersonDetailPage({
                       required={newStatus !== person.verificationStatus}
                     />
                     <p className="text-xs text-gray-500">
-                      This will be included in the email notification sent to the applicant
+                      This will be included in the email notification sent to
+                      the applicant
                     </p>
                   </div>
 
@@ -788,17 +1138,24 @@ export default function DisabledPersonDetailPage({
                           {getStatusLabel(history.status)}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {new Date(history.updatedAt).toLocaleDateString("en-IN", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {new Date(history.updatedAt).toLocaleDateString(
+                            "en-IN",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600">By: {history.updatedBy}</p>
+                      <p className="text-xs text-gray-600">
+                        By: {history.updatedBy}
+                      </p>
                       {history.comments && (
-                        <p className="text-xs text-gray-700 mt-1 italic">{history.comments}</p>
+                        <p className="text-xs text-gray-700 mt-1 italic">
+                          {history.comments}
+                        </p>
                       )}
                     </div>
                   ))}
@@ -841,11 +1198,14 @@ export default function DisabledPersonDetailPage({
                     <div>
                       <dt className="text-gray-500">Verified On</dt>
                       <dd className="text-gray-900">
-                        {new Date(person.verifiedAt).toLocaleDateString("en-IN", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        {new Date(person.verifiedAt).toLocaleDateString(
+                          "en-IN",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </dd>
                     </div>
                   )}

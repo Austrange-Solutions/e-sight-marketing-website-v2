@@ -1,11 +1,21 @@
-import { useState } from 'react';
-import Image from 'next/image';
-import { Edit, Trash2, Plus, Minus, ShoppingBag, Package2, Eye, DollarSign, Loader2 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { TProduct } from '@/models/productModel';
+import { useState } from "react";
+import Image from "next/image";
+import {
+  Edit,
+  Trash2,
+  Plus,
+  Minus,
+  ShoppingBag,
+  Package2,
+  Eye,
+  DollarSign,
+  Loader2,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+import { TProduct } from "@/models/productModel";
 
 // Create a serialized version for client components
-interface Product extends Omit<TProduct, '_id'> {
+interface Product extends Omit<TProduct, "_id"> {
   _id: string;
   gallery?: string[]; // Array of gallery images
 }
@@ -23,47 +33,59 @@ const taxOptions = [
   { value: 28, label: "Luxury Tax (28%)" },
 ];
 
-export default function ProductsManagement({ products, onRefresh }: ProductsManagementProps) {
+export default function ProductsManagement({
+  products,
+  onRefresh,
+}: ProductsManagementProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [qtyInputs, setQtyInputs] = useState<{ [key: string]: string }>({});
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingGalleryImage, setUploadingGalleryImage] = useState(false);
-  
+
   // Loading states for button operations
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<string | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-  
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
+
   // Reviews state
   const [reviews, setReviews] = useState<Array<any>>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [editingReview, setEditingReview] = useState<any | null>(null);
   const [deletingReview, setDeletingReview] = useState<string | null>(null);
-  
-  const [newProduct, setNewProduct] = useState<Omit<Product, '_id'>>({
-    name: '',
-    image: '',
+
+  const [newProduct, setNewProduct] = useState<Omit<Product, "_id">>({
+    name: "",
+    image: "",
     gallery: [],
-    description: '',
-    type: 'basic',
+    description: "",
+    type: "basic",
     price: 0,
     details: [],
-    category: 'Electronics',
+    category: "Electronics",
     stock: 0,
-    status: 'active',
-    slug: '',
-    tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
+    status: "active",
+    slug: "",
+    tax: { type: "percentage", value: 18, label: "GST (18%)" },
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   });
 
-  const categories = ["Electronics", "Accessories", "Home", "Sports", "Health", "Other"];
+  const categories = [
+    "Electronics",
+    "Accessories",
+    "Home",
+    "Sports",
+    "Health",
+    "Other",
+  ];
 
   const fetchReviews = async (productId: string) => {
     try {
@@ -76,29 +98,32 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
       const data = await res.json();
       setReviews(data.reviews || []);
     } catch (error) {
-      console.error('Failed to fetch reviews:', error);
+      console.error("Failed to fetch reviews:", error);
       setReviews([]);
     } finally {
       setReviewsLoading(false);
     }
   };
 
-  const updateReview = async (reviewId: string, updatedData: { rating: number; comment: string }) => {
+  const updateReview = async (
+    reviewId: string,
+    updatedData: { rating: number; comment: string }
+  ) => {
     try {
       const res = await fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
       });
-      if (!res.ok) throw new Error('Failed to update review');
-      toast.success('Review updated successfully');
+      if (!res.ok) throw new Error("Failed to update review");
+      toast.success("Review updated successfully");
       if (selectedProduct) {
         fetchReviews(selectedProduct._id);
       }
       setEditingReview(null);
     } catch (error) {
-      console.error('Update review error:', error);
-      toast.error('Failed to update review');
+      console.error("Update review error:", error);
+      toast.error("Failed to update review");
     }
   };
 
@@ -106,14 +131,14 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
     try {
       setDeletingReview(reviewId);
       const res = await fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!res.ok) throw new Error('Failed to delete review');
-      toast.success('Review deleted successfully');
-      setReviews(prev => prev.filter(r => r._id !== reviewId));
+      if (!res.ok) throw new Error("Failed to delete review");
+      toast.success("Review deleted successfully");
+      setReviews((prev) => prev.filter((r) => r._id !== reviewId));
     } catch (error) {
-      console.error('Delete review error:', error);
-      toast.error('Failed to delete review');
+      console.error("Delete review error:", error);
+      toast.error("Failed to delete review");
     } finally {
       setDeletingReview(null);
     }
@@ -121,13 +146,13 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
 
   const updateStock = async (productId: string, newStock: number) => {
     if (newStock < 0) return;
-    
+
     setUpdating(productId);
     try {
-      const response = await fetch('/api/admin/products/stock', {
-        method: 'PATCH',
+      const response = await fetch("/api/admin/products/stock", {
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           productId,
@@ -136,15 +161,15 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
       });
 
       if (response.ok) {
-        toast.success('Stock updated successfully');
+        toast.success("Stock updated successfully");
         onRefresh();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to update stock');
+        toast.error(error.error || "Failed to update stock");
       }
     } catch (error) {
-      toast.error('Failed to update stock');
-      console.error('Stock update error:', error);
+      toast.error("Failed to update stock");
+      console.error("Stock update error:", error);
     } finally {
       setUpdating(null);
     }
@@ -153,119 +178,131 @@ export default function ProductsManagement({ products, onRefresh }: ProductsMana
   const addQuantity = async (productId: string, currentStock: number) => {
     const qtyToAdd = qtyInputs[productId];
     if (!qtyToAdd || isNaN(Number(qtyToAdd)) || Number(qtyToAdd) <= 0) {
-      toast.error('Please enter a valid quantity');
+      toast.error("Please enter a valid quantity");
       return;
     }
 
     const newStock = currentStock + Number(qtyToAdd);
     await updateStock(productId, newStock);
-    
-  // Clear the input after successful update
-  setQtyInputs(prev => ({ ...prev, [productId]: '' }));
-};
 
-// Helper function to delete old image from S3
-const deleteOldImage = async (oldImageUrl: string) => {
-  if (!oldImageUrl || !oldImageUrl.includes('cloudfront.net')) {
-    console.log('Skipping image deletion - not a CloudFront URL:', oldImageUrl);
-    return; // Skip if not a CloudFront URL
-  }
+    // Clear the input after successful update
+    setQtyInputs((prev) => ({ ...prev, [productId]: "" }));
+  };
 
-  try {
-    console.log('Deleting old image from S3:', oldImageUrl);
-    const response = await fetch('/api/aws/delete', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        cloudFrontUrl: oldImageUrl,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Delete API error:', errorData);
-      throw new Error(errorData.error || 'Failed to delete from S3');
+  // Helper function to delete old image from S3
+  const deleteOldImage = async (oldImageUrl: string) => {
+    if (!oldImageUrl || !oldImageUrl.includes("cloudfront.net")) {
+      console.log(
+        "Skipping image deletion - not a CloudFront URL:",
+        oldImageUrl
+      );
+      return; // Skip if not a CloudFront URL
     }
 
-    const result = await response.json();
-    console.log('Old image deleted successfully from S3:', result);
-    return result;
-  } catch (error) {
-    console.error('Failed to delete old image:', error);
-    // Don't throw error - continue with upload even if deletion fails
-    // but show user a warning
-    toast.error(`Warning: Could not delete old image from S3`);
-  }
-};  const handleImageUpload = async (file: File) => {
+    try {
+      console.log("Deleting old image from S3:", oldImageUrl);
+      const response = await fetch("/api/aws/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cloudFrontUrl: oldImageUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Delete API error:", errorData);
+        throw new Error(errorData.error || "Failed to delete from S3");
+      }
+
+      const result = await response.json();
+      console.log("Old image deleted successfully from S3:", result);
+      return result;
+    } catch (error) {
+      console.error("Failed to delete old image:", error);
+      // Don't throw error - continue with upload even if deletion fails
+      // but show user a warning
+      toast.error(`Warning: Could not delete old image from S3`);
+    }
+  };
+  const handleImageUpload = async (file: File) => {
     if (!file) return;
-    
+
     // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
-    
+
     // Check file size (limit to 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
-    
+
     setUploadingImage(true);
-    
+
     try {
       // Step 1: Get signed URL from server
-      const signedUrlResponse = await fetch('/api/aws/signed-upload', {
-        method: 'POST',
+      const signedUrlResponse = await fetch("/api/aws/signed-upload", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           fileName: file.name,
           fileType: file.type,
         }),
       });
-      
+
       if (!signedUrlResponse.ok) {
         const errorData = await signedUrlResponse.json();
-        throw new Error(errorData.error || 'Failed to get signed URL');
+        throw new Error(errorData.error || "Failed to get signed URL");
       }
-      
-      const { signedUrl, viewUrl, filename, s3Key } = await signedUrlResponse.json();
-      
-      console.log('Signed URL received:', { signedUrl, viewUrl, filename, s3Key });
-      
+
+      const { signedUrl, viewUrl, filename, s3Key } =
+        await signedUrlResponse.json();
+
+      console.log("Signed URL received:", {
+        signedUrl,
+        viewUrl,
+        filename,
+        s3Key,
+      });
+
       // Step 2: Upload file directly to S3 using signed URL
       const uploadResponse = await fetch(signedUrl, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': file.type,
+          "Content-Type": file.type,
         },
         body: file,
       });
-      
-      console.log('S3 upload response:', {
+
+      console.log("S3 upload response:", {
         status: uploadResponse.status,
         statusText: uploadResponse.statusText,
         ok: uploadResponse.ok,
-        headers: Object.fromEntries(uploadResponse.headers.entries())
+        headers: Object.fromEntries(uploadResponse.headers.entries()),
       });
-      
+
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error('S3 upload failed:', errorText);
-        throw new Error(`Failed to upload file to S3: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText}`);
+        console.error("S3 upload failed:", errorText);
+        throw new Error(
+          `Failed to upload file to S3: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText}`
+        );
       }
-      
-      const etag = uploadResponse.headers.get('ETag');
-      
+
+      const etag = uploadResponse.headers.get("ETag");
+
       // Step 3: Save metadata to database
-      await fetch('/api/aws/complete', {
-        method: 'POST',
+      await fetch("/api/aws/complete", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           filename,
@@ -277,55 +314,68 @@ const deleteOldImage = async (oldImageUrl: string) => {
           etag,
         }),
       });
-      
+
       // Step 4: BACKEND DELETION + UPDATE - Delete old image FIRST, then update product
       if (editingProduct && editingProduct._id) {
-        console.log('🔄 BACKEND: Deleting old image FIRST, then updating product...');
-        
-        const imageUpdateResponse = await fetch(`/api/admin/products/${editingProduct._id}/image`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            newImageUrl: viewUrl,
-          }),
-        });
-        
+        console.log(
+          "🔄 BACKEND: Deleting old image FIRST, then updating product..."
+        );
+
+        const imageUpdateResponse = await fetch(
+          `/api/admin/products/${editingProduct._id}/image`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              newImageUrl: viewUrl,
+            }),
+          }
+        );
+
         if (!imageUpdateResponse.ok) {
           const errorData = await imageUpdateResponse.json();
-          throw new Error(errorData.error || 'Failed to update product image');
+          throw new Error(errorData.error || "Failed to update product image");
         }
-        
+
         const updateResult = await imageUpdateResponse.json();
-        console.log('✅ BACKEND: Old image deleted, product updated:', updateResult);
-        
+        console.log(
+          "✅ BACKEND: Old image deleted, product updated:",
+          updateResult
+        );
+
         // Update local state
         if (editingProduct && editingProduct._id) {
           setEditingProduct({
-            ...editingProduct, 
+            ...editingProduct,
             _id: editingProduct._id,
-            image: viewUrl
+            image: viewUrl,
           } as Product);
         }
-        
+
         toast.success(`✅ Image updated! Old image deleted from S3 first.`);
       } else {
         // For new products, just update state
         if (editingProduct) {
           setEditingProduct({
-            ...editingProduct, 
-            image: viewUrl
+            ...editingProduct,
+            image: viewUrl,
           } as Product);
         }
         toast.success(`Image uploaded to CloudFront successfully`);
       }
-      
-      console.log('Complete upload process successful:', { viewUrl, filename, s3Key });
-      
+
+      console.log("Complete upload process successful:", {
+        viewUrl,
+        filename,
+        s3Key,
+      });
     } catch (error: unknown) {
-      console.error('Image upload/update error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to upload/update image');
+      console.error("Image upload/update error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload/update image"
+      );
     } finally {
       setUploadingImage(false);
     }
@@ -333,72 +383,80 @@ const deleteOldImage = async (oldImageUrl: string) => {
 
   const handleNewProductImageUpload = async (file: File) => {
     if (!file) return;
-    
+
     // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
-    
+
     // Check file size (limit to 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
-    
+
     setUploadingImage(true);
-    
+
     try {
       // Step 1: Get signed URL from server
-      const signedUrlResponse = await fetch('/api/aws/signed-upload', {
-        method: 'POST',
+      const signedUrlResponse = await fetch("/api/aws/signed-upload", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           fileName: file.name,
           fileType: file.type,
         }),
       });
-      
+
       if (!signedUrlResponse.ok) {
         const errorData = await signedUrlResponse.json();
-        throw new Error(errorData.error || 'Failed to get signed URL');
+        throw new Error(errorData.error || "Failed to get signed URL");
       }
-      
-      const { signedUrl, viewUrl, filename, s3Key } = await signedUrlResponse.json();
-      
-      console.log('Signed URL received:', { signedUrl, viewUrl, filename, s3Key });
-      
+
+      const { signedUrl, viewUrl, filename, s3Key } =
+        await signedUrlResponse.json();
+
+      console.log("Signed URL received:", {
+        signedUrl,
+        viewUrl,
+        filename,
+        s3Key,
+      });
+
       // Step 2: Upload file directly to S3 using signed URL
       const uploadResponse = await fetch(signedUrl, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': file.type,
+          "Content-Type": file.type,
         },
         body: file,
       });
-      
-      console.log('S3 upload response:', {
+
+      console.log("S3 upload response:", {
         status: uploadResponse.status,
         statusText: uploadResponse.statusText,
         ok: uploadResponse.ok,
-        headers: Object.fromEntries(uploadResponse.headers.entries())
+        headers: Object.fromEntries(uploadResponse.headers.entries()),
       });
-      
+
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error('S3 upload failed:', errorText);
-        throw new Error(`Failed to upload file to S3: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText}`);
+        console.error("S3 upload failed:", errorText);
+        throw new Error(
+          `Failed to upload file to S3: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText}`
+        );
       }
-      
-      const etag = uploadResponse.headers.get('ETag');
-      
+
+      const etag = uploadResponse.headers.get("ETag");
+
       // Step 3: Save metadata to database
-      await fetch('/api/aws/complete', {
-        method: 'POST',
+      await fetch("/api/aws/complete", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           filename,
@@ -410,111 +468,130 @@ const deleteOldImage = async (oldImageUrl: string) => {
           etag,
         }),
       });
-      
+
       // Step 4: Update new product with CloudFront URL
       setNewProduct({
-        ...newProduct, 
-        image: viewUrl // Use CloudFront URL
+        ...newProduct,
+        image: viewUrl, // Use CloudFront URL
       });
-      
+
       toast.success(`Image uploaded to CloudFront successfully`);
-      console.log('Signed URL upload successful:', { viewUrl, filename, s3Key });
-      
+      console.log("Signed URL upload successful:", {
+        viewUrl,
+        filename,
+        s3Key,
+      });
     } catch (error: unknown) {
-      console.error('Signed URL upload error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to upload image to AWS');
+      console.error("Signed URL upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image to AWS"
+      );
     } finally {
       setUploadingImage(false);
     }
   };
 
-  const handleGalleryImageUpload = async (file: File, isEditingProduct: boolean = false) => {
+  const handleGalleryImageUpload = async (
+    file: File,
+    isEditingProduct: boolean = false
+  ) => {
     if (!file) return;
-    
+
     // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
-    
+
     // Check file size (limit to 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
-    
+
     setUploadingGalleryImage(true);
-    
+
     try {
       // Step 1: Get signed URL from server
-      const signedUrlResponse = await fetch('/api/aws/signed-upload', {
-        method: 'POST',
+      const signedUrlResponse = await fetch("/api/aws/signed-upload", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           fileName: file.name,
           fileType: file.type,
         }),
       });
-      
+
       if (!signedUrlResponse.ok) {
         const errorData = await signedUrlResponse.json();
-        throw new Error(errorData.error || 'Failed to get signed URL');
+        throw new Error(errorData.error || "Failed to get signed URL");
       }
-      
+
       const { signedUrl, viewUrl } = await signedUrlResponse.json();
-      
+
       // Step 2: Upload file directly to S3 using signed URL
       const uploadResponse = await fetch(signedUrl, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': file.type,
+          "Content-Type": file.type,
         },
         body: file,
       });
-      
+
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error('S3 upload failed:', errorText);
-        throw new Error(`Failed to upload file to S3: ${uploadResponse.status}`);
+        console.error("S3 upload failed:", errorText);
+        throw new Error(
+          `Failed to upload file to S3: ${uploadResponse.status}`
+        );
       }
-      
+
       // Step 3: Add to gallery array
       if (isEditingProduct && editingProduct) {
         setEditingProduct({
           ...editingProduct,
-          gallery: [...(editingProduct.gallery || []), viewUrl]
+          gallery: [...(editingProduct.gallery || []), viewUrl],
         });
       } else {
         setNewProduct({
           ...newProduct,
-          gallery: [...(newProduct.gallery || []), viewUrl]
+          gallery: [...(newProduct.gallery || []), viewUrl],
         });
       }
-      
-      toast.success('Image added to gallery');
+
+      toast.success("Image added to gallery");
     } catch (error: unknown) {
-      console.error('Gallery image upload error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to upload gallery image');
+      console.error("Gallery image upload error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload gallery image"
+      );
     } finally {
       setUploadingGalleryImage(false);
     }
   };
 
-  const removeGalleryImage = (imageUrl: string, isEditingProduct: boolean = false) => {
+  const removeGalleryImage = (
+    imageUrl: string,
+    isEditingProduct: boolean = false
+  ) => {
     if (isEditingProduct && editingProduct) {
       setEditingProduct({
         ...editingProduct,
-        gallery: (editingProduct.gallery || []).filter(img => img !== imageUrl)
+        gallery: (editingProduct.gallery || []).filter(
+          (img) => img !== imageUrl
+        ),
       });
     } else {
       setNewProduct({
         ...newProduct,
-        gallery: (newProduct.gallery || []).filter(img => img !== imageUrl)
+        gallery: (newProduct.gallery || []).filter((img) => img !== imageUrl),
       });
     }
-    toast.success('Image removed from gallery');
+    toast.success("Image removed from gallery");
   };
 
   // Single-click disable product
@@ -522,15 +599,15 @@ const deleteOldImage = async (oldImageUrl: string) => {
     setUpdating(productId);
     try {
       const response = await fetch(`/api/admin/products/${productId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'inactive' }),
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "inactive" }),
       });
-      if (!response.ok) throw new Error('Failed to disable product');
-      toast.success('Product disabled');
+      if (!response.ok) throw new Error("Failed to disable product");
+      toast.success("Product disabled");
       onRefresh();
     } catch (error) {
-      toast.error('Failed to disable product');
+      toast.error("Failed to disable product");
     } finally {
       setUpdating(null);
     }
@@ -541,15 +618,15 @@ const deleteOldImage = async (oldImageUrl: string) => {
     setUpdating(product._id);
     try {
       const response = await fetch(`/api/admin/products/${product._id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
       });
-      if (!response.ok) throw new Error('Failed to update product');
-      toast.success('Product updated');
+      if (!response.ok) throw new Error("Failed to update product");
+      toast.success("Product updated");
       onRefresh();
     } catch (error) {
-      toast.error('Failed to update product');
+      toast.error("Failed to update product");
     } finally {
       setUpdating(null);
     }
@@ -560,19 +637,19 @@ const deleteOldImage = async (oldImageUrl: string) => {
     setUpdating(productId);
     try {
       const response = await fetch(`/api/admin/products/${productId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!response.ok) throw new Error('Failed to delete product');
-      toast.success('Product deleted');
+      if (!response.ok) throw new Error("Failed to delete product");
+      toast.success("Product deleted");
       onRefresh();
     } catch (error) {
-      toast.error('Failed to delete product');
+      toast.error("Failed to delete product");
     } finally {
       setUpdating(null);
     }
   };
 
-  const createProduct = async (productData: Omit<Product, '_id'>) => {
+  const createProduct = async (productData: Omit<Product, "_id">) => {
     setIsCreating(true);
     try {
       const createData = {
@@ -585,48 +662,48 @@ const deleteOldImage = async (oldImageUrl: string) => {
         type: productData.type,
         stock: productData.stock,
         status: productData.status,
-        details: productData.details
+        details: productData.details,
       };
-      
-      console.log('Creating product:', createData);
-      
-      const response = await fetch('/api/admin/products', {
-        method: 'POST',
+
+      console.log("Creating product:", createData);
+
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(createData),
       });
 
       if (response.ok) {
-        toast.success('Product created successfully');
+        toast.success("Product created successfully");
         setShowAddForm(false);
         // Reset form
         setNewProduct({
-          name: '',
-          image: '',
+          name: "",
+          image: "",
           gallery: [],
-          description: '',
-          type: 'basic',
+          description: "",
+          type: "basic",
           price: 0,
           details: [],
-          category: 'Electronics',
+          category: "Electronics",
           stock: 0,
-          status: 'active',
-          slug: '',
-          tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
+          status: "active",
+          slug: "",
+          tax: { type: "percentage", value: 18, label: "GST (18%)" },
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
         onRefresh();
       } else {
         const error = await response.json();
-        console.error('Create error response:', error);
-        toast.error(error.error || 'Failed to create product');
+        console.error("Create error response:", error);
+        toast.error(error.error || "Failed to create product");
       }
     } catch (error) {
-      toast.error('Failed to create product');
-      console.error('Create error:', error);
+      toast.error("Failed to create product");
+      console.error("Create error:", error);
     } finally {
       setIsCreating(false);
     }
@@ -635,31 +712,33 @@ const deleteOldImage = async (oldImageUrl: string) => {
   const updateTax = async (productId: string, taxValue: number) => {
     setUpdating(productId);
     try {
-      const response = await fetch('/api/admin/products/tax', {
-        method: 'PATCH',
+      const response = await fetch("/api/admin/products/tax", {
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           productId,
           tax: {
             type: "percentage",
             value: taxValue,
-            label: taxOptions.find(t => t.value === taxValue)?.label || "Custom Tax",
+            label:
+              taxOptions.find((t) => t.value === taxValue)?.label ||
+              "Custom Tax",
           },
         }),
       });
 
       if (response.ok) {
-        toast.success('Tax updated successfully');
+        toast.success("Tax updated successfully");
         onRefresh();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to update tax');
+        toast.error(error.error || "Failed to update tax");
       }
     } catch (error) {
-      toast.error('Failed to update tax');
-      console.error('Tax update error:', error);
+      toast.error("Failed to update tax");
+      console.error("Tax update error:", error);
     } finally {
       setUpdating(null);
     }
@@ -670,20 +749,20 @@ const deleteOldImage = async (oldImageUrl: string) => {
     try {
       // Delete the product (API will handle both database and S3 deletion)
       const response = await fetch(`/api/admin/products/${productId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
         const result = await response.json();
-        toast.success(result.message || 'Product deleted successfully');
+        toast.success(result.message || "Product deleted successfully");
         onRefresh();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to delete product');
+        toast.error(error.error || "Failed to delete product");
       }
     } catch (error) {
-      toast.error('Failed to delete product');
-      console.error('Delete error:', error);
+      toast.error("Failed to delete product");
+      console.error("Delete error:", error);
     } finally {
       setDeletingProduct(null);
       setShowDeleteConfirm(null);
@@ -702,63 +781,72 @@ const deleteOldImage = async (oldImageUrl: string) => {
         name: updatedProduct.name,
         description: updatedProduct.description,
         price: updatedProduct.price,
-        category: updatedProduct.category || 'Electronics', // Add fallback
+        category: updatedProduct.category || "Electronics", // Add fallback
         image: updatedProduct.image,
         gallery: updatedProduct.gallery || [], // Include gallery images
         type: updatedProduct.type,
         stock: updatedProduct.stock,
         status: updatedProduct.status,
-        details: updatedProduct.details
+        details: updatedProduct.details,
       };
-      
-      console.log('Sending product update:', updateData); // Debug log
-      console.log('Original product:', updatedProduct); // Debug log
-      
-      const response = await fetch(`/api/admin/products/${updatedProduct._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
-      });
+
+      console.log("Sending product update:", updateData); // Debug log
+      console.log("Original product:", updatedProduct); // Debug log
+
+      const response = await fetch(
+        `/api/admin/products/${updatedProduct._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
 
       if (response.ok) {
-        toast.success('Product updated successfully');
+        toast.success("Product updated successfully");
         setEditingProduct(null);
         onRefresh();
       } else {
         const error = await response.json();
-        console.error('Update error response:', error); // Debug log
-        toast.error(error.error || 'Failed to update product');
+        console.error("Update error response:", error); // Debug log
+        toast.error(error.error || "Failed to update product");
       }
     } catch (error) {
-      toast.error('Failed to update product');
-      console.error('Update error:', error);
+      toast.error("Failed to update product");
+      console.error("Update error:", error);
     } finally {
       setIsUpdating(false);
     }
   };
 
   const getStatusColor = (status: string, stock: number) => {
-    if (stock === 0 || status === 'out_of_stock') return 'bg-red-100 text-red-800';
-    if (status === 'active') return 'bg-green-100 text-green-800';
-    return 'bg-accent text-gray-800';
+    if (stock === 0 || status === "out_of_stock")
+      return "bg-red-100 text-red-800";
+    if (status === "active") return "bg-green-100 text-green-800";
+    return "bg-accent text-gray-800";
   };
 
   const getStatusText = (status: string, stock: number) => {
-    if (stock === 0) return 'Out of Stock';
-    if (status === 'active') return 'In Stock';
-    if (status === 'inactive') return 'Inactive';
+    if (stock === 0) return "Out of Stock";
+    if (status === "active") return "In Stock";
+    if (status === "inactive") return "Inactive";
     return status;
   };
 
-  const filteredProducts = products.filter(product => {
-    const categoryMatch = filterCategory === 'all' || product.category === filterCategory;
-    const statusMatch = filterStatus === 'all' || 
-      (filterStatus === 'in_stock' && product.stock > 0 && product.status === 'active') ||
-      (filterStatus === 'out_of_stock' && (product.stock === 0 || product.status === 'out_of_stock')) ||
-      (filterStatus === 'inactive' && product.status === 'inactive');
-    
+  const filteredProducts = products.filter((product) => {
+    const categoryMatch =
+      filterCategory === "all" || product.category === filterCategory;
+    const statusMatch =
+      filterStatus === "all" ||
+      (filterStatus === "in_stock" &&
+        product.stock > 0 &&
+        product.status === "active") ||
+      (filterStatus === "out_of_stock" &&
+        (product.stock === 0 || product.status === "out_of_stock")) ||
+      (filterStatus === "inactive" && product.status === "inactive");
+
     return categoryMatch && statusMatch;
   });
 
@@ -767,7 +855,9 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
         <div>
-          <h3 className="text-lg sm:text-xl font-medium text-foreground">Product Management</h3>
+          <h3 className="text-lg sm:text-xl font-medium text-foreground">
+            Product Management
+          </h3>
           <p className="text-sm text-gray-500">Manage your product catalog</p>
         </div>
         <button
@@ -783,21 +873,27 @@ const deleteOldImage = async (oldImageUrl: string) => {
       <div className="bg-card p-3 sm:p-4 rounded-lg border border-border">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-            <label className="text-sm font-medium text-foreground sm:whitespace-nowrap">Category:</label>
+            <label className="text-sm font-medium text-foreground sm:whitespace-nowrap">
+              Category:
+            </label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
               className="text-sm border border-border rounded-md px-3 py-2 w-full sm:w-auto"
             >
               <option value="all">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-            <label className="text-sm font-medium text-foreground sm:whitespace-nowrap">Status:</label>
+            <label className="text-sm font-medium text-foreground sm:whitespace-nowrap">
+              Status:
+            </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -815,17 +911,22 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredProducts.map((product) => (
-          <div key={product._id} className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow">
+          <div
+            key={product._id}
+            className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow"
+          >
             {/* Product Image */}
             <div className="relative h-40 sm:h-48 bg-accent">
               <Image
-                src={product.image || '/assets/images/maceazy-logo.png'}
+                src={product.image || "/assets/images/maceazy-logo.png"}
                 alt={product.name}
                 fill
                 className="object-contain"
               />
               <div className="absolute top-2 right-2">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status, product.stock)}`}>
+                <span
+                  className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status, product.stock)}`}
+                >
                   {getStatusText(product.status, product.stock)}
                 </span>
               </div>
@@ -839,13 +940,21 @@ const deleteOldImage = async (oldImageUrl: string) => {
             {/* Product Info */}
             <div className="p-3 sm:p-4 space-y-3">
               <div>
-                <h4 className="font-medium text-foreground truncate text-sm sm:text-base">{product.name}</h4>
-                <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">{product.description}</p>
+                <h4 className="font-medium text-foreground truncate text-sm sm:text-base">
+                  {product.name}
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">
+                  {product.description}
+                </p>
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">₹{product.price.toLocaleString()}</span>
-                <span className="text-gray-500 capitalize text-xs sm:text-sm">{product.type}</span>
+                <span className="font-medium text-foreground">
+                  ₹{product.price.toLocaleString()}
+                </span>
+                <span className="text-gray-500 capitalize text-xs sm:text-sm">
+                  {product.type}
+                </span>
               </div>
 
               {/* Stock Management */}
@@ -853,18 +962,24 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Package2 size={14} className="text-gray-400" />
-                    <span className="text-xs sm:text-sm text-muted-foreground">Stock: {product.stock}</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Stock: {product.stock}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <button
-                      onClick={() => updateStock(product._id, product.stock - 1)}
+                      onClick={() =>
+                        updateStock(product._id, product.stock - 1)
+                      }
                       disabled={product.stock <= 0 || updating === product._id}
                       className="p-1 rounded text-gray-400 hover:text-red-600 disabled:opacity-50"
                     >
                       <Minus size={14} />
                     </button>
                     <button
-                      onClick={() => updateStock(product._id, product.stock + 1)}
+                      onClick={() =>
+                        updateStock(product._id, product.stock + 1)
+                      }
                       disabled={updating === product._id}
                       className="p-1 rounded text-gray-400 hover:text-green-600 disabled:opacity-50"
                     >
@@ -872,21 +987,28 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     </button>
                   </div>
                 </div>
-                
+
                 {/* Add Quantity Section */}
                 <div className="flex items-center space-x-2">
                   <input
                     type="number"
                     min="1"
                     placeholder="Qty"
-                    value={qtyInputs[product._id] || ''}
-                    onChange={(e) => setQtyInputs(prev => ({ ...prev, [product._id]: e.target.value }))}
+                    value={qtyInputs[product._id] || ""}
+                    onChange={(e) =>
+                      setQtyInputs((prev) => ({
+                        ...prev,
+                        [product._id]: e.target.value,
+                      }))
+                    }
                     className="w-14 sm:w-16 px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     disabled={updating === product._id}
                   />
                   <button
                     onClick={() => addQuantity(product._id, product.stock)}
-                    disabled={updating === product._id || !qtyInputs[product._id]}
+                    disabled={
+                      updating === product._id || !qtyInputs[product._id]
+                    }
                     className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Add
@@ -898,15 +1020,19 @@ const deleteOldImage = async (oldImageUrl: string) => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-2">
                   <DollarSign size={14} className="text-gray-400" />
-                  <span className="text-xs sm:text-sm text-muted-foreground">Tax: {product.tax?.value || 18}%</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    Tax: {product.tax?.value || 18}%
+                  </span>
                 </div>
                 <select
                   value={product.tax?.value || 18}
-                  onChange={(e) => updateTax(product._id, Number(e.target.value))}
+                  onChange={(e) =>
+                    updateTax(product._id, Number(e.target.value))
+                  }
                   disabled={updating === product._id}
                   className="text-xs border border-border rounded px-2 py-1 w-full sm:w-auto"
                 >
-                  {taxOptions.map(option => (
+                  {taxOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -926,15 +1052,15 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   <Eye size={12} />
                   <span>View</span>
                 </button>
-                
+
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => {
-                      console.log('Setting editing product:', product); // Debug log
+                      console.log("Setting editing product:", product); // Debug log
                       // Ensure category exists
                       const productWithCategory = {
                         ...product,
-                        category: product.category || 'Electronics'
+                        category: product.category || "Electronics",
                       };
                       setEditingProduct(productWithCategory);
                     }}
@@ -943,14 +1069,14 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     <Edit size={12} />
                     <span>Edit</span>
                   </button>
-                  
+
                   <button
                     onClick={() => handleDeleteClick(product._id)}
                     disabled={deletingProduct === product._id}
                     className={`flex items-center space-x-1 text-xs sm:text-sm transition-all ${
-                      deletingProduct === product._id 
-                        ? 'text-gray-400 cursor-not-allowed' 
-                        : 'text-red-600 hover:text-red-800'
+                      deletingProduct === product._id
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-red-600 hover:text-red-800"
                     }`}
                   >
                     {deletingProduct === product._id ? (
@@ -975,7 +1101,9 @@ const deleteOldImage = async (oldImageUrl: string) => {
       {filteredProducts.length === 0 && (
         <div className="text-center py-12">
           <ShoppingBag size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500">No products found matching your filters.</p>
+          <p className="text-gray-500">
+            No products found matching your filters.
+          </p>
         </div>
       )}
 
@@ -984,7 +1112,9 @@ const deleteOldImage = async (oldImageUrl: string) => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 max-w-5xl shadow-lg rounded-md bg-card mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-foreground">Product Details</h3>
+              <h3 className="text-lg font-medium text-foreground">
+                Product Details
+              </h3>
               <button
                 onClick={() => {
                   setSelectedProduct(null);
@@ -996,31 +1126,41 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 ✕
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div className="relative h-48 sm:h-64">
                 <Image
-                  src={selectedProduct.image || '/assets/images/maceazy-logo.png'}
+                  src={
+                    selectedProduct.image || "/assets/images/maceazy-logo.png"
+                  }
                   alt={selectedProduct.name}
                   fill
                   className="object-cover rounded-lg"
                 />
               </div>
-              
+
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-foreground">{selectedProduct.name}</h4>
-                  <p className="text-muted-foreground text-sm">{selectedProduct.description}</p>
+                  <h4 className="font-medium text-foreground">
+                    {selectedProduct.name}
+                  </h4>
+                  <p className="text-muted-foreground text-sm">
+                    {selectedProduct.description}
+                  </p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                   <div>
                     <span className="font-medium">Price:</span>
-                    <span className="ml-2">₹{selectedProduct.price.toLocaleString()}</span>
+                    <span className="ml-2">
+                      ₹{selectedProduct.price.toLocaleString()}
+                    </span>
                   </div>
                   <div>
                     <span className="font-medium">Type:</span>
-                    <span className="ml-2 capitalize">{selectedProduct.type}</span>
+                    <span className="ml-2 capitalize">
+                      {selectedProduct.type}
+                    </span>
                   </div>
                   <div>
                     <span className="font-medium">Category:</span>
@@ -1032,33 +1172,46 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   </div>
                   <div className="sm:col-span-2">
                     <span className="font-medium">Tax:</span>
-                    <span className="ml-2">{selectedProduct.tax?.value || 18}% ({selectedProduct.tax?.label || 'GST'})</span>
+                    <span className="ml-2">
+                      {selectedProduct.tax?.value || 18}% (
+                      {selectedProduct.tax?.label || "GST"})
+                    </span>
                   </div>
                   <div className="sm:col-span-2">
                     <span className="font-medium">Status:</span>
-                    <span className={`ml-2 px-2 py-1 text-xs rounded-full ${getStatusColor(selectedProduct.status, selectedProduct.stock)}`}>
-                      {getStatusText(selectedProduct.status, selectedProduct.stock)}
+                    <span
+                      className={`ml-2 px-2 py-1 text-xs rounded-full ${getStatusColor(selectedProduct.status, selectedProduct.stock)}`}
+                    >
+                      {getStatusText(
+                        selectedProduct.status,
+                        selectedProduct.stock
+                      )}
                     </span>
                   </div>
                 </div>
-                
-                {selectedProduct.details && selectedProduct.details.length > 0 && (
-                  <div>
-                    <span className="font-medium block mb-2">Product Details:</span>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                      {selectedProduct.details.map((detail, index) => (
-                        <li key={index}>{detail}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+
+                {selectedProduct.details &&
+                  selectedProduct.details.length > 0 && (
+                    <div>
+                      <span className="font-medium block mb-2">
+                        Product Details:
+                      </span>
+                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                        {selectedProduct.details.map((detail, index) => (
+                          <li key={index}>{detail}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
               </div>
             </div>
 
             {/* Reviews Section */}
             <div className="border-t border-border pt-6">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-medium text-foreground">Customer Reviews ({reviews.length})</h4>
+                <h4 className="text-lg font-medium text-foreground">
+                  Customer Reviews ({reviews.length})
+                </h4>
               </div>
 
               {reviewsLoading ? (
@@ -1072,31 +1225,53 @@ const deleteOldImage = async (oldImageUrl: string) => {
               ) : (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {reviews.map((review) => (
-                    <div key={review._id} className="bg-accent/50 p-4 rounded-lg border border-border">
+                    <div
+                      key={review._id}
+                      className="bg-accent/50 p-4 rounded-lg border border-border"
+                    >
                       {editingReview?._id === review._id ? (
                         // Edit Mode
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
-                            <label className="text-sm font-medium">Rating:</label>
+                            <label className="text-sm font-medium">
+                              Rating:
+                            </label>
                             <select
                               value={editingReview.rating}
-                              onChange={(e) => setEditingReview({ ...editingReview, rating: Number(e.target.value) })}
+                              onChange={(e) =>
+                                setEditingReview({
+                                  ...editingReview,
+                                  rating: Number(e.target.value),
+                                })
+                              }
                               className="px-2 py-1 border border-border rounded text-sm"
                             >
-                              {[1, 2, 3, 4, 5].map(n => (
-                                <option key={n} value={n}>{n} Star{n > 1 ? 's' : ''}</option>
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <option key={n} value={n}>
+                                  {n} Star{n > 1 ? "s" : ""}
+                                </option>
                               ))}
                             </select>
                           </div>
                           <textarea
                             value={editingReview.comment}
-                            onChange={(e) => setEditingReview({ ...editingReview, comment: e.target.value })}
+                            onChange={(e) =>
+                              setEditingReview({
+                                ...editingReview,
+                                comment: e.target.value,
+                              })
+                            }
                             className="w-full px-3 py-2 border border-border rounded-md text-sm"
                             rows={3}
                           />
                           <div className="flex gap-2">
                             <button
-                              onClick={() => updateReview(review._id, { rating: editingReview.rating, comment: editingReview.comment })}
+                              onClick={() =>
+                                updateReview(review._id, {
+                                  rating: editingReview.rating,
+                                  comment: editingReview.comment,
+                                })
+                              }
                               className="px-3 py-1.5 bg-primary text-white rounded text-sm hover:bg-primary/90"
                             >
                               Save
@@ -1115,25 +1290,39 @@ const deleteOldImage = async (oldImageUrl: string) => {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-sm">{review.username}</span>
+                                <span className="font-medium text-sm">
+                                  {review.username}
+                                </span>
                                 <div className="flex items-center">
-                                  {Array.from({ length: review.rating }).map((_, i) => (
-                                    <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                  ))}
+                                  {Array.from({ length: review.rating }).map(
+                                    (_, i) => (
+                                      <svg
+                                        key={i}
+                                        className="w-4 h-4 text-yellow-400"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                      </svg>
+                                    )
+                                  )}
                                 </div>
                               </div>
                               <p className="text-xs text-muted-foreground mb-2">
-                                {new Date(review.createdAt).toLocaleDateString('en-US', { 
-                                  year: 'numeric', 
-                                  month: 'long', 
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                {new Date(review.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
                               </p>
-                              <p className="text-sm text-foreground">{review.comment}</p>
+                              <p className="text-sm text-foreground">
+                                {review.comment}
+                              </p>
                             </div>
                             <div className="flex gap-2 ml-4">
                               <button
@@ -1173,7 +1362,9 @@ const deleteOldImage = async (oldImageUrl: string) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-card rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Edit Product</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Edit Product
+              </h2>
               <button
                 onClick={() => setEditingProduct(null)}
                 className="text-gray-500 hover:text-foreground"
@@ -1181,79 +1372,118 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 ✕
               </button>
             </div>
-            
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              
-              // Client-side validation (details are now optional)
-              if (editingProduct.details.length > 8) {
-                toast.error('Product details must have maximum 8 points');
-                return;
-              }
-              
-              if (!editingProduct.image) {
-                toast.error('Please provide a product image (URL or upload)');
-                return;
-              }
-              
-              updateProduct(editingProduct);
-            }}>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                // Client-side validation (details are now optional)
+                if (editingProduct.details.length > 8) {
+                  toast.error("Product details must have maximum 8 points");
+                  return;
+                }
+
+                if (!editingProduct.image) {
+                  toast.error("Please provide a product image (URL or upload)");
+                  return;
+                }
+
+                updateProduct(editingProduct);
+              }}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Product Name</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Product Name
+                  </label>
                   <input
                     type="text"
                     value={editingProduct.name}
-                    onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        name: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Category</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Category
+                  </label>
                   <select
                     value={editingProduct.category}
-                    onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        category: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Price</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Price
+                  </label>
                   <input
                     type="number"
                     value={editingProduct.price}
-                    onChange={(e) => setEditingProduct({...editingProduct, price: Number(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        price: Number(e.target.value),
+                      })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                     min="0"
                     step="0.01"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Stock
+                  </label>
                   <input
                     type="number"
                     value={editingProduct.stock}
-                    onChange={(e) => setEditingProduct({...editingProduct, stock: Number(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        stock: Number(e.target.value),
+                      })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                     min="0"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Type</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Type
+                  </label>
                   <select
                     value={editingProduct.type}
-                    onChange={(e) => setEditingProduct({...editingProduct, type: e.target.value as "basic" | "pro" | "max"})}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        type: e.target.value as "basic" | "pro" | "max",
+                      })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
@@ -1262,12 +1492,22 @@ const deleteOldImage = async (oldImageUrl: string) => {
                     <option value="max">Max</option>
                   </select>
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Status
+                  </label>
                   <select
                     value={editingProduct.status}
-                    onChange={(e) => setEditingProduct({...editingProduct, status: e.target.value as "active" | "inactive" | "out_of_stock"})}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        status: e.target.value as
+                          | "active"
+                          | "inactive"
+                          | "out_of_stock",
+                      })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
@@ -1277,50 +1517,74 @@ const deleteOldImage = async (oldImageUrl: string) => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-1">Description (Optional)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Description (Optional)
+                </label>
                 <textarea
                   value={editingProduct.description}
-                  onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditingProduct({
+                      ...editingProduct,
+                      description: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="Optional: Enter product description"
                 />
               </div>
-              
+
               <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-1">Product Image</label>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Product Image
+                </label>
                 <div className="space-y-3">
                   {/* Current Image Preview */}
                   {editingProduct.image && (
                     <div className="flex items-center space-x-3">
-                      <Image 
-                        src={editingProduct.image} 
-                        alt="Product preview" 
+                      <Image
+                        src={editingProduct.image}
+                        alt="Product preview"
                         width={64}
                         height={64}
                         className="w-16 h-16 object-cover rounded-md border"
                       />
-                      <span className="text-sm text-muted-foreground">Current product image</span>
+                      <span className="text-sm text-muted-foreground">
+                        Current product image
+                      </span>
                     </div>
                   )}
-                  
+
                   {/* Image URL Input */}
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 1: Image URL</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
+                      Option 1: Image URL
+                    </label>
                     <input
                       type="url"
-                      value={editingProduct.image.startsWith('data:') ? '' : editingProduct.image}
-                      onChange={(e) => setEditingProduct({...editingProduct, image: e.target.value})}
+                      value={
+                        editingProduct.image.startsWith("data:")
+                          ? ""
+                          : editingProduct.image
+                      }
+                      onChange={(e) =>
+                        setEditingProduct({
+                          ...editingProduct,
+                          image: e.target.value,
+                        })
+                      }
                       placeholder="https://example.com/image.jpg"
                       className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  
+
                   {/* File Upload */}
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 2: Upload Image File</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
+                      Option 2: Upload Image File
+                    </label>
                     <div className="flex items-center space-x-2">
                       <input
                         type="file"
@@ -1335,32 +1599,40 @@ const deleteOldImage = async (oldImageUrl: string) => {
                         disabled={uploadingImage}
                       />
                       {uploadingImage && (
-                        <div className="text-sm text-blue-600">Uploading...</div>
+                        <div className="text-sm text-blue-600">
+                          Uploading...
+                        </div>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                    </p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-foreground mb-1">
                   Product Details (Optional - Max 8 points, one per line)
                 </label>
                 <textarea
-                  value={editingProduct.details.join('\n')}
+                  value={editingProduct.details.join("\n")}
                   onChange={(e) => {
-                    const details = e.target.value.split('\n').filter(detail => detail.trim());
-                    setEditingProduct({...editingProduct, details});
+                    const details = e.target.value
+                      .split("\n")
+                      .filter((detail) => detail.trim());
+                    setEditingProduct({ ...editingProduct, details });
                   }}
                   className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={6}
                   placeholder="Optional: Enter product details, one per line&#10;Maximum 8 points allowed"
                 />
                 <div className="text-sm text-gray-500 mt-1">
-                  Current: {editingProduct.details.length} points 
+                  Current: {editingProduct.details.length} points
                   {editingProduct.details.length > 8 && (
-                    <span className="text-destructive ml-2">Maximum 8 points allowed</span>
+                    <span className="text-destructive ml-2">
+                      Maximum 8 points allowed
+                    </span>
                   )}
                   {editingProduct.details.length === 0 && (
                     <span className="text-gray-500 ml-2">Optional field</span>
@@ -1370,11 +1642,15 @@ const deleteOldImage = async (oldImageUrl: string) => {
 
               {/* Gallery Images Section */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-3">Product Gallery Images (Optional)</label>
-                
+                <label className="block text-sm font-medium text-foreground mb-3">
+                  Product Gallery Images (Optional)
+                </label>
+
                 {/* Upload Gallery Image Button */}
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">Upload Gallery Images</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Upload Gallery Images
+                  </label>
                   <div className="flex items-center space-x-2">
                     <input
                       type="file"
@@ -1392,38 +1668,43 @@ const deleteOldImage = async (oldImageUrl: string) => {
                       <div className="text-sm text-blue-600">Uploading...</div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                  </p>
                 </div>
 
                 {/* Display Gallery Images */}
-                {editingProduct.gallery && editingProduct.gallery.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">Gallery Images ({editingProduct.gallery.length})</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {editingProduct.gallery.map((imageUrl, idx) => (
-                        <div key={idx} className="relative">
-                          <Image
-                            src={imageUrl}
-                            alt={`Gallery ${idx + 1}`}
-                            width={96}
-                            height={96}
-                            className="w-full h-24 object-cover rounded-lg border border-border"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryImage(imageUrl, true)}
-                            className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                            title="Remove this image"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
+                {editingProduct.gallery &&
+                  editingProduct.gallery.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Gallery Images ({editingProduct.gallery.length})
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {editingProduct.gallery.map((imageUrl, idx) => (
+                          <div key={idx} className="relative">
+                            <Image
+                              src={imageUrl}
+                              alt={`Gallery ${idx + 1}`}
+                              width={96}
+                              height={96}
+                              className="w-full h-24 object-cover rounded-lg border border-border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeGalleryImage(imageUrl, true)}
+                              className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                              title="Remove this image"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
-              
+
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
@@ -1435,15 +1716,18 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 <button
                   type="submit"
                   disabled={
-                    editingProduct.details.length > 8 || 
+                    editingProduct.details.length > 8 ||
                     !editingProduct.image ||
                     uploadingImage ||
                     isUpdating
                   }
                   className={`flex items-center justify-center px-4 py-2 rounded-md transition-all ${
-                    (editingProduct.details.length > 8 || !editingProduct.image || uploadingImage || isUpdating)
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    editingProduct.details.length > 8 ||
+                    !editingProduct.image ||
+                    uploadingImage ||
+                    isUpdating
+                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
                   }`}
                 >
                   {isUpdating ? (
@@ -1457,7 +1741,7 @@ const deleteOldImage = async (oldImageUrl: string) => {
                       Uploading to AWS...
                     </>
                   ) : (
-                    'Update Product'
+                    "Update Product"
                   )}
                 </button>
               </div>
@@ -1471,24 +1755,26 @@ const deleteOldImage = async (oldImageUrl: string) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4 sm:mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Add New Product</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                Add New Product
+              </h2>
               <button
                 onClick={() => {
                   setShowAddForm(false);
                   setNewProduct({
-                    name: '',
-                    image: '',
-                    description: '',
-                    type: 'basic',
+                    name: "",
+                    image: "",
+                    description: "",
+                    type: "basic",
                     price: 0,
                     details: [],
-                    category: 'Electronics',
+                    category: "Electronics",
                     stock: 0,
-                    status: 'active',
-                    slug: '',
-                    tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
+                    status: "active",
+                    slug: "",
+                    tax: { type: "percentage", value: 18, label: "GST (18%)" },
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
                   });
                 }}
                 className="text-gray-500 hover:text-foreground"
@@ -1496,160 +1782,299 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 ✕
               </button>
             </div>
-            
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              
-              // Client-side validation (details are now optional)
-              if (newProduct.details.length > 8) {
-                toast.error('Product details must have maximum 8 points');
-                return;
-              }
-              
-              if (!newProduct.image) {
-                toast.error('Please provide a product image (URL or upload)');
-                return;
-              }
-              
-              if (!newProduct.name || !newProduct.category) {
-                toast.error('Please fill all required fields (name and category)');
-                return;
-              }
-              
-              createProduct(newProduct);
-            }}>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                // Client-side validation (details are now optional)
+                if (newProduct.details.length > 8) {
+                  toast.error("Product details must have maximum 8 points");
+                  return;
+                }
+
+                if (!newProduct.image) {
+                  toast.error("Please provide a product image (URL or upload)");
+                  return;
+                }
+
+                if (!newProduct.name || !newProduct.category) {
+                  toast.error(
+                    "Please fill all required fields (name and category)"
+                  );
+                  return;
+                }
+
+                createProduct(newProduct);
+              }}
+            >
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Product Name *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Product Name *
+                    </label>
                     <input
                       type="text"
                       value={newProduct.name}
-                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                      onChange={(e) =>
+                        setNewProduct({ ...newProduct, name: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                     />
                   </div>
-                
+
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Category *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Category *
+                    </label>
                     <select
                       value={newProduct.category}
-                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          category: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                     >
-                      {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Price *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Price *
+                    </label>
                     <input
                       type="number"
                       value={newProduct.price}
-                      onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value)})}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          price: Number(e.target.value),
+                        })
+                      }
                       className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                       min="0"
                       step="0.01"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Stock</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Stock
+                    </label>
                     <input
                       type="number"
                       value={newProduct.stock}
-                      onChange={(e) => setNewProduct({...newProduct, stock: Number(e.target.value)})}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          stock: Number(e.target.value),
+                        })
+                      }
                       className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       min="0"
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Type *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Type *
+                    </label>
                     <select
                       value={newProduct.type}
-                      onChange={(e) => setNewProduct({...newProduct, type: e.target.value as "basic" | "pro" | "max"})}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          type: e.target.value as "basic" | "pro" | "max",
+                        })
+                      }
                       className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       required
                     >
                       <option value="basic">Basic</option>
                       <option value="pro">Pro</option>
                       <option value="max">Max</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                  <select
-                    value={newProduct.status}
-                    onChange={(e) => setNewProduct({...newProduct, status: e.target.value as "active" | "inactive" | "out_of_stock"})}
-                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="out_of_stock">Out of Stock</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-1">Description (Optional)</label>
-                <textarea
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                  placeholder="Optional: Enter product description"
-                />
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-1">Product Image *</label>
-                <div className="space-y-3">
-                  {/* Current Image Preview */}
-                  {newProduct.image && (
-                    <div className="flex items-center space-x-3">
-                      <Image 
-                        src={newProduct.image} 
-                        alt="Product preview" 
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded-md border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setNewProduct({...newProduct, image: ''})}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Remove Image
-                      </button>
-                    </div>
-                  )}
-                  
-                  {/* Image URL Input */}
-                  <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 1: Image URL</label>
-                    <input
-                      type="url"
-                      value={newProduct.image.startsWith('data:') ? '' : newProduct.image}
-                      onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    </select>
                   </div>
-                  
-                  {/* File Upload */}
+
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1">Option 2: Upload Image File</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={newProduct.status}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          status: e.target.value as
+                            | "active"
+                            | "inactive"
+                            | "out_of_stock",
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="out_of_stock">Out of Stock</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={newProduct.description}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="Optional: Enter product description"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Product Image *
+                  </label>
+                  <div className="space-y-3">
+                    {/* Current Image Preview */}
+                    {newProduct.image && (
+                      <div className="flex items-center space-x-3">
+                        <Image
+                          src={newProduct.image}
+                          alt="Product preview"
+                          width={64}
+                          height={64}
+                          className="w-16 h-16 object-cover rounded-md border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setNewProduct({ ...newProduct, image: "" })
+                          }
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Remove Image
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Image URL Input */}
+                    <div>
+                      <label className="block text-xs font-medium text-muted-foreground mb-1">
+                        Option 1: Image URL
+                      </label>
+                      <input
+                        type="url"
+                        value={
+                          newProduct.image.startsWith("data:")
+                            ? ""
+                            : newProduct.image
+                        }
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            image: e.target.value,
+                          })
+                        }
+                        placeholder="https://example.com/image.jpg"
+                        className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    {/* File Upload */}
+                    <div>
+                      <label className="block text-xs font-medium text-muted-foreground mb-1">
+                        Option 2: Upload Image File
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleNewProductImageUpload(file);
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          disabled={uploadingImage}
+                        />
+                        {uploadingImage && (
+                          <div className="text-sm text-blue-600">
+                            Uploading...
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Max file size: 5MB. Supported formats: JPG, PNG, GIF,
+                        WebP
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Product Details (Optional - Max 8 points, one per line)
+                  </label>
+                  <textarea
+                    value={newProduct.details.join("\n")}
+                    onChange={(e) => {
+                      const details = e.target.value
+                        .split("\n")
+                        .filter((detail) => detail.trim());
+                      setNewProduct({ ...newProduct, details });
+                    }}
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={6}
+                    placeholder="Optional: Enter product details, one per line&#10;Maximum 8 points allowed"
+                  />
+                  <div className="text-sm text-gray-500 mt-1">
+                    Current: {newProduct.details.length} points
+                    {newProduct.details.length > 8 && (
+                      <span className="text-destructive ml-2">
+                        Maximum 8 points allowed
+                      </span>
+                    )}
+                    {newProduct.details.length === 0 && (
+                      <span className="text-gray-500 ml-2">Optional field</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Gallery Images Section */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-foreground mb-3">
+                    Product Gallery Images (Optional)
+                  </label>
+
+                  {/* Upload Gallery Image Button */}
+                  <div className="mb-4">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
+                      Upload Gallery Images
+                    </label>
                     <div className="flex items-center space-x-2">
                       <input
                         type="file"
@@ -1657,180 +2082,161 @@ const deleteOldImage = async (oldImageUrl: string) => {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            handleNewProductImageUpload(file);
+                            handleGalleryImageUpload(file, false);
                           }
                         }}
                         className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        disabled={uploadingImage}
+                        disabled={uploadingGalleryImage}
                       />
-                      {uploadingImage && (
-                        <div className="text-sm text-blue-600">Uploading...</div>
+                      {uploadingGalleryImage && (
+                        <div className="text-sm text-blue-600">
+                          Uploading...
+                        </div>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                    </p>
                   </div>
-                </div>
-              </div>
-              
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  Product Details (Optional - Max 8 points, one per line)
-                </label>
-                <textarea
-                  value={newProduct.details.join('\n')}
-                  onChange={(e) => {
-                    const details = e.target.value.split('\n').filter(detail => detail.trim());
-                    setNewProduct({...newProduct, details});
-                  }}
-                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={6}
-                  placeholder="Optional: Enter product details, one per line&#10;Maximum 8 points allowed"
-                />
-                <div className="text-sm text-gray-500 mt-1">
-                  Current: {newProduct.details.length} points 
-                  {newProduct.details.length > 8 && (
-                    <span className="text-destructive ml-2">Maximum 8 points allowed</span>
-                  )}
-                  {newProduct.details.length === 0 && (
-                    <span className="text-gray-500 ml-2">Optional field</span>
-                  )}
-                </div>
-              </div>
 
-              {/* Gallery Images Section */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-3">Product Gallery Images (Optional)</label>
-                
-                {/* Upload Gallery Image Button */}
-                <div className="mb-4">
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">Upload Gallery Images</label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleGalleryImageUpload(file, false);
-                        }
-                      }}
-                      className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={uploadingGalleryImage}
-                    />
-                    {uploadingGalleryImage && (
-                      <div className="text-sm text-blue-600">Uploading...</div>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                  {/* Display Gallery Images */}
+                  {newProduct.gallery && newProduct.gallery.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Gallery Images ({newProduct.gallery.length})
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {newProduct.gallery.map((imageUrl, idx) => (
+                          <div key={idx} className="relative">
+                            <Image
+                              src={imageUrl}
+                              alt={`Gallery ${idx + 1}`}
+                              width={96}
+                              height={96}
+                              className="w-full h-24 object-cover rounded-lg border border-border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeGalleryImage(imageUrl, false)
+                              }
+                              className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                              title="Remove this image"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Display Gallery Images */}
-                {newProduct.gallery && newProduct.gallery.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">Gallery Images ({newProduct.gallery.length})</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {newProduct.gallery.map((imageUrl, idx) => (
-                        <div key={idx} className="relative">
-                          <Image
-                            src={imageUrl}
-                            alt={`Gallery ${idx + 1}`}
-                            width={96}
-                            height={96}
-                            className="w-full h-24 object-cover rounded-lg border border-border"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryImage(imageUrl, false)}
-                            className="absolute top-1 right-1 bg-destructive hover:bg-destructive/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                            title="Remove this image"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
+                {/* Debug Info for Add Product Form */}
+                <div className="mb-4 p-3 bg-accent rounded-md text-sm">
+                  <div className="font-medium text-foreground mb-2">
+                    Form Validation Status:
+                  </div>
+                  <div className="space-y-1">
+                    <div
+                      className={`${newProduct.name ? "text-green-600" : "text-red-600"}`}
+                    >
+                      Name: {newProduct.name ? "✓" : "✗"}{" "}
+                      {newProduct.name || "Required"}
+                    </div>
+                    <div
+                      className={`${newProduct.description ? "text-green-600" : "text-yellow-600"}`}
+                    >
+                      Description: {newProduct.description ? "✓" : "○"}{" "}
+                      {newProduct.description ? "Provided" : "Optional"}
+                    </div>
+                    <div
+                      className={`${newProduct.image ? "text-green-600" : "text-red-600"}`}
+                    >
+                      Image: {newProduct.image ? "✓" : "✗"}{" "}
+                      {newProduct.image ? "Provided" : "Required"}
+                    </div>
+                    <div
+                      className={`${newProduct.details.length <= 8 ? "text-green-600" : "text-red-600"}`}
+                    >
+                      Details: {newProduct.details.length <= 8 ? "✓" : "✗"}{" "}
+                      {newProduct.details.length} points (optional, max 8)
+                    </div>
+                    <div
+                      className={`${!uploadingImage ? "text-green-600" : "text-yellow-600"}`}
+                    >
+                      Upload Status:{" "}
+                      {!uploadingImage
+                        ? "✓ Ready"
+                        : "⏳ Uploading to AWS CloudFront..."}
                     </div>
                   </div>
-                )}
-              </div>
-              
-              {/* Debug Info for Add Product Form */}
-              <div className="mb-4 p-3 bg-accent rounded-md text-sm">
-                <div className="font-medium text-foreground mb-2">Form Validation Status:</div>
-                <div className="space-y-1">
-                  <div className={`${newProduct.name ? 'text-green-600' : 'text-red-600'}`}>
-                    Name: {newProduct.name ? '✓' : '✗'} {newProduct.name || 'Required'}
-                  </div>
-                  <div className={`${newProduct.description ? 'text-green-600' : 'text-yellow-600'}`}>
-                    Description: {newProduct.description ? '✓' : '○'} {newProduct.description ? 'Provided' : 'Optional'}
-                  </div>
-                  <div className={`${newProduct.image ? 'text-green-600' : 'text-red-600'}`}>
-                    Image: {newProduct.image ? '✓' : '✗'} {newProduct.image ? 'Provided' : 'Required'}
-                  </div>
-                  <div className={`${newProduct.details.length <= 8 ? 'text-green-600' : 'text-red-600'}`}>
-                    Details: {newProduct.details.length <= 8 ? '✓' : '✗'} {newProduct.details.length} points (optional, max 8)
-                  </div>
-                  <div className={`${!uploadingImage ? 'text-green-600' : 'text-yellow-600'}`}>
-                    Upload Status: {!uploadingImage ? '✓ Ready' : '⏳ Uploading to AWS CloudFront...'}
-                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setNewProduct({
+                        name: "",
+                        image: "",
+                        description: "",
+                        type: "basic",
+                        price: 0,
+                        details: [],
+                        category: "Electronics",
+                        stock: 0,
+                        status: "active",
+                        slug: "",
+                        tax: {
+                          type: "percentage",
+                          value: 18,
+                          label: "GST (18%)",
+                        },
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                      });
+                    }}
+                    className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:bg-accent"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={
+                      newProduct.details.length > 8 ||
+                      !newProduct.image ||
+                      !newProduct.name ||
+                      uploadingImage ||
+                      isCreating
+                    }
+                    className={`flex items-center justify-center px-4 py-2 rounded-md transition-all ${
+                      newProduct.details.length > 8 ||
+                      !newProduct.image ||
+                      !newProduct.name ||
+                      uploadingImage ||
+                      isCreating
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
+                  >
+                    {isCreating ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin mr-2" />
+                        Creating...
+                      </>
+                    ) : uploadingImage ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin mr-2" />
+                        Uploading to AWS...
+                      </>
+                    ) : (
+                      "Create Product"
+                    )}
+                  </button>
                 </div>
               </div>
-              
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setNewProduct({
-                      name: '',
-                      image: '',
-                      description: '',
-                      type: 'basic',
-                      price: 0,
-                      details: [],
-                      category: 'Electronics',
-                      stock: 0,
-                      status: 'active',
-                      slug: '',
-                      tax: { type: 'percentage', value: 18, label: 'GST (18%)' },
-                      createdAt: new Date(),
-                      updatedAt: new Date()
-                    });
-                  }}
-                  className="px-4 py-2 text-muted-foreground border border-border rounded-md hover:bg-accent"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    newProduct.details.length > 8 || 
-                    !newProduct.image ||
-                    !newProduct.name ||
-                    uploadingImage ||
-                    isCreating
-                  }
-                  className={`flex items-center justify-center px-4 py-2 rounded-md transition-all ${
-                    (newProduct.details.length > 8 || !newProduct.image || !newProduct.name || uploadingImage || isCreating)
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                  }`}
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin mr-2" />
-                      Creating...
-                    </>
-                  ) : uploadingImage ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin mr-2" />
-                      Uploading to AWS...
-                    </>
-                  ) : (
-                    'Create Product'
-                  )}
-                </button>
-              </div>
-            </div>
             </form>
           </div>
         </div>
@@ -1845,13 +2251,17 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 <Trash2 className="w-5 h-5 text-red-600" />
               </div>
               <div className="ml-4">
-                <h3 className="text-lg font-medium text-foreground">Delete Product</h3>
+                <h3 className="text-lg font-medium text-foreground">
+                  Delete Product
+                </h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  Are you sure you want to delete this product? This action cannot be undone and will also remove the associated image from storage.
+                  Are you sure you want to delete this product? This action
+                  cannot be undone and will also remove the associated image
+                  from storage.
                 </p>
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowDeleteConfirm(null)}
@@ -1865,8 +2275,8 @@ const deleteOldImage = async (oldImageUrl: string) => {
                 disabled={deletingProduct === showDeleteConfirm}
                 className={`flex items-center justify-center px-4 py-2 rounded-md transition-all ${
                   deletingProduct === showDeleteConfirm
-                    ? 'bg-gray-400 cursor-not-allowed text-white'
-                    : 'bg-red-600 hover:bg-red-700 text-white'
+                    ? "bg-gray-400 cursor-not-allowed text-white"
+                    : "bg-red-600 hover:bg-red-700 text-white"
                 }`}
               >
                 {deletingProduct === showDeleteConfirm ? (
@@ -1888,4 +2298,3 @@ const deleteOldImage = async (oldImageUrl: string) => {
     </div>
   );
 }
-

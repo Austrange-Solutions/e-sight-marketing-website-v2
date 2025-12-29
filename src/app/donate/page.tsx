@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Heart, IndianRupee, Users, Award, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Heart,
+  IndianRupee,
+  Users,
+  Award,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import Leaderboard from "@/components/donate/Leaderboard";
 import DonationPoolProgress from "@/components/donate/DonationPoolProgress";
 import CashfreeDonateButton from "@/components/donate/CashfreeDonateButton";
@@ -68,10 +75,12 @@ export default function DonatePage() {
         if (!response.ok) throw new Error("Failed to fetch foundations");
         const data = await response.json();
         setFoundations(data.foundations || []);
-        
+
         // Auto-select first foundation (prefer code over _id)
         if (data.foundations && data.foundations.length > 0) {
-          setSelectedFoundation(data.foundations[0].code || data.foundations[0]._id);
+          setSelectedFoundation(
+            data.foundations[0].code || data.foundations[0]._id
+          );
         }
       } catch (error) {
         console.error("Error fetching foundations:", error);
@@ -128,7 +137,9 @@ export default function DonatePage() {
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
+    } else if (
+      !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)
+    ) {
       newErrors.email = "Please enter a valid email";
     }
 
@@ -177,10 +188,16 @@ export default function DonatePage() {
       {processing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl p-6 sm:p-8 max-w-md w-[90%] text-center border border-border">
-            <div className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" aria-hidden="true" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">Processing your donation</h3>
+            <div
+              className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"
+              aria-hidden="true"
+            />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              Processing your donation
+            </h3>
             <p className="text-sm text-muted-foreground">
-              Please wait, we are verifying your payment and updating the leaderboard. You will be redirected shortly.
+              Please wait, we are verifying your payment and updating the
+              leaderboard. You will be redirected shortly.
             </p>
           </div>
         </div>
@@ -203,19 +220,24 @@ export default function DonatePage() {
               Help Blind People See the World
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Your donation provides Maceazy Pro smart canes that empower visually impaired
-              individuals with independence, safety, and confidence.
+              Your donation provides Maceazy Pro smart canes that empower
+              visually impaired individuals with independence, safety, and
+              confidence.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
               <div className="bg-card border border-border rounded-lg p-6">
                 <Users className="w-8 h-8 text-primary mb-3 mx-auto" />
                 <div className="text-3xl font-bold text-foreground">500+</div>
-                <div className="text-sm text-muted-foreground">People Helped</div>
+                <div className="text-sm text-muted-foreground">
+                  People Helped
+                </div>
               </div>
               <div className="bg-card border border-border rounded-lg p-6">
                 <Heart className="w-8 h-8 text-primary mb-3 mx-auto" />
                 <div className="text-3xl font-bold text-foreground">₹7.5L+</div>
-                <div className="text-sm text-muted-foreground">Donations Raised</div>
+                <div className="text-sm text-muted-foreground">
+                  Donations Raised
+                </div>
               </div>
               <div className="bg-card border border-border rounded-lg p-6">
                 <Award className="w-8 h-8 text-primary mb-3 mx-auto" />
@@ -239,7 +261,9 @@ export default function DonatePage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="bg-card border border-border rounded-2xl p-8 shadow-lg"
               >
-                <h2 className="text-3xl font-bold text-foreground mb-6">Choose Your Donation</h2>
+                <h2 className="text-3xl font-bold text-foreground mb-6">
+                  Choose Your Donation
+                </h2>
 
                 {/* Preset Amounts */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
@@ -256,7 +280,9 @@ export default function DonatePage() {
                       <div className="text-2xl font-bold text-foreground mb-2">
                         ₹{preset.amount.toLocaleString("en-IN")}
                       </div>
-                      <div className="text-sm text-muted-foreground">{preset.label}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {preset.label}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -277,7 +303,9 @@ export default function DonatePage() {
                     />
                   </div>
                   {errors.amount && (
-                    <p className="text-destructive text-sm mt-2">{errors.amount}</p>
+                    <p className="text-destructive text-sm mt-2">
+                      {errors.amount}
+                    </p>
                   )}
                 </div>
 
@@ -291,11 +319,13 @@ export default function DonatePage() {
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-foreground mb-2">Your Impact</h3>
+                        <h3 className="font-semibold text-foreground mb-2">
+                          Your Impact
+                        </h3>
                         <p className="text-foreground">{getImpactMessage()}</p>
                         <p className="text-sm text-muted-foreground mt-2">
-                          Every Maceazy Pro smart cane transforms a life with safer, more
-                          independent mobility.
+                          Every Maceazy Pro smart cane transforms a life with
+                          safer, more independent mobility.
                         </p>
                       </div>
                     </div>
@@ -311,15 +341,21 @@ export default function DonatePage() {
                   >
                     <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-destructive mb-1">Payment Error</h4>
-                      <p className="text-sm text-destructive/90">{paymentError}</p>
+                      <h4 className="font-semibold text-destructive mb-1">
+                        Payment Error
+                      </h4>
+                      <p className="text-sm text-destructive/90">
+                        {paymentError}
+                      </p>
                     </div>
                   </motion.div>
                 )}
 
                 {/* Donor Details Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <h3 className="text-xl font-semibold text-foreground">Your Details</h3>
+                  <h3 className="text-xl font-semibold text-foreground">
+                    Your Details
+                  </h3>
 
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -328,14 +364,18 @@ export default function DonatePage() {
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       className={`w-full px-4 py-3 bg-background border ${
                         errors.name ? "border-destructive" : "border-border"
                       } rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground`}
                       placeholder="Enter your name"
                     />
                     {errors.name && (
-                      <p className="text-destructive text-sm mt-2">{errors.name}</p>
+                      <p className="text-destructive text-sm mt-2">
+                        {errors.name}
+                      </p>
                     )}
                   </div>
 
@@ -346,14 +386,18 @@ export default function DonatePage() {
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       className={`w-full px-4 py-3 bg-background border ${
                         errors.email ? "border-destructive" : "border-border"
                       } rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground`}
                       placeholder="your.email@example.com"
                     />
                     {errors.email && (
-                      <p className="text-destructive text-sm mt-2">{errors.email}</p>
+                      <p className="text-destructive text-sm mt-2">
+                        {errors.email}
+                      </p>
                     )}
                   </div>
 
@@ -364,7 +408,9 @@ export default function DonatePage() {
                     <input
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
                       className={`w-full px-4 py-3 bg-background border ${
                         errors.phone ? "border-destructive" : "border-border"
                       } rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground`}
@@ -372,7 +418,9 @@ export default function DonatePage() {
                       maxLength={10}
                     />
                     {errors.phone && (
-                      <p className="text-destructive text-sm mt-2">{errors.phone}</p>
+                      <p className="text-destructive text-sm mt-2">
+                        {errors.phone}
+                      </p>
                     )}
                   </div>
 
@@ -382,7 +430,9 @@ export default function DonatePage() {
                     </label>
                     <textarea
                       value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, message: e.target.value })
+                      }
                       rows={4}
                       className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none"
                       placeholder="Share why you're supporting this cause..."
@@ -396,7 +446,8 @@ export default function DonatePage() {
                       Tax Exemption Details (Optional)
                     </h4>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Provide these details to receive 80G tax exemption certificate
+                      Provide these details to receive 80G tax exemption
+                      certificate
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -407,7 +458,12 @@ export default function DonatePage() {
                         <input
                           type="text"
                           value={formData.address}
-                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              address: e.target.value,
+                            })
+                          }
                           className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                           placeholder="Enter your address"
                           maxLength={200}
@@ -421,7 +477,9 @@ export default function DonatePage() {
                         <input
                           type="text"
                           value={formData.city}
-                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, city: e.target.value })
+                          }
                           className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                           placeholder="Enter city"
                           maxLength={100}
@@ -435,7 +493,9 @@ export default function DonatePage() {
                         <input
                           type="text"
                           value={formData.state}
-                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, state: e.target.value })
+                          }
                           className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                           placeholder="Enter state"
                           maxLength={100}
@@ -450,7 +510,10 @@ export default function DonatePage() {
                           type="text"
                           value={formData.pan}
                           onChange={(e) =>
-                            setFormData({ ...formData, pan: e.target.value.toUpperCase() })
+                            setFormData({
+                              ...formData,
+                              pan: e.target.value.toUpperCase(),
+                            })
                           }
                           className={`w-full px-4 py-3 bg-background border ${
                             errors.pan ? "border-destructive" : "border-border"
@@ -459,10 +522,13 @@ export default function DonatePage() {
                           maxLength={10}
                         />
                         {errors.pan && (
-                          <p className="text-destructive text-sm mt-2">{errors.pan}</p>
+                          <p className="text-destructive text-sm mt-2">
+                            {errors.pan}
+                          </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-2">
-                          Format: 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)
+                          Format: 5 letters, 4 digits, 1 letter (e.g.,
+                          ABCDE1234F)
                         </p>
                       </div>
                     </div>
@@ -474,12 +540,19 @@ export default function DonatePage() {
                       id="anonymous"
                       checked={formData.isAnonymous}
                       onChange={(e) =>
-                        setFormData({ ...formData, isAnonymous: e.target.checked })
+                        setFormData({
+                          ...formData,
+                          isAnonymous: e.target.checked,
+                        })
                       }
                       className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-ring"
                     />
-                    <label htmlFor="anonymous" className="ml-2 text-sm text-muted-foreground">
-                      Make my donation anonymous (your name won&apos;t appear on the leaderboard)
+                    <label
+                      htmlFor="anonymous"
+                      className="ml-2 text-sm text-muted-foreground"
+                    >
+                      Make my donation anonymous (your name won&apos;t appear on
+                      the leaderboard)
                     </label>
                   </div>
 
@@ -492,7 +565,10 @@ export default function DonatePage() {
                       onChange={(e) => setPolicyAccepted(e.target.checked)}
                       className="w-4 h-4 mt-0.5 text-primary bg-background border-border rounded focus:ring-ring"
                     />
-                    <label htmlFor="policyAcceptance" className="ml-2 text-sm text-muted-foreground">
+                    <label
+                      htmlFor="policyAcceptance"
+                      className="ml-2 text-sm text-muted-foreground"
+                    >
                       I agree to the{" "}
                       <a
                         href="/privacy"
@@ -501,8 +577,8 @@ export default function DonatePage() {
                         className="text-primary hover:underline"
                       >
                         Privacy Policy
-                      </a>
-                      {" "}and{" "}
+                      </a>{" "}
+                      and{" "}
                       <a
                         href="/terms-of-use"
                         target="_blank"
@@ -510,8 +586,8 @@ export default function DonatePage() {
                         className="text-primary hover:underline"
                       >
                         Terms & Refund Policy
-                      </a>
-                      {" "}*
+                      </a>{" "}
+                      *
                     </label>
                   </div>
 
@@ -526,28 +602,47 @@ export default function DonatePage() {
                       </div>
                     ) : foundations.length === 0 ? (
                       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-                        <p className="text-yellow-800">No active foundations available. Please try again later.</p>
+                        <p className="text-yellow-800">
+                          No active foundations available. Please try again
+                          later.
+                        </p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                         {foundations.map((foundation) => {
-                          const displayName = foundation.displayName || foundation.foundationName;
-                          const isSelected = selectedFoundation === foundation.code || selectedFoundation === foundation._id;
-                          
+                          const displayName =
+                            foundation.displayName || foundation.foundationName;
+                          const isSelected =
+                            selectedFoundation === foundation.code ||
+                            selectedFoundation === foundation._id;
+
                           return (
                             <button
                               key={foundation._id}
                               type="button"
-                              onClick={() => setSelectedFoundation(foundation.code || foundation._id)}
+                              onClick={() =>
+                                setSelectedFoundation(
+                                  foundation.code || foundation._id
+                                )
+                              }
                               className={`p-4 rounded-lg border-2 transition-all text-left hover:shadow-md ${
                                 isSelected
                                   ? `ring-2 ring-offset-2`
                                   : "border-border bg-card"
                               }`}
                               style={{
-                                borderColor: isSelected ? foundation.primaryColor : undefined,
-                                backgroundColor: isSelected ? `${foundation.primaryColor}10` : undefined,
-                                ...(isSelected && foundation.primaryColor ? { '--tw-ring-color': foundation.primaryColor } as any : {})
+                                borderColor: isSelected
+                                  ? foundation.primaryColor
+                                  : undefined,
+                                backgroundColor: isSelected
+                                  ? `${foundation.primaryColor}10`
+                                  : undefined,
+                                ...(isSelected && foundation.primaryColor
+                                  ? ({
+                                      "--tw-ring-color":
+                                        foundation.primaryColor,
+                                    } as any)
+                                  : {}),
                               }}
                             >
                               <div className="flex items-start gap-3 mb-2">
@@ -560,10 +655,14 @@ export default function DonatePage() {
                                     className="object-contain rounded"
                                   />
                                 ) : (
-                                  <span className="text-3xl">{foundation.icon || "❤️"}</span>
+                                  <span className="text-3xl">
+                                    {foundation.icon || "❤️"}
+                                  </span>
                                 )}
                                 <div className="flex-1">
-                                  <div className="font-semibold text-foreground">{displayName}</div>
+                                  <div className="font-semibold text-foreground">
+                                    {displayName}
+                                  </div>
                                   {foundation.tagline && (
                                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                       {foundation.tagline}
@@ -572,7 +671,10 @@ export default function DonatePage() {
                                 </div>
                               </div>
                               {isSelected && (
-                                <div className="flex items-center gap-1 text-xs font-medium mt-2" style={{ color: foundation.primaryColor }}>
+                                <div
+                                  className="flex items-center gap-1 text-xs font-medium mt-2"
+                                  style={{ color: foundation.primaryColor }}
+                                >
                                   <CheckCircle2 className="w-3 h-3" />
                                   Selected
                                 </div>
@@ -599,7 +701,13 @@ export default function DonatePage() {
                       state: formData.state,
                       pan: formData.pan,
                     }}
-                    disabled={!formData.name || !formData.email || !formData.phone || selectedAmount < 1 || !policyAccepted}
+                    disabled={
+                      !formData.name ||
+                      !formData.email ||
+                      !formData.phone ||
+                      selectedAmount < 1 ||
+                      !policyAccepted
+                    }
                     onError={handlePaymentError}
                     selectedFoundation={selectedFoundation}
                   />
@@ -630,8 +738,9 @@ export default function DonatePage() {
               Why Maceazy Pro?
             </h2>
             <p className="text-lg text-muted-foreground mb-12">
-              Maceazy Pro is a revolutionary smart cane that uses advanced sensors and AI to
-              detect obstacles, providing real-time feedback to visually impaired users.
+              Maceazy Pro is a revolutionary smart cane that uses advanced
+              sensors and AI to detect obstacles, providing real-time feedback
+              to visually impaired users.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-card border border-border rounded-xl p-6 text-left">
@@ -639,7 +748,8 @@ export default function DonatePage() {
                   Advanced Obstacle Detection
                 </h3>
                 <p className="text-muted-foreground">
-                  Multi-level sensors detect obstacles from head to toe, ensuring complete safety.
+                  Multi-level sensors detect obstacles from head to toe,
+                  ensuring complete safety.
                 </p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6 text-left">
@@ -647,19 +757,26 @@ export default function DonatePage() {
                   Long Battery Life
                 </h3>
                 <p className="text-muted-foreground">
-                  Up to 8 hours of continuous use with quick charging capability.
+                  Up to 8 hours of continuous use with quick charging
+                  capability.
                 </p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6 text-left">
-                <h3 className="text-xl font-semibold text-foreground mb-3">Lightweight Design</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Lightweight Design
+                </h3>
                 <p className="text-muted-foreground">
-                  Ergonomically designed for all-day comfort without causing fatigue.
+                  Ergonomically designed for all-day comfort without causing
+                  fatigue.
                 </p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6 text-left">
-                <h3 className="text-xl font-semibold text-foreground mb-3">Affordable</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Affordable
+                </h3>
                 <p className="text-muted-foreground">
-                  At just ₹1,499, we&apos;re making assistive technology accessible to all.
+                  At just ₹1,499, we&apos;re making assistive technology
+                  accessible to all.
                 </p>
               </div>
             </div>
@@ -669,4 +786,3 @@ export default function DonatePage() {
     </div>
   );
 }
-

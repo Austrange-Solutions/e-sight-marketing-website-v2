@@ -54,21 +54,41 @@ async function getPresignedUrl(file: File) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     // Use a semantic folder hint; API will default to S3_PREFIX if not whitelisted
-    body: JSON.stringify({ filename: file.name, fileType: file.type, folder: "gallery" }),
+    body: JSON.stringify({
+      filename: file.name,
+      fileType: file.type,
+      folder: "gallery",
+    }),
     credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to get presigned URL");
-  return res.json() as Promise<{ success: boolean; uploadUrl: string; key: string; fileUrl: string }>
+  return res.json() as Promise<{
+    success: boolean;
+    uploadUrl: string;
+    key: string;
+    fileUrl: string;
+  }>;
 }
 
 async function uploadToS3(file: File, uploadUrl: string) {
-  const put = await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+  const put = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": file.type },
+  });
   if (!put.ok) throw new Error("Upload failed");
 }
 
-async function saveImageRecord(params: { key: string; fileUrl: string; file: File; tags: string[]; description?: string; altText?: string }) {
+async function saveImageRecord(params: {
+  key: string;
+  fileUrl: string;
+  file: File;
+  tags: string[];
+  description?: string;
+  altText?: string;
+}) {
   // API requires: filename, originalName, s3Key, cloudFrontUrl, fileSize, fileType
-  const filename = params.key.split('/').pop() || params.file.name;
+  const filename = params.key.split("/").pop() || params.file.name;
   const body = {
     filename,
     originalName: params.file.name,
@@ -81,7 +101,12 @@ async function saveImageRecord(params: { key: string; fileUrl: string; file: Fil
     description: params.description || "",
     altText: params.altText || "",
   };
-  const res = await fetch("/api/images", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "include" });
+  const res = await fetch("/api/images", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
   if (!res.ok) throw new Error("Failed to save image record");
   const data = await res.json();
   return data.data as UploadedImage;
@@ -90,7 +115,12 @@ async function saveImageRecord(params: { key: string; fileUrl: string; file: Fil
 async function uploadImageAndSave(file: File, tags: string[]) {
   const presign = await getPresignedUrl(file);
   await uploadToS3(file, presign.uploadUrl);
-  const img = await saveImageRecord({ key: presign.key, fileUrl: presign.fileUrl, file, tags });
+  const img = await saveImageRecord({
+    key: presign.key,
+    fileUrl: presign.fileUrl,
+    file,
+    tags,
+  });
   return img;
 }
 
@@ -110,7 +140,9 @@ export default function GalleryManagement() {
   const [isPublished, setIsPublished] = useState(true);
   const [thumbnailUploading, setThumbnailUploading] = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
-  const [thumbnailImage, setThumbnailImage] = useState<UploadedImage | null>(null);
+  const [thumbnailImage, setThumbnailImage] = useState<UploadedImage | null>(
+    null
+  );
   const [galleryImages, setGalleryImages] = useState<UploadedImage[]>([]);
 
   // Input refs to safely reset value after async work
@@ -125,9 +157,13 @@ export default function GalleryManagement() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/admin/events", { credentials: "include", cache: "no-store" });
+      const res = await fetch("/api/admin/events", {
+        credentials: "include",
+        cache: "no-store",
+      });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || "Failed to fetch events");
+      if (!res.ok || !data.success)
+        throw new Error(data.error || "Failed to fetch events");
       setEvents(data.data || []);
     } catch (e: any) {
       setError(e.message || "Failed to load");
@@ -136,7 +172,9 @@ export default function GalleryManagement() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const resetForm = () => {
     setTitle("");
@@ -153,10 +191,13 @@ export default function GalleryManagement() {
 
   const handleCreate = async () => {
     try {
-      if (!title.trim()) { alert("Title is required"); return; }
+      if (!title.trim()) {
+        alert("Title is required");
+        return;
+      }
       const body: any = {
         title,
-  slug: slug ? toKebab(slug) : undefined,
+        slug: slug ? toKebab(slug) : undefined,
         location: location || undefined,
         date: date || undefined,
         participants: participants || undefined,
@@ -166,9 +207,15 @@ export default function GalleryManagement() {
         thumbnailImageId: thumbnailImage?._id,
         galleryImageIds: galleryImages.map((g) => g._id),
       };
-      const res = await fetch("/api/admin/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "include" });
+      const res = await fetch("/api/admin/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        credentials: "include",
+      });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || "Failed to create event");
+      if (!res.ok || !data.success)
+        throw new Error(data.error || "Failed to create event");
       resetForm();
       await load();
     } catch (e: any) {
@@ -179,7 +226,10 @@ export default function GalleryManagement() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this event?")) return;
     try {
-      const res = await fetch(`/api/admin/events/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`/api/admin/events/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || "Failed to delete");
@@ -207,7 +257,9 @@ export default function GalleryManagement() {
     }
   };
 
-  const onGalleryFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onGalleryFilesChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     if (files.length === 0) return;
     try {
@@ -231,8 +283,8 @@ export default function GalleryManagement() {
   const startEdit = (ev: EventItem) => {
     setEditing(ev);
     setTitle(ev.title || "");
-  // Normalize existing slug (or fallback to kebabified title)
-  setSlug(ev.slug ? toKebab(ev.slug) : ev.title ? toKebab(ev.title) : "");
+    // Normalize existing slug (or fallback to kebabified title)
+    setSlug(ev.slug ? toKebab(ev.slug) : ev.title ? toKebab(ev.title) : "");
     setLocation(ev.location || "");
     setDate(ev.date ? ev.date.slice(0, 10) : "");
     setParticipants(ev.participants || "");
@@ -249,7 +301,7 @@ export default function GalleryManagement() {
     try {
       const body: any = {
         title,
-  slug: slug ? toKebab(slug) : undefined,
+        slug: slug ? toKebab(slug) : undefined,
         location: location || undefined,
         date: date || undefined,
         participants: participants || undefined,
@@ -259,9 +311,15 @@ export default function GalleryManagement() {
         thumbnailImage: thumbnailImage?._id || null,
         galleryImages: galleryImages.map((g) => g._id),
       };
-      const res = await fetch(`/api/admin/events/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "include" });
+      const res = await fetch(`/api/admin/events/${editing._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        credentials: "include",
+      });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || "Failed to update event");
+      if (!res.ok || !data.success)
+        throw new Error(data.error || "Failed to update event");
       setEditOpen(false);
       setEditing(null);
       resetForm();
@@ -282,34 +340,71 @@ export default function GalleryManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <label className="block text-sm font-medium">Title</label>
-                <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
-                <label className="block text-sm font-medium mt-2">Slug (optional)</label>
-                <input
-                  className="w-full border rounded px-3 py-2"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  onBlur={(e) => setSlug(toKebab(e.target.value))}
-                  placeholder="optional-custom-slug"
-                />
+            <input
+              className="w-full border rounded px-3 py-2"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <label className="block text-sm font-medium mt-2">
+              Slug (optional)
+            </label>
+            <input
+              className="w-full border rounded px-3 py-2"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              onBlur={(e) => setSlug(toKebab(e.target.value))}
+              placeholder="optional-custom-slug"
+            />
 
             <label className="block text-sm font-medium">Location</label>
-            <input className="w-full border rounded px-3 py-2" value={location} onChange={(e) => setLocation(e.target.value)} />
+            <input
+              className="w-full border rounded px-3 py-2"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
 
             <label className="block text-sm font-medium">Date</label>
-            <input type="date" className="w-full border rounded px-3 py-2" value={date} onChange={(e) => setDate(e.target.value)} />
+            <input
+              type="date"
+              className="w-full border rounded px-3 py-2"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
 
             <label className="block text-sm font-medium">Participants</label>
-            <input className="w-full border rounded px-3 py-2" value={participants} onChange={(e) => setParticipants(e.target.value)} />
+            <input
+              className="w-full border rounded px-3 py-2"
+              value={participants}
+              onChange={(e) => setParticipants(e.target.value)}
+            />
           </div>
           <div className="space-y-3">
-            <label className="block text-sm font-medium">Short Description</label>
-            <textarea className="w-full border rounded px-3 py-2" rows={3} value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} />
+            <label className="block text-sm font-medium">
+              Short Description
+            </label>
+            <textarea
+              className="w-full border rounded px-3 py-2"
+              rows={3}
+              value={shortDescription}
+              onChange={(e) => setShortDescription(e.target.value)}
+            />
 
-            <label className="block text-sm font-medium">Detailed Description</label>
-            <textarea className="w-full border rounded px-3 py-2" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
+            <label className="block text-sm font-medium">
+              Detailed Description
+            </label>
+            <textarea
+              className="w-full border rounded px-3 py-2"
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
 
             <label className="inline-flex items-center gap-2 mt-2">
-              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={isPublished}
+                onChange={(e) => setIsPublished(e.target.checked)}
+              />
               <span>Published</span>
             </label>
           </div>
@@ -318,33 +413,81 @@ export default function GalleryManagement() {
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <div className="flex items-center border justify-between mb-2">
-              <label className="text-sm font-medium mx-2">Thumbnail Image</label>
-              <input className="border p-2" ref={thumbInputRef} type="file" accept="image/*" onChange={onThumbFileChange} disabled={thumbnailUploading} />
+              <label className="text-sm font-medium mx-2">
+                Thumbnail Image
+              </label>
+              <input
+                className="border p-2"
+                ref={thumbInputRef}
+                type="file"
+                accept="image/*"
+                onChange={onThumbFileChange}
+                disabled={thumbnailUploading}
+              />
             </div>
             {thumbnailImage ? (
               <div className="border rounded p-2 inline-flex items-center gap-3">
-                <Image src={thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""} alt={thumbnailImage.altText || thumbnailImage.originalName} width={64} height={64} className="h-16 w-16 object-cover rounded" />
+                <Image
+                  src={
+                    thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""
+                  }
+                  alt={thumbnailImage.altText || thumbnailImage.originalName}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 object-cover rounded"
+                />
                 <div className="text-sm">
-                  <div className="font-medium">{thumbnailImage.originalName}</div>
-                  <button className="text-red-600 text-xs underline" onClick={() => setThumbnailImage(null)}>Remove</button>
+                  <div className="font-medium">
+                    {thumbnailImage.originalName}
+                  </div>
+                  <button
+                    className="text-red-600 text-xs underline"
+                    onClick={() => setThumbnailImage(null)}
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No thumbnail selected</p>
+              <p className="text-sm text-muted-foreground">
+                No thumbnail selected
+              </p>
             )}
           </div>
 
           <div>
             <div className="flex items-center border justify-between mb-2">
-              <label className="text-sm font-medium mx-2"> Gallery Images</label>
-              <input className="border p-2" ref={galleryInputRef} multiple type="file" accept="image/*" onChange={onGalleryFilesChange} disabled={galleryUploading} />
+              <label className="text-sm font-medium mx-2">
+                {" "}
+                Gallery Images
+              </label>
+              <input
+                className="border p-2"
+                ref={galleryInputRef}
+                multiple
+                type="file"
+                accept="image/*"
+                onChange={onGalleryFilesChange}
+                disabled={galleryUploading}
+              />
             </div>
             {galleryImages.length > 0 ? (
               <div className="grid grid-cols-3 gap-2">
                 {galleryImages.map((img) => (
                   <div key={img._id} className="relative group">
-                    <Image src={img.cloudFrontUrl || img.fileUrl || ""} alt={img.altText || img.originalName} width={80} height={80} className="h-20 w-full object-cover rounded" />
-                    <button className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100" onClick={() => removeGalleryImage(img._id)}>Remove</button>
+                    <Image
+                      src={img.cloudFrontUrl || img.fileUrl || ""}
+                      alt={img.altText || img.originalName}
+                      width={80}
+                      height={80}
+                      className="h-20 w-full object-cover rounded"
+                    />
+                    <button
+                      className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100"
+                      onClick={() => removeGalleryImage(img._id)}
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
               </div>
@@ -355,21 +498,33 @@ export default function GalleryManagement() {
         </div>
 
         <div className="mt-4">
-          <button onClick={handleCreate} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">Create Event</button>
+          <button
+            onClick={handleCreate}
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+          >
+            Create Event
+          </button>
         </div>
       </div>
 
       <div className="rounded-lg border bg-card p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">Events</h2>
-          <button onClick={load} className="text-sm text-muted-foreground underline">Refresh</button>
+          <button
+            onClick={load}
+            className="text-sm text-muted-foreground underline"
+          >
+            Refresh
+          </button>
         </div>
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading events…</p>
         ) : error ? (
           <p className="text-sm text-red-600">{error}</p>
         ) : events.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No events created yet.</p>
+          <p className="text-sm text-muted-foreground">
+            No events created yet.
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
@@ -386,12 +541,26 @@ export default function GalleryManagement() {
                 {events.map((ev) => (
                   <tr key={ev._id} className="border-b">
                     <td className="py-2 pr-4 font-medium">{ev.title}</td>
-                    <td className="py-2 pr-4">{ev.date ? new Date(ev.date).toLocaleDateString() : "-"}</td>
+                    <td className="py-2 pr-4">
+                      {ev.date ? new Date(ev.date).toLocaleDateString() : "-"}
+                    </td>
                     <td className="py-2 pr-4">{ev.location || "-"}</td>
-                    <td className="py-2 pr-4">{ev.isPublished ? "Yes" : "No"}</td>
+                    <td className="py-2 pr-4">
+                      {ev.isPublished ? "Yes" : "No"}
+                    </td>
                     <td className="py-2 pr-4 space-x-2">
-                      <button className="px-2 py-1 border rounded" onClick={() => startEdit(ev)}>Edit</button>
-                      <button className="px-2 py-1 border rounded text-red-600" onClick={() => handleDelete(ev._id)}>Delete</button>
+                      <button
+                        className="px-2 py-1 border rounded"
+                        onClick={() => startEdit(ev)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="px-2 py-1 border rounded text-red-600"
+                        onClick={() => handleDelete(ev._id)}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -406,15 +575,28 @@ export default function GalleryManagement() {
           <div className="bg-card rounded-lg p-4 w-full max-w-3xl max-h-[90vh] overflow-y-auto mt-8 mb-8">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Edit Event</h3>
-              <button onClick={() => { setEditOpen(false); setEditing(null); }}>✕</button>
+              <button
+                onClick={() => {
+                  setEditOpen(false);
+                  setEditing(null);
+                }}
+              >
+                ✕
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
                 <label className="block text-sm font-medium">Title</label>
-                <input className="w-full border rounded px-3 py-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
 
-                <label className="block text-sm font-medium mt-2">Slug (optional)</label>
+                <label className="block text-sm font-medium mt-2">
+                  Slug (optional)
+                </label>
                 <input
                   className="w-full border rounded px-3 py-2"
                   value={slug}
@@ -424,23 +606,56 @@ export default function GalleryManagement() {
                 />
 
                 <label className="block text-sm font-medium">Location</label>
-                <input className="w-full border rounded px-3 py-2" value={location} onChange={(e) => setLocation(e.target.value)} />
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
 
                 <label className="block text-sm font-medium">Date</label>
-                <input type="date" className="w-full border rounded px-3 py-2" value={date} onChange={(e) => setDate(e.target.value)} />
+                <input
+                  type="date"
+                  className="w-full border rounded px-3 py-2"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
 
-                <label className="block text-sm font-medium">Participants</label>
-                <input className="w-full border rounded px-3 py-2" value={participants} onChange={(e) => setParticipants(e.target.value)} />
+                <label className="block text-sm font-medium">
+                  Participants
+                </label>
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  value={participants}
+                  onChange={(e) => setParticipants(e.target.value)}
+                />
               </div>
               <div className="space-y-3">
-                <label className="block text-sm font-medium">Short Description</label>
-                <textarea className="w-full border rounded px-3 py-2" rows={3} value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} />
+                <label className="block text-sm font-medium">
+                  Short Description
+                </label>
+                <textarea
+                  className="w-full border rounded px-3 py-2"
+                  rows={3}
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                />
 
-                <label className="block text-sm font-medium">Detailed Description</label>
-                <textarea className="w-full border rounded px-3 py-2" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
+                <label className="block text-sm font-medium">
+                  Detailed Description
+                </label>
+                <textarea
+                  className="w-full border rounded px-3 py-2"
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
 
                 <label className="inline-flex items-center gap-2 mt-2">
-                  <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={isPublished}
+                    onChange={(e) => setIsPublished(e.target.checked)}
+                  />
                   <span>Published</span>
                 </label>
               </div>
@@ -450,44 +665,106 @@ export default function GalleryManagement() {
               <div>
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium">Thumbnail Image</label>
-                  <input className="border py-2" ref={thumbInputRef} type="file" accept="image/*" onChange={onThumbFileChange} disabled={thumbnailUploading} />
+                  <input
+                    className="border py-2"
+                    ref={thumbInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={onThumbFileChange}
+                    disabled={thumbnailUploading}
+                  />
                 </div>
                 {thumbnailImage ? (
                   <div className="border rounded p-2 inline-flex items-center gap-3">
-                    <Image src={thumbnailImage.cloudFrontUrl || thumbnailImage.fileUrl || ""} alt={thumbnailImage.altText || thumbnailImage.originalName} width={64} height={64} className="h-16 w-16 object-cover rounded" />
+                    <Image
+                      src={
+                        thumbnailImage.cloudFrontUrl ||
+                        thumbnailImage.fileUrl ||
+                        ""
+                      }
+                      alt={
+                        thumbnailImage.altText || thumbnailImage.originalName
+                      }
+                      width={64}
+                      height={64}
+                      className="h-16 w-16 object-cover rounded"
+                    />
                     <div className="text-sm">
-                      <div className="font-medium">{thumbnailImage.originalName}</div>
-                      <button className="text-red-600 text-xs underline" onClick={() => setThumbnailImage(null)}>Remove</button>
+                      <div className="font-medium">
+                        {thumbnailImage.originalName}
+                      </div>
+                      <button
+                        className="text-red-600 text-xs underline"
+                        onClick={() => setThumbnailImage(null)}
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No thumbnail selected</p>
+                  <p className="text-sm text-muted-foreground">
+                    No thumbnail selected
+                  </p>
                 )}
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm font-medium">Gallery Images</label>
-                  <input className="border py-2" ref={galleryInputRef} multiple type="file" accept="image/*" onChange={onGalleryFilesChange} disabled={galleryUploading} />
+                  <input
+                    className="border py-2"
+                    ref={galleryInputRef}
+                    multiple
+                    type="file"
+                    accept="image/*"
+                    onChange={onGalleryFilesChange}
+                    disabled={galleryUploading}
+                  />
                 </div>
                 {galleryImages.length > 0 ? (
                   <div className="grid grid-cols-3 gap-2">
                     {galleryImages.map((img) => (
                       <div key={img._id} className="relative group">
-                        <Image src={img.cloudFrontUrl || img.fileUrl || ""} alt={img.altText || img.originalName} width={80} height={80} className="h-20 w-full object-cover rounded" />
-                        <button className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100" onClick={() => removeGalleryImage(img._id)}>Remove</button>
+                        <Image
+                          src={img.cloudFrontUrl || img.fileUrl || ""}
+                          alt={img.altText || img.originalName}
+                          width={80}
+                          height={80}
+                          className="h-20 w-full object-cover rounded"
+                        />
+                        <button
+                          className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 py-0.5 opacity-0 group-hover:opacity-100"
+                          onClick={() => removeGalleryImage(img._id)}
+                        >
+                          Remove
+                        </button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No gallery images</p>
+                  <p className="text-sm text-muted-foreground">
+                    No gallery images
+                  </p>
                 )}
               </div>
             </div>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button className="px-3 py-2 border rounded" onClick={() => { setEditOpen(false); setEditing(null); }}>Cancel</button>
-              <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleUpdate}>Save Changes</button>
+              <button
+                className="px-3 py-2 border rounded"
+                onClick={() => {
+                  setEditOpen(false);
+                  setEditing(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-3 py-2 bg-primary text-white rounded"
+                onClick={handleUpdate}
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </div>

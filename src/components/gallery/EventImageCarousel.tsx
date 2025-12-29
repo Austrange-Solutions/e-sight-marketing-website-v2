@@ -53,8 +53,8 @@ export default function EventImageCarousel({ images }: Props) {
                 className={`h-2 w-2 rounded-full ${i === index ? "bg-white" : "bg-white/50"}`}
                 onClick={() => setIndex(i)}
                 aria-label={`Go to slide ${i + 1}`}
-              />)
-            )}
+              />
+            ))}
           </div>
         </>
       ) : null}

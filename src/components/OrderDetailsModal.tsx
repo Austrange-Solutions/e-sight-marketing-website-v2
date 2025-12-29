@@ -1,7 +1,17 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { X, Package, CreditCard, MapPin, Phone, Mail, User, Calendar, Truck } from 'lucide-react';
+import Image from "next/image";
+import {
+  X,
+  Package,
+  CreditCard,
+  MapPin,
+  Phone,
+  Mail,
+  User,
+  Calendar,
+  Truck,
+} from "lucide-react";
 
 interface OrderDetailsModalProps {
   order: {
@@ -46,8 +56,8 @@ interface OrderDetailsModalProps {
     };
     totalAmount: number;
     paymentInfo: {
-      method: 'cashfree' | 'razorpay' | 'cod';
-      status: 'pending' | 'paid' | 'failed' | 'refunded';
+      method: "cashfree" | "razorpay" | "cod";
+      status: "pending" | "paid" | "failed" | "refunded";
       cashfreeOrderId?: string;
       cashfreePaymentId?: string;
       razorpayOrderId?: string;
@@ -55,49 +65,70 @@ interface OrderDetailsModalProps {
       razorpaySignature?: string;
       paidAt?: string;
     };
-    status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+    status:
+      | "pending"
+      | "confirmed"
+      | "processing"
+      | "shipped"
+      | "delivered"
+      | "cancelled";
     createdAt: string;
     updatedAt: string;
   };
   onClose: () => void;
 }
 
-export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
+export default function OrderDetailsModal({
+  order,
+  onClose,
+}: OrderDetailsModalProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'processing': return 'bg-orange-100 text-orange-800';
-      case 'shipped': return 'bg-purple-100 text-purple-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "processing":
+        return "bg-orange-100 text-orange-800";
+      case "shipped":
+        return "bg-purple-100 text-purple-800";
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPaymentMethodDisplay = (method: string) => {
-    if (method === 'cashfree') return 'Online Payment (Cashfree)';
-    if (method === 'razorpay') return 'Online Payment (Razorpay)';
-    return 'Cash on Delivery';
+    if (method === "cashfree") return "Online Payment (Cashfree)";
+    if (method === "razorpay") return "Online Payment (Razorpay)";
+    return "Cash on Delivery";
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'text-green-600';
-      case 'pending': return 'text-yellow-600';
-      case 'failed': return 'text-red-600';
-      case 'refunded': return 'text-blue-600';
-      default: return 'text-gray-600';
+      case "paid":
+        return "text-green-600";
+      case "pending":
+        return "text-yellow-600";
+      case "failed":
+        return "text-red-600";
+      case "refunded":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
     }
   };
 
@@ -107,8 +138,12 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Order Details</h2>
-            <p className="text-sm text-muted-foreground">Order #{order.orderNumber}</p>
+            <h2 className="text-2xl font-bold text-foreground">
+              Order Details
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Order #{order.orderNumber}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -123,18 +158,28 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Order Status</p>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(order.status)}`}>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Order Status
+                </p>
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(order.status)}`}
+                >
                   {order.status}
                 </span>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Order Date</p>
-                <p className="font-semibold text-foreground">{formatDate(order.createdAt)}</p>
+                <p className="font-semibold text-foreground">
+                  {formatDate(order.createdAt)}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
-                <p className="text-2xl font-bold text-foreground">₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Total Amount
+                </p>
+                <p className="text-2xl font-bold text-foreground">
+                  ₹{order.totalAmount.toLocaleString("en-IN")}
+                </p>
               </div>
             </div>
           </div>
@@ -143,15 +188,17 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
           <div className="bg-accent/50 rounded-lg p-6 border border-border">
             <div className="flex items-center gap-3 mb-2">
               <Truck className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold text-foreground">Delivery Information</h3>
+              <h3 className="text-lg font-semibold text-foreground">
+                Delivery Information
+              </h3>
             </div>
             <div className="ml-8">
               <p className="text-foreground font-medium">
-                {order.status === 'delivered' 
+                {order.status === "delivered"
                   ? `Delivered on ${formatDate(order.updatedAt)}`
-                  : order.status === 'shipped'
-                  ? 'Expected delivery in 2-3 working days'
-                  : 'Delivered in 3-4 working days'}
+                  : order.status === "shipped"
+                    ? "Expected delivery in 2-3 working days"
+                    : "Delivered in 3-4 working days"}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 Standard shipping • Free delivery on orders above ₹999
@@ -167,22 +214,39 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
             </h3>
             <div className="space-y-4">
               {order.items.map((item, index) => (
-                <div key={index} className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
+                <div
+                  key={index}
+                  className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0"
+                >
                   <Image
-                    src={item.image || item.productId?.image || '/assets/images/maceazy-logo.png'}
+                    src={
+                      item.image ||
+                      item.productId?.image ||
+                      "/assets/images/maceazy-logo.png"
+                    }
                     alt={item.name}
                     width={80}
                     height={80}
                     className="w-20 h-20 object-cover rounded-lg border border-border"
                   />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-foreground">{item.name}</h4>
-                    <p className="text-sm text-muted-foreground">Product ID: {item.productId?._id || 'N/A'}</p>
-                    <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                    <h4 className="font-semibold text-foreground">
+                      {item.name}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Product ID: {item.productId?._id || "N/A"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Quantity: {item.quantity}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-foreground">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
-                    <p className="text-sm text-muted-foreground">₹{item.price} × {item.quantity}</p>
+                    <p className="font-semibold text-foreground">
+                      ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      ₹{item.price} × {item.quantity}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -198,11 +262,15 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Payment Method</span>
-                <span className="font-medium text-foreground">{getPaymentMethodDisplay(order.paymentInfo.method)}</span>
+                <span className="font-medium text-foreground">
+                  {getPaymentMethodDisplay(order.paymentInfo.method)}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Payment Status</span>
-                <span className={`font-semibold capitalize ${getPaymentStatusColor(order.paymentInfo.status)}`}>
+                <span
+                  className={`font-semibold capitalize ${getPaymentStatusColor(order.paymentInfo.status)}`}
+                >
                   {order.paymentInfo.status}
                 </span>
               </div>
@@ -222,27 +290,42 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
                   </span>
                 </div>
               )}
-              
+
               <div className="pt-3 border-t border-border space-y-2">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="text-foreground">₹{order.orderSummary.subtotal.toLocaleString('en-IN')}</span>
+                  <span className="text-foreground">
+                    ₹{order.orderSummary.subtotal.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">GST (Tax Included)</span>
+                  <span className="text-muted-foreground">
+                    GST (Tax Included)
+                  </span>
                   <span className="text-foreground">Included</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Transaction Fee</span>
-                  <span className="text-foreground">₹{order.orderSummary.transactionFee.toLocaleString('en-IN')}</span>
+                  <span className="text-foreground">
+                    ₹{order.orderSummary.transactionFee.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Delivery Charges</span>
-                  <span className="text-foreground">₹{order.orderSummary.deliveryCharges.toLocaleString('en-IN')}</span>
+                  <span className="text-muted-foreground">
+                    Delivery Charges
+                  </span>
+                  <span className="text-foreground">
+                    ₹
+                    {order.orderSummary.deliveryCharges.toLocaleString("en-IN")}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-border">
-                  <span className="font-semibold text-foreground">Total Amount</span>
-                  <span className="text-xl font-bold text-foreground">₹{order.totalAmount.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-foreground">
+                    Total Amount
+                  </span>
+                  <span className="text-xl font-bold text-foreground">
+                    ₹{order.totalAmount.toLocaleString("en-IN")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -258,17 +341,30 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
               <div className="flex items-start gap-3">
                 <User className="w-5 h-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-semibold text-foreground">{order.shippingAddress.name}</p>
-                  <p className="text-sm text-muted-foreground">{order.shippingAddress.addressType} Address</p>
+                  <p className="font-semibold text-foreground">
+                    {order.shippingAddress.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {order.shippingAddress.addressType} Address
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
                 <div className="text-foreground">
                   <p>{order.shippingAddress.address}</p>
-                  {order.shippingAddress.addressLine2 && <p>{order.shippingAddress.addressLine2}</p>}
-                  {order.shippingAddress.landmark && <p className="text-sm text-muted-foreground">Landmark: {order.shippingAddress.landmark}</p>}
-                  <p>{order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}</p>
+                  {order.shippingAddress.addressLine2 && (
+                    <p>{order.shippingAddress.addressLine2}</p>
+                  )}
+                  {order.shippingAddress.landmark && (
+                    <p className="text-sm text-muted-foreground">
+                      Landmark: {order.shippingAddress.landmark}
+                    </p>
+                  )}
+                  <p>
+                    {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+                    - {order.shippingAddress.pincode}
+                  </p>
                   <p>{order.shippingAddress.country}</p>
                 </div>
               </div>
@@ -294,21 +390,27 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
                 <User className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
-                  <p className="font-medium text-foreground">{order.customerInfo.name}</p>
+                  <p className="font-medium text-foreground">
+                    {order.customerInfo.name}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium text-foreground">{order.customerInfo.email}</p>
+                  <p className="font-medium text-foreground">
+                    {order.customerInfo.email}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium text-foreground">{order.customerInfo.phone}</p>
+                  <p className="font-medium text-foreground">
+                    {order.customerInfo.phone}
+                  </p>
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { X, Eye, FileText, Image as ImageIcon, Download } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { X, Eye, FileText, Image as ImageIcon, Download } from "lucide-react";
 
 interface FileViewerProps {
   fileUrl: string;
@@ -33,13 +33,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -49,7 +49,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
     const lowerFileType = fileType.toLowerCase();
 
     // PDF files
-    if (lowerFileType === 'pdf' || lowerFileType === 'application/pdf') {
+    if (lowerFileType === "pdf" || lowerFileType === "application/pdf") {
       return (
         <iframe
           src={`${fileUrl}#toolbar=0&navpanes=0&scrollbar=1`}
@@ -58,7 +58,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
           onLoad={() => setLoading(false)}
           onError={() => {
             setLoading(false);
-            setError('Failed to load PDF');
+            setError("Failed to load PDF");
           }}
         />
       );
@@ -66,8 +66,8 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
     // Image files
     if (
-      lowerFileType.includes('image') ||
-      ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(lowerFileType)
+      lowerFileType.includes("image") ||
+      ["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(lowerFileType)
     ) {
       return (
         <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
@@ -80,7 +80,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
               onLoad={() => setLoading(false)}
               onError={() => {
                 setLoading(false);
-                setError('Failed to load image');
+                setError("Failed to load image");
               }}
               onContextMenu={(e) => disableDownload && e.preventDefault()}
             />
@@ -91,12 +91,12 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
     // Office documents (Word, Excel, PowerPoint)
     if (
-      ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(lowerFileType) ||
-      lowerFileType.includes('word') ||
-      lowerFileType.includes('excel') ||
-      lowerFileType.includes('powerpoint') ||
-      lowerFileType.includes('spreadsheet') ||
-      lowerFileType.includes('presentation')
+      ["doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(lowerFileType) ||
+      lowerFileType.includes("word") ||
+      lowerFileType.includes("excel") ||
+      lowerFileType.includes("powerpoint") ||
+      lowerFileType.includes("spreadsheet") ||
+      lowerFileType.includes("presentation")
     ) {
       // Use Microsoft Office Online Viewer
       const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
@@ -108,7 +108,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
           onLoad={() => setLoading(false)}
           onError={() => {
             setLoading(false);
-            setError('Failed to load document. Try downloading it instead.');
+            setError("Failed to load document. Try downloading it instead.");
           }}
         />
       );
@@ -116,9 +116,9 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
     // Text files
     if (
-      lowerFileType === 'txt' ||
-      lowerFileType === 'text/plain' ||
-      lowerFileType.includes('text')
+      lowerFileType === "txt" ||
+      lowerFileType === "text/plain" ||
+      lowerFileType.includes("text")
     ) {
       return (
         <iframe
@@ -128,7 +128,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
           onLoad={() => setLoading(false)}
           onError={() => {
             setLoading(false);
-            setError('Failed to load text file');
+            setError("Failed to load text file");
           }}
         />
       );

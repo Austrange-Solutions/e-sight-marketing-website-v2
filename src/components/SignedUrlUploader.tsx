@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Image from "next/image";
 
 interface SignedUrlUploaderProps {
   onUploadComplete?: (url: string) => void;
@@ -8,11 +8,11 @@ interface SignedUrlUploaderProps {
 
 const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
   onUploadComplete,
-  onError
+  onError,
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadedUrl, setUploadedUrl] = useState<string>('');
+  const [uploadedUrl, setUploadedUrl] = useState<string>("");
 
   const handleFileUpload = async (file: File) => {
     if (!file) return;
@@ -22,12 +22,12 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
 
     try {
       // Step 1: Get signed URL from our API
-      console.log('Requesting signed URL for:', file.name);
+      console.log("Requesting signed URL for:", file.name);
 
-      const signedUrlResponse = await fetch('/api/aws/signed-upload', {
-        method: 'POST',
+      const signedUrlResponse = await fetch("/api/aws/signed-upload", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           fileName: file.name,
@@ -37,22 +37,25 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
 
       if (!signedUrlResponse.ok) {
         const errorData = await signedUrlResponse.json();
-        throw new Error(errorData.error || 'Failed to get signed URL');
+        throw new Error(errorData.error || "Failed to get signed URL");
       }
 
       const { signedUrl, viewUrl } = await signedUrlResponse.json();
-      console.log('Signed URL received:', { signedUrl: signedUrl.substring(0, 100) + '...', viewUrl });
+      console.log("Signed URL received:", {
+        signedUrl: signedUrl.substring(0, 100) + "...",
+        viewUrl,
+      });
 
       setUploadProgress(25);
 
       // Step 2: Upload file directly to S3 using signed URL
-      console.log('Uploading file to S3...');
+      console.log("Uploading file to S3...");
 
       const uploadResponse = await fetch(signedUrl, {
-        method: 'PUT',
+        method: "PUT",
         body: file,
         headers: {
-          'Content-Type': file.type,
+          "Content-Type": file.type,
         },
       });
 
@@ -60,19 +63,20 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
 
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error('S3 upload failed:', errorText);
-        throw new Error(`S3 upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`);
+        console.error("S3 upload failed:", errorText);
+        throw new Error(
+          `S3 upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`
+        );
       }
 
       setUploadProgress(100);
       setUploadedUrl(viewUrl);
 
-      console.log('File uploaded successfully:', viewUrl);
+      console.log("File uploaded successfully:", viewUrl);
       onUploadComplete?.(viewUrl);
-
     } catch (error: unknown) {
-      console.error('Upload error:', error);
-      onError?.(error instanceof Error ? error.message : 'Upload failed');
+      console.error("Upload error:", error);
+      onError?.(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setIsUploading(false);
     }
@@ -129,9 +133,7 @@ const SignedUrlUploader: React.FC<SignedUrlUploaderProps> = ({
               height={128}
               className="w-full h-32 object-cover rounded-md border"
             />
-            <div className="text-xs text-gray-500 break-all">
-              {uploadedUrl}
-            </div>
+            <div className="text-xs text-gray-500 break-all">{uploadedUrl}</div>
           </div>
         )}
       </div>
