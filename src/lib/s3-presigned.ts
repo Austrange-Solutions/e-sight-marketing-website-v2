@@ -15,8 +15,7 @@ const s3Client = new S3Client({
  */
 function isCloudfrontSignedEnabled(): boolean {
   return !!(
-    process.env.CLOUDFRONT_KEY_PAIR_ID &&
-    process.env.CLOUDFRONT_PRIVATE_KEY
+    process.env.CLOUDFRONT_KEY_PAIR_ID && process.env.CLOUDFRONT_PRIVATE_KEY
   );
 }
 
@@ -32,7 +31,8 @@ async function generateCloudfrontSignedUrl(
 ): Promise<string> {
   try {
     // Dynamically import cloudfront-signer to avoid bundler errors when it's not installed
-    const { getSignedUrl: getCloudfrontSignedUrl } = await import('@aws-sdk/cloudfront-signer');
+    const { getSignedUrl: getCloudfrontSignedUrl } =
+      await import("@aws-sdk/cloudfront-signer");
 
     const dateLessThan = new Date(Date.now() + expiresIn * 1000).toISOString();
 
@@ -64,9 +64,13 @@ export async function generatePresignedUrl(
   try {
     // Try CloudFront signed URL first (better performance)
     if (isCloudfrontSignedEnabled()) {
-      const cloudfrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || process.env.CLOUDFRONT_DOMAIN;
+      const cloudfrontDomain =
+        process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN ||
+        process.env.CLOUDFRONT_DOMAIN;
       if (cloudfrontDomain) {
-        const baseUrl = cloudfrontDomain.startsWith('http') ? cloudfrontDomain : `https://${cloudfrontDomain}`;
+        const baseUrl = cloudfrontDomain.startsWith("http")
+          ? cloudfrontDomain
+          : `https://${cloudfrontDomain}`;
         const cloudfrontUrl = `${baseUrl}/${fileKey}`;
         return await generateCloudfrontSignedUrl(cloudfrontUrl, expiresIn);
       }
@@ -108,7 +112,7 @@ export async function generatePresignedUrls(
         const url = await generatePresignedUrl(key, expiresIn);
         urlMap.set(key, url);
       } catch (error) {
-        console.error('Failed to generate URL for key:', key, error);
+        console.error("Failed to generate URL for key:", key, error);
       }
     })
   );

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -19,12 +19,15 @@ const ContactForm = () => {
 
   // Count words in message
   const countWords = (text: string): number => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate word count
     if (messageWordCount > maxWords) {
       setFormStatus("error");
@@ -94,7 +97,7 @@ const ContactForm = () => {
     });
 
     // Update word count for message field
-    if (name === 'message') {
+    if (name === "message") {
       setMessageWordCount(countWords(value));
     }
   };
@@ -175,7 +178,7 @@ const ContactForm = () => {
             required
             rows={4}
             className={`w-full px-4 py-3 border-2 ${
-              messageWordCount > maxWords ? 'border-red-500' : 'border-input'
+              messageWordCount > maxWords ? "border-red-500" : "border-input"
             } rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 peer bg-background`}
             placeholder=" "
           ></textarea>
@@ -185,12 +188,15 @@ const ContactForm = () => {
           >
             Your Message
           </label>
-          <div className={`text-sm mt-1 ${messageWordCount > maxWords ? 'text-red-600' : 'text-muted-foreground'}`}>
+          <div
+            className={`text-sm mt-1 ${messageWordCount > maxWords ? "text-red-600" : "text-muted-foreground"}`}
+          >
             {messageWordCount}/{maxWords} words
           </div>
           {messageWordCount > maxWords && (
             <p className="text-red-600 text-sm mt-1">
-              Message exceeds {maxWords} words limit. Please reduce by {messageWordCount - maxWords} words.
+              Message exceeds {maxWords} words limit. Please reduce by{" "}
+              {messageWordCount - maxWords} words.
             </p>
           )}
         </div>
@@ -202,19 +208,19 @@ const ContactForm = () => {
             formStatus === "success"
               ? "bg-[oklch(0.70_0.15_160)]"
               : formStatus === "error"
-              ? "bg-destructive"
-              : formStatus === "submitting" || messageWordCount > maxWords
-              ? "bg-muted cursor-not-allowed"
-              : "bg-primary hover:bg-primary/90"
+                ? "bg-destructive"
+                : formStatus === "submitting" || messageWordCount > maxWords
+                  ? "bg-muted cursor-not-allowed"
+                  : "bg-primary hover:bg-primary/90"
           }`}
         >
           {formStatus === "success"
             ? "Message Sent!"
             : formStatus === "submitting"
-            ? "Sending..."
-            : formStatus === "error"
-            ? "Error Sending Message"
-            : "Send Message"}
+              ? "Sending..."
+              : formStatus === "error"
+                ? "Error Sending Message"
+                : "Send Message"}
         </button>
       </form>
     </motion.div>

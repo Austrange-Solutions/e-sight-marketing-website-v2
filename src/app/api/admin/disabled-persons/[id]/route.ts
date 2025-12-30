@@ -80,7 +80,10 @@ export async function PATCH(
 
     const validStatuses = ["pending", "under_review", "verified", "rejected"];
     if (verificationStatus && !validStatuses.includes(verificationStatus)) {
-      return NextResponse.json({ error: "Invalid verification status" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid verification status" },
+        { status: 400 }
+      );
     }
 
     // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
@@ -91,7 +94,14 @@ export async function PATCH(
 
     // Apply personal updates
     if (personalUpdates) {
-      const allowed = ["fullName", "email", "phone", "dateOfBirth", "gender", "alternatePhone"];
+      const allowed = [
+        "fullName",
+        "email",
+        "phone",
+        "dateOfBirth",
+        "gender",
+        "alternatePhone",
+      ];
       allowed.forEach((key) => {
         if (Object.prototype.hasOwnProperty.call(personalUpdates, key)) {
           // @ts-ignore
@@ -102,7 +112,12 @@ export async function PATCH(
 
     // Apply guardian updates
     if (guardianUpdates) {
-      const gAllowed = ["guardianName", "guardianEmail", "guardianPhone", "guardianRelation"];
+      const gAllowed = [
+        "guardianName",
+        "guardianEmail",
+        "guardianPhone",
+        "guardianRelation",
+      ];
       gAllowed.forEach((key) => {
         if (Object.prototype.hasOwnProperty.call(guardianUpdates, key)) {
           // @ts-ignore
@@ -124,7 +139,13 @@ export async function PATCH(
 
     // Apply disability updates
     if (disabilityUpdates) {
-      const dAllowed = ["disabilityType", "disabilityPercentage", "disabilityDescription", "medicalConditions", "assistiveDevicesUsed"];
+      const dAllowed = [
+        "disabilityType",
+        "disabilityPercentage",
+        "disabilityDescription",
+        "medicalConditions",
+        "assistiveDevicesUsed",
+      ];
       dAllowed.forEach((key) => {
         if (Object.prototype.hasOwnProperty.call(disabilityUpdates, key)) {
           // @ts-ignore

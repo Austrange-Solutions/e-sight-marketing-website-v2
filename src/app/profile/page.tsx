@@ -139,7 +139,7 @@ export default function ProfilePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    
+
     if (name === "phone") {
       // Only allow digits, limit to 10
       const cleaned = value.replace(/\D/g, "").slice(0, 10);
@@ -455,8 +455,8 @@ export default function ProfilePage() {
                           phoneError
                             ? "border-red-500"
                             : formData.phone.length === 10 && !phoneError
-                            ? "border-green-500"
-                            : "border-border"
+                              ? "border-green-500"
+                              : "border-border"
                         }`}
                       />
                       {formData.phone.length === 10 && !phoneError && (
@@ -483,8 +483,8 @@ export default function ProfilePage() {
                           addressWordCount > maxAddressWords
                             ? "text-red-600"
                             : addressWordCount > maxAddressWords * 0.9
-                            ? "text-yellow-600"
-                            : "text-muted-foreground"
+                              ? "text-yellow-600"
+                              : "text-muted-foreground"
                         }`}
                       >
                         {addressWordCount}/{maxAddressWords} words
@@ -511,7 +511,11 @@ export default function ProfilePage() {
                   <div className="flex space-x-4">
                     <button
                       onClick={handleSaveProfile}
-                      disabled={saving || !!phoneError || addressWordCount > maxAddressWords}
+                      disabled={
+                        saving ||
+                        !!phoneError ||
+                        addressWordCount > maxAddressWords
+                      }
                       className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />

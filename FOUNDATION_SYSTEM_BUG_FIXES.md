@@ -1,6 +1,7 @@
 # Dynamic Foundation System - Bug Fixes & Enhancements
 
 ## Date: October 22, 2025
+
 ## Status: ✅ COMPLETED - Ready for Testing
 
 ---
@@ -8,21 +9,26 @@
 ## Issues Fixed
 
 ### 1. ❌ "Invalid foundation selection" Error
+
 **Problem:** Donation API was receiving foundation code ("vsf") but expecting specific validation  
 **Root Cause:** Hardcoded validation only accepted "vsf" or "cf" strings  
 **Solution:** Updated API to lookup Foundation model by code (preferred) OR ObjectId (fallback)
 
-### 2. ❌ "Failed to generate upload URL" Error  
+### 2. ❌ "Failed to generate upload URL" Error
+
 **Problem:** S3 presigned URL generation route didn't exist  
 **Root Cause:** Route was referenced but never created  
 **Solution:** Created complete `generate-presigned-url/route.ts` with admin authentication
 
 ### 3. ❌ TypeScript Compilation Errors
+
 **Problems:**
+
 - `config.color` undefined in Razorpay options
-- `ringColor` is not a valid CSS property  
+- `ringColor` is not a valid CSS property
 
 **Solutions:**
+
 - Replaced `config.color` with default color `#10b981`
 - Fixed `ringColor` to use CSS custom property `--tw-ring-color`
 
@@ -31,7 +37,9 @@
 ## Files Modified (8 files)
 
 ### 1. **src/app/donate/page.tsx** ✅
+
 **Changes:**
+
 - Updated `selectedFoundation` to store `foundation.code` (preferred) or `foundation._id` (fallback)
 - Updated button selection: `onClick={() => setSelectedFoundation(foundation.code || foundation._id)}`
 - Updated comparison logic: `isSelected = selectedFoundation === foundation.code || selectedFoundation === foundation._id`
@@ -43,7 +51,9 @@
 ---
 
 ### 2. **src/app/api/donate/create/route.ts** ✅
+
 **Changes:**
+
 ```typescript
 // BEFORE: Hardcoded validation
 if (foundation && !["vsf", "cf"].includes(foundation)) {
@@ -54,21 +64,30 @@ if (foundation && !["vsf", "cf"].includes(foundation)) {
 let foundationDoc;
 if (foundation) {
   // Try code first (preferred)
-  foundationDoc = await Foundation.findOne({ code: foundation, isActive: true });
-  
+  foundationDoc = await Foundation.findOne({
+    code: foundation,
+    isActive: true,
+  });
+
   // Try ObjectId if code not found
   if (!foundationDoc && mongoose.Types.ObjectId.isValid(foundation)) {
-    foundationDoc = await Foundation.findOne({ _id: foundation, isActive: true });
+    foundationDoc = await Foundation.findOne({
+      _id: foundation,
+      isActive: true,
+    });
   }
 }
 
 // Fallback to first active foundation
 if (!foundationDoc) {
-  foundationDoc = await Foundation.findOne({ isActive: true }).sort({ priority: 1 });
+  foundationDoc = await Foundation.findOne({ isActive: true }).sort({
+    priority: 1,
+  });
 }
 ```
 
 **Key Improvements:**
+
 - ✅ Accepts foundation **code** (e.g., "vsf", "cf", "new-ngo")
 - ✅ Accepts foundation **ObjectId** as fallback
 - ✅ Auto-selects first active foundation if none provided
@@ -81,7 +100,9 @@ if (!foundationDoc) {
 ---
 
 ### 3. **src/components/donate/MultiFoundationDonateButtons.tsx** ✅
+
 **Changes:**
+
 - Simplified render: Single button when `selectedFoundation` provided
 - Removed hardcoded VSF/CF dual buttons
 - Fixed `config.color` error → uses default `#10b981` for Razorpay theme
@@ -92,9 +113,11 @@ if (!foundationDoc) {
 ---
 
 ### 4. **src/app/api/images/generate-presigned-url/route.ts** ✅ **NEW FILE**
+
 **Created:** Complete S3 presigned URL generation route
 
 **Features:**
+
 ```typescript
 - Admin authentication required
 - Folder-based uploads: "donation-logos" | "products"
@@ -106,6 +129,7 @@ if (!foundationDoc) {
 ```
 
 **API Usage:**
+
 ```typescript
 POST /api/images/generate-presigned-url
 Headers: { "Content-Type": "application/json" }
@@ -128,7 +152,9 @@ Response: {
 ---
 
 ### 5. **src/components/admin/FoundationManagement.tsx** ✅
+
 **Changes:**
+
 - Updated API call: `fileName` → `filename` (consistency)
 - Changed folder: `"foundation-logos"` → `"donation-logos"`
 - Use `fileUrl` from API response (includes CloudFront domain)
@@ -139,19 +165,23 @@ Response: {
 ---
 
 ### 6. **.github/copilot-instructions.md** ✅
+
 **Updated Sections:**
 
 **AWS S3 Section:**
+
 ```markdown
 **Folder Structure:**
 e-sight-ecommerce-product-images/
-├── donation-logos/       # Foundation/NGO logos (new system)
-└── products/            # Product images
+├── donation-logos/ # Foundation/NGO logos (new system)
+└── products/ # Product images
 ```
 
 **Multi-Foundation Section:**
+
 ```markdown
 **Dynamic Foundation System:** Admins can add unlimited foundations
+
 - **Foundation identification:** Prefer `code`, fallback to `_id`
 - **API accepts:** Both foundation code AND ObjectId (code preferred)
 ```
@@ -161,7 +191,9 @@ e-sight-ecommerce-product-images/
 ---
 
 ### 7. **DYNAMIC_FOUNDATION_SYSTEM.md** (Future Enhancement)
+
 **Recommended Updates:**
+
 - Add section on code vs ObjectId priority logic
 - Document S3 folder structure for logos
 - Add API examples with both code and ObjectId
@@ -170,13 +202,16 @@ e-sight-ecommerce-product-images/
 ---
 
 ### 8. **scripts/migrate-foundations-to-dynamic.js** (No changes needed)
+
 **Status:** ✅ Ready to run
 **What it does:**
+
 - Creates VSF and CF Foundation documents
 - Updates all Donation.foundation from "vsf"/"cf" strings to ObjectId references
 - Calculates initial stats
 
 **Run Command:**
+
 ```powershell
 bun run scripts/migrate-foundations-to-dynamic.js
 ```
@@ -189,18 +224,19 @@ bun run scripts/migrate-foundations-to-dynamic.js
 
 ```typescript
 // 1. Try by CODE (preferred - human-readable)
-Foundation.findOne({ code: "vsf", isActive: true })
+Foundation.findOne({ code: "vsf", isActive: true });
 
 // 2. If not found and looks like ObjectId, try by _ID
 if (mongoose.Types.ObjectId.isValid(input)) {
-  Foundation.findOne({ _id: input, isActive: true })
+  Foundation.findOne({ _id: input, isActive: true });
 }
 
 // 3. Fallback to first active foundation
-Foundation.findOne({ isActive: true }).sort({ priority: 1 })
+Foundation.findOne({ isActive: true }).sort({ priority: 1 });
 ```
 
 **Why This Order?**
+
 - **Code is preferred** because it's stable and human-readable
 - **ObjectId as fallback** maintains backward compatibility
 - **Auto-fallback** prevents donation failures if input is invalid
@@ -222,11 +258,13 @@ austrange-storage (S3 Bucket)
 ```
 
 **CloudFront URLs:**
+
 ```
 https://dw9tsoyfcyk5k.cloudfront.net/e-sight-ecommerce-product-images/donation-logos/1729584000-vsf-logo.png
 ```
 
 **Why Separate Folders?**
+
 - Easier S3 bucket policy management
 - Clear separation of concerns
 - Better CloudFront cache invalidation targeting
@@ -255,16 +293,19 @@ CLOUDFRONT_DOMAIN=dw9tsoyfcyk5k.cloudfront.net
 ## Testing Checklist
 
 ### ✅ TypeScript Compilation
+
 ```powershell
 # No errors found
 ```
 
 ### ⏳ Migration (NEXT STEP)
+
 ```powershell
 bun run scripts/migrate-foundations-to-dynamic.js
 ```
 
 **Expected Output:**
+
 ```
 ✅ Connected to MongoDB
 ✅ Created VSF Foundation (code: vsf)
@@ -275,6 +316,7 @@ bun run scripts/migrate-foundations-to-dynamic.js
 ```
 
 ### ⏳ Donation Flow Test
+
 1. Start server: `bun dev`
 2. Visit: `http://donate.localhost:3000`
 3. Verify foundations load dynamically (VSF and CF appear)
@@ -286,6 +328,7 @@ bun run scripts/migrate-foundations-to-dynamic.js
 9. Check admin panel → Donations tab → verify new donation appears
 
 ### ⏳ Logo Upload Test
+
 1. Login to admin: `http://localhost:3000/admin/login`
 2. Go to Foundation Settings tab
 3. Find VSF or CF
@@ -297,6 +340,7 @@ bun run scripts/migrate-foundations-to-dynamic.js
 9. Refresh donation page → verify logo appears
 
 ### ⏳ Add New Foundation Test
+
 1. In admin Foundation Settings
 2. Click "+ Add Foundation"
 3. Enter: Name = "Test NGO", Foundation Share = 70%
@@ -308,6 +352,7 @@ bun run scripts/migrate-foundations-to-dynamic.js
 9. Refresh donation page → verify "Test NGO" appears in grid
 
 ### ⏳ Subdomain Test
+
 1. Verify `http://donate.localhost:3000` works
 2. Select foundation and donate
 3. Success page: `http://donate.localhost:3000/success?payment_id=...`
@@ -318,11 +363,13 @@ bun run scripts/migrate-foundations-to-dynamic.js
 ## Known Limitations & Future Enhancements
 
 ### Current Limitations:
+
 1. **Foundation code cannot be edited after creation** (by design - prevents breaking references)
 2. **Razorpay theme color is hardcoded** (could be made dynamic per foundation)
 3. **Logo upload requires admin login** (could add API key-based upload for integrations)
 
 ### Future Enhancements:
+
 1. **Foundation analytics dashboard** - Show donation trends per foundation
 2. **Multi-currency support** - Accept donations in USD, EUR, etc.
 3. **Recurring donations** - Monthly/yearly subscriptions
@@ -334,6 +381,7 @@ bun run scripts/migrate-foundations-to-dynamic.js
 ## Deployment Notes
 
 ### Before Deploying to Production:
+
 1. ✅ Run migration script in staging environment first
 2. ✅ Backup MongoDB database
 3. ✅ Test complete donation flow on `donate.localhost:3000`
@@ -343,6 +391,7 @@ bun run scripts/migrate-foundations-to-dynamic.js
 7. ✅ Verify environment variables in Vercel/production
 
 ### Production Migration Steps:
+
 ```powershell
 # 1. Backup database
 mongodump --uri="PRODUCTION_MONGODB_URI" --out=./backup-$(date +%Y%m%d)
@@ -366,6 +415,7 @@ curl https://maceazy.com/api/foundations/active
 ## Success Metrics
 
 ### Technical Success:
+
 - ✅ 0 TypeScript errors
 - ✅ All 8 files modified successfully
 - ✅ S3 upload route created with authentication
@@ -373,6 +423,7 @@ curl https://maceazy.com/api/foundations/active
 - ⏳ Migration script ready (not yet run)
 
 ### User Experience Success (To Verify):
+
 - ⏳ Donation flow completes without errors
 - ⏳ Logo upload works from admin panel
 - ⏳ New foundations can be added without code changes
@@ -384,21 +435,27 @@ curl https://maceazy.com/api/foundations/active
 ## Support & Troubleshooting
 
 ### Issue: "Failed to generate upload URL"
+
 **Check:**
+
 1. AWS credentials in `.env` are correct
 2. S3 bucket `austrange-storage` exists
 3. Bucket policy allows PutObject from your IP
 4. Admin is logged in (check `admin-token` cookie)
 
 ### Issue: "Invalid foundation selection"
+
 **Check:**
+
 1. Migration script was run (creates Foundation documents)
 2. At least one foundation has `isActive: true`
 3. Frontend is passing `foundation.code` or `foundation._id`
 4. Database connection is working (`await connect()`)
 
 ### Issue: Logos not displaying
+
 **Check:**
+
 1. CloudFront domain is correct in `.env`
 2. CloudFront distribution is active
 3. Logo URL in database starts with `https://`
@@ -408,9 +465,10 @@ curl https://maceazy.com/api/foundations/active
 
 ## Conclusion
 
-All code changes are **COMPLETE** and **TypeScript compilation is successful** (0 errors). 
+All code changes are **COMPLETE** and **TypeScript compilation is successful** (0 errors).
 
 **Next Steps:**
+
 1. Run migration script to create VSF/CF foundations
 2. Test donation flow on `donate.localhost:3000`
 3. Test logo upload from admin panel

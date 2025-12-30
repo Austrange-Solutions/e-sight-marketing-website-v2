@@ -8,12 +8,12 @@ export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
     const { email, code } = reqBody; // Just expect 'code' for consistency
-    
+
     console.log("Verification attempt:", { email, code });
 
     if (!email || !code) {
       return NextResponse.json(
-        { error: "Email and verification code are required" }, 
+        { error: "Email and verification code are required" },
         { status: 400 }
       );
     }
@@ -24,13 +24,18 @@ export async function POST(request: NextRequest) {
     try {
       sanitizedEmail = sanitizeEmail(email);
       sanitizedCode = validateAndSanitize(String(code).trim(), {
-        fieldName: 'verification code',
+        fieldName: "verification code",
         maxLength: 100,
         strict: true,
       });
     } catch (validationError) {
       return NextResponse.json(
-        { error: validationError instanceof Error ? validationError.message : 'Invalid email or code format' },
+        {
+          error:
+            validationError instanceof Error
+              ? validationError.message
+              : "Invalid email or code format",
+        },
         { status: 400 }
       );
     }
@@ -48,7 +53,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Update user
     user.isVerified = true;
     user.verifyCode = undefined;
@@ -59,7 +64,6 @@ export async function POST(request: NextRequest) {
       message: "Email verified successfully",
       success: true,
     });
-
   } catch (error: unknown) {
     console.error("Verification error:", error);
     return NextResponse.json(

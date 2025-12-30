@@ -1,16 +1,17 @@
 # XSS Detection Regex - Usage Guide
 
 ## Overview
+
 This module provides comprehensive regex patterns to detect Cross-Site Scripting (XSS) attacks based on Ismail Tasdelen's XSS payload collection.
 
 ## Installation
 
 ```typescript
-import { 
-  containsXSS, 
+import {
+  containsXSS,
   extractXSSPatterns,
-  XSS_DETECTION_REGEX 
-} from '@/lib/validation/xss-regex';
+  XSS_DETECTION_REGEX,
+} from "@/lib/validation/xss-regex";
 ```
 
 ## Basic Usage
@@ -21,30 +22,30 @@ import {
 const userInput = '<script>alert("XSS")</script>';
 
 if (containsXSS(userInput)) {
-  console.log('⚠️ XSS Attack Detected!');
+  console.log("⚠️ XSS Attack Detected!");
   // Reject the input
-  return { error: 'Invalid input detected' };
+  return { error: "Invalid input detected" };
 }
 ```
 
 ### 2. Strict Mode (Aggressive Detection)
 
 ```typescript
-const userInput = 'onclick=alert(1)';
+const userInput = "onclick=alert(1)";
 
 // Use strict mode for more sensitive validation
 if (containsXSS(userInput, true)) {
-  console.log('⚠️ Potential XSS Detected!');
+  console.log("⚠️ Potential XSS Detected!");
 }
 ```
 
 ### 3. Extract XSS Patterns (for Logging)
 
 ```typescript
-const maliciousInput = '<script>alert(1)</script><img onerror=alert(2)>';
+const maliciousInput = "<script>alert(1)</script><img onerror=alert(2)>";
 
 const patterns = extractXSSPatterns(maliciousInput);
-console.log('Detected patterns:', patterns);
+console.log("Detected patterns:", patterns);
 // Output: ['<script>', 'onerror=']
 ```
 
@@ -53,21 +54,21 @@ console.log('Detected patterns:', patterns);
 ### React/Next.js Example
 
 ```typescript
-import { containsXSS } from '@/lib/validation/xss-regex';
-import DOMPurify from 'isomorphic-dompurify';
+import { containsXSS } from "@/lib/validation/xss-regex";
+import DOMPurify from "isomorphic-dompurify";
 
 function ProfileForm() {
   const handleSubmit = async (data: any) => {
     // Step 1: Check for XSS patterns
-    const fieldsToCheck = ['name', 'email', 'bio', 'address'];
-    
+    const fieldsToCheck = ["name", "email", "bio", "address"];
+
     for (const field of fieldsToCheck) {
       if (containsXSS(data[field])) {
         toast.error(`Invalid characters detected in ${field}`);
         return;
       }
     }
-    
+
     // Step 2: Sanitize with DOMPurify before sending to API
     const sanitizedData = {
       name: DOMPurify.sanitize(data.name),
@@ -75,10 +76,10 @@ function ProfileForm() {
       bio: DOMPurify.sanitize(data.bio),
       address: DOMPurify.sanitize(data.address),
     };
-    
+
     // Step 3: Send to API
-    await fetch('/api/profile', {
-      method: 'POST',
+    await fetch("/api/profile", {
+      method: "POST",
       body: JSON.stringify(sanitizedData),
     });
   };
@@ -89,16 +90,16 @@ function ProfileForm() {
 
 ```typescript
 // src/app/api/profile/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { containsXSS } from '@/lib/validation/xss-regex';
-import DOMPurify from 'isomorphic-dompurify';
+import { NextRequest, NextResponse } from "next/server";
+import { containsXSS } from "@/lib/validation/xss-regex";
+import DOMPurify from "isomorphic-dompurify";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  
+
   // Validate all text fields
-  const textFields = ['username', 'phone', 'address', 'bio'];
-  
+  const textFields = ["username", "phone", "address", "bio"];
+
   for (const field of textFields) {
     if (body[field] && containsXSS(body[field])) {
       return NextResponse.json(
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
       );
     }
   }
-  
+
   // Sanitize before database storage
   const sanitizedData = {
     username: DOMPurify.sanitize(body.username),
@@ -115,13 +116,12 @@ export async function POST(request: NextRequest) {
     address: DOMPurify.sanitize(body.address),
     bio: DOMPurify.sanitize(body.bio),
   };
-  
+
   // Save to database
-  await db.collection('users').updateOne(
-    { _id: userId },
-    { $set: sanitizedData }
-  );
-  
+  await db
+    .collection("users")
+    .updateOne({ _id: userId }, { $set: sanitizedData });
+
   return NextResponse.json({ success: true });
 }
 ```
@@ -129,27 +129,30 @@ export async function POST(request: NextRequest) {
 ## Zod Schema Integration
 
 ```typescript
-import { z } from 'zod';
-import { containsXSS } from '@/lib/validation/xss-regex';
+import { z } from "zod";
+import { containsXSS } from "@/lib/validation/xss-regex";
 
 const profileSchema = z.object({
-  username: z.string()
+  username: z
+    .string()
     .min(3)
     .max(50)
     .refine((val) => !containsXSS(val), {
-      message: 'Invalid characters detected in username',
+      message: "Invalid characters detected in username",
     }),
-  
-  email: z.string()
+
+  email: z
+    .string()
     .email()
     .refine((val) => !containsXSS(val), {
-      message: 'Invalid characters detected in email',
+      message: "Invalid characters detected in email",
     }),
-  
-  bio: z.string()
+
+  bio: z
+    .string()
     .max(500)
     .refine((val) => !containsXSS(val), {
-      message: 'Invalid characters detected in bio',
+      message: "Invalid characters detected in bio",
     }),
 });
 
@@ -163,27 +166,27 @@ if (!result.success) {
 ## Testing Examples
 
 ```typescript
-import { containsXSS, XSS_TEST_CASES } from '@/lib/validation/xss-regex';
+import { containsXSS, XSS_TEST_CASES } from "@/lib/validation/xss-regex";
 
-describe('XSS Detection', () => {
-  it('should detect script tags', () => {
-    expect(containsXSS('<script>alert(1)</script>')).toBe(true);
+describe("XSS Detection", () => {
+  it("should detect script tags", () => {
+    expect(containsXSS("<script>alert(1)</script>")).toBe(true);
   });
-  
-  it('should detect javascript protocol', () => {
-    expect(containsXSS('javascript:alert(1)')).toBe(true);
+
+  it("should detect javascript protocol", () => {
+    expect(containsXSS("javascript:alert(1)")).toBe(true);
   });
-  
-  it('should detect event handlers', () => {
-    expect(containsXSS('<img onerror=alert(1)>')).toBe(true);
+
+  it("should detect event handlers", () => {
+    expect(containsXSS("<img onerror=alert(1)>")).toBe(true);
   });
-  
-  it('should allow safe input', () => {
-    expect(containsXSS('Hello, World!')).toBe(false);
+
+  it("should allow safe input", () => {
+    expect(containsXSS("Hello, World!")).toBe(false);
   });
-  
-  it('should detect all test cases', () => {
-    XSS_TEST_CASES.forEach(testCase => {
+
+  it("should detect all test cases", () => {
+    XSS_TEST_CASES.forEach((testCase) => {
       expect(containsXSS(testCase)).toBe(true);
     });
   });
@@ -195,31 +198,38 @@ describe('XSS Detection', () => {
 This regex detects:
 
 ✅ **Script Tags**
+
 - `<script>`, `</script>`
 - Encoded: `&lt;script`, `&#60;script`, `\x3cscript`
 
 ✅ **JavaScript Protocol**
+
 - `javascript:alert(1)`
 - Obfuscated: `jav\nascript:`, `jav&#x0A;ascript:`
 - Encoded: `&#106;&#97;&#118;&#97;`
 
 ✅ **Event Handlers**
+
 - `onerror=`, `onload=`, `onclick=`, `onmouseover=`
 - All 40+ event handlers
 
 ✅ **Data URIs**
+
 - `data:text/html,<script>alert(1)</script>`
 - `data:image/svg+xml;base64,...`
 
 ✅ **Dangerous Tags**
+
 - `<iframe>`, `<object>`, `<embed>`, `<applet>`
 - `<svg>`, `<meta>`, `<link>`, `<style>`, `<base>`
 
 ✅ **CSS Attacks**
+
 - `expression()`, `behavior:`, `binding:`, `-moz-binding`
 - `@import`, `.htc` files
 
 ✅ **Obfuscation Techniques**
+
 - String.fromCharCode
 - Hex encoding (`\x6A`)
 - Unicode encoding (`\u006A`)
@@ -253,7 +263,7 @@ This regex detects:
 // For large inputs, use simple regex first
 if (input.length > 10000) {
   if (XSS_SIMPLE_REGEX.test(input)) {
-    return { error: 'Invalid input' };
+    return { error: "Invalid input" };
   }
 }
 ```

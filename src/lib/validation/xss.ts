@@ -3,8 +3,8 @@
  * Combines regex validation with DOMPurify sanitization
  */
 
-import DOMPurify from 'isomorphic-dompurify';
-import { containsXSS, extractXSSPatterns } from './xss-regex';
+import DOMPurify from "isomorphic-dompurify";
+import { containsXSS, extractXSSPatterns } from "./xss-regex";
 
 /**
  * Sanitize input string to prevent XSS attacks
@@ -12,8 +12,8 @@ import { containsXSS, extractXSSPatterns } from './xss-regex';
  * @returns Sanitized string
  */
 export function sanitizeInput(input: string): string {
-  if (!input || typeof input !== 'string') {
-    return '';
+  if (!input || typeof input !== "string") {
+    return "";
   }
 
   // Use DOMPurify with strict config
@@ -31,13 +31,13 @@ export function sanitizeInput(input: string): string {
  * @returns Sanitized HTML
  */
 export function sanitizeHtml(html: string): string {
-  if (!html || typeof html !== 'string') {
-    return '';
+  if (!html || typeof html !== "string") {
+    return "";
   }
 
   return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['href', 'target', 'rel'],
+    ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "a", "ul", "ol", "li"],
+    ALLOWED_ATTR: ["href", "target", "rel"],
     ALLOW_DATA_ATTR: false,
   });
 }
@@ -58,16 +58,23 @@ export function validateAndSanitize(
     strict?: boolean;
   } = {}
 ): string {
-  const { fieldName = 'input', maxLength, allowHtml = false, strict = false } = options;
+  const {
+    fieldName = "input",
+    maxLength,
+    allowHtml = false,
+    strict = false,
+  } = options;
 
   // Check if input exists
-  if (!input || typeof input !== 'string') {
-    return '';
+  if (!input || typeof input !== "string") {
+    return "";
   }
 
   // Check length
   if (maxLength && input.length > maxLength) {
-    throw new Error(`${fieldName} exceeds maximum length of ${maxLength} characters`);
+    throw new Error(
+      `${fieldName} exceeds maximum length of ${maxLength} characters`
+    );
   }
 
   // Check for XSS patterns
@@ -105,7 +112,7 @@ export function sanitizeObject<T extends Record<string, unknown>>(
     const value = data[key as keyof T];
 
     // Skip if optional and not provided
-    if (config.optional && (!value || value === '')) {
+    if (config.optional && (!value || value === "")) {
       continue;
     }
 
@@ -116,7 +123,9 @@ export function sanitizeObject<T extends Record<string, unknown>>(
         ...config,
       }) as T[keyof T];
     } catch (error) {
-      throw new Error(`Validation failed for ${key}: ${(error as Error).message}`);
+      throw new Error(
+        `Validation failed for ${key}: ${(error as Error).message}`
+      );
     }
   }
 
@@ -130,7 +139,7 @@ export function sanitizeObject<T extends Record<string, unknown>>(
  * @returns true if safe, false if potentially malicious
  */
 export function isSafeInput(input: string, strict: boolean = false): boolean {
-  if (!input || typeof input !== 'string') {
+  if (!input || typeof input !== "string") {
     return true;
   }
 
@@ -143,8 +152,8 @@ export function isSafeInput(input: string, strict: boolean = false): boolean {
  * @returns Safe URL or empty string
  */
 export function sanitizeUrl(url: string): string {
-  if (!url || typeof url !== 'string') {
-    return '';
+  if (!url || typeof url !== "string") {
+    return "";
   }
 
   // Remove any XSS attempts
@@ -153,12 +162,12 @@ export function sanitizeUrl(url: string): string {
   // Check for dangerous protocols
   const dangerousProtocols = /^(javascript|data|vbscript|file|about):/i;
   if (dangerousProtocols.test(cleaned)) {
-    return '';
+    return "";
   }
 
   // Ensure URL starts with http:// or https:// or is relative
   if (!/^(https?:\/\/|\/)/i.test(cleaned)) {
-    return '';
+    return "";
   }
 
   return cleaned;
@@ -170,8 +179,8 @@ export function sanitizeUrl(url: string): string {
  * @returns Sanitized email
  */
 export function sanitizeEmail(email: string): string {
-  if (!email || typeof email !== 'string') {
-    return '';
+  if (!email || typeof email !== "string") {
+    return "";
   }
 
   // Basic sanitization
@@ -180,7 +189,7 @@ export function sanitizeEmail(email: string): string {
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(cleaned)) {
-    throw new Error('Invalid email format');
+    throw new Error("Invalid email format");
   }
 
   return cleaned;
@@ -193,21 +202,21 @@ export function sanitizeEmail(email: string): string {
  * @throws Error if phone number is not exactly 10 digits
  */
 export function sanitizePhone(phone: string): string {
-  if (!phone || typeof phone !== 'string') {
-    throw new Error('Phone number is required');
+  if (!phone || typeof phone !== "string") {
+    throw new Error("Phone number is required");
   }
 
   // Remove all non-numeric characters
-  const cleaned = sanitizeInput(phone).replace(/\D/g, '');
+  const cleaned = sanitizeInput(phone).replace(/\D/g, "");
 
   // Validate exactly 10 digits
   if (cleaned.length !== 10) {
-    throw new Error('Phone number must be exactly 10 digits');
+    throw new Error("Phone number must be exactly 10 digits");
   }
 
   // Validate starts with valid Indian mobile prefix (6-9)
   if (!/^[6-9]/.test(cleaned)) {
-    throw new Error('Phone number must start with 6, 7, 8, or 9');
+    throw new Error("Phone number must start with 6, 7, 8, or 9");
   }
 
   return cleaned;
@@ -219,10 +228,13 @@ export function sanitizePhone(phone: string): string {
  * @returns Number of words
  */
 export function countWords(text: string): number {
-  if (!text || typeof text !== 'string') {
+  if (!text || typeof text !== "string") {
     return 0;
   }
-  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
 }
 
 /**
@@ -239,11 +251,11 @@ export function validateAndSanitizeWithWordLimit(
     strict?: boolean;
   } = {}
 ): string {
-  const { fieldName = 'input', maxWords, strict = false } = options;
+  const { fieldName = "input", maxWords, strict = false } = options;
 
   // Check if input exists
-  if (!input || typeof input !== 'string') {
-    return '';
+  if (!input || typeof input !== "string") {
+    return "";
   }
 
   // Trim the input
@@ -253,7 +265,9 @@ export function validateAndSanitizeWithWordLimit(
   if (maxWords) {
     const wordCount = countWords(trimmed);
     if (wordCount > maxWords) {
-      throw new Error(`${fieldName} exceeds maximum of ${maxWords} words (current: ${wordCount} words)`);
+      throw new Error(
+        `${fieldName} exceeds maximum of ${maxWords} words (current: ${wordCount} words)`
+      );
     }
   }
 
@@ -272,11 +286,13 @@ export function validateAndSanitizeWithWordLimit(
  * Create a Zod transform for automatic sanitization
  * @param options - Sanitization options
  */
-export function createSanitizationTransform(options: {
-  maxLength?: number;
-  allowHtml?: boolean;
-  strict?: boolean;
-} = {}) {
+export function createSanitizationTransform(
+  options: {
+    maxLength?: number;
+    allowHtml?: boolean;
+    strict?: boolean;
+  } = {}
+) {
   return (value: string) => {
     try {
       return validateAndSanitize(value, options);

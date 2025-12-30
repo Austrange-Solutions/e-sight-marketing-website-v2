@@ -31,7 +31,7 @@ export default function CreateTicketForm() {
 
   // Validate phone number (10 digits, starts with 6-9)
   const validatePhone = (phone: string): boolean => {
-    const cleaned = phone.replace(/\D/g, '');
+    const cleaned = phone.replace(/\D/g, "");
     if (cleaned.length === 0) {
       setPhoneError("");
       return true;
@@ -50,7 +50,10 @@ export default function CreateTicketForm() {
 
   // Count words in description
   const countWords = (text: string): number => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
   };
 
   const problemCategories = [
@@ -110,7 +113,9 @@ export default function CreateTicketForm() {
 
     // Validate word count
     if (wordCount > maxWords) {
-      toast.error(`Description must not exceed ${maxWords} words (current: ${wordCount})`);
+      toast.error(
+        `Description must not exceed ${maxWords} words (current: ${wordCount})`
+      );
       return;
     }
 
@@ -232,14 +237,14 @@ export default function CreateTicketForm() {
             maxLength={10}
             pattern="[6-9][0-9]{9}"
             className={`w-full px-4 py-3 rounded-lg border ${
-              phoneError 
-                ? 'border-red-500 focus:ring-red-500' 
-                : 'border-gray-300 focus:ring-blue-500'
+              phoneError
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:ring-blue-500"
             } focus:ring-2 focus:border-transparent outline-none transition-all`}
             value={formData.phone}
             onChange={(e) => {
               // Only allow numbers
-              const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+              const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
               setFormData({ ...formData, phone: cleaned });
               validatePhone(cleaned);
             }}
@@ -329,9 +334,11 @@ export default function CreateTicketForm() {
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Detailed Description
-          <span className={`text-xs ml-2 ${
-            wordCount > maxWords ? 'text-red-500' : 'text-gray-500'
-          }`}>
+          <span
+            className={`text-xs ml-2 ${
+              wordCount > maxWords ? "text-red-500" : "text-gray-500"
+            }`}
+          >
             ({wordCount}/{maxWords} words)
           </span>
         </label>
@@ -340,8 +347,8 @@ export default function CreateTicketForm() {
           rows={5}
           className={`w-full px-4 py-3 rounded-lg border ${
             wordCount > maxWords
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:ring-blue-500'
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
           } focus:ring-2 focus:border-transparent outline-none transition-all resize-none`}
           value={formData.description}
           onChange={(e) => {
@@ -353,7 +360,8 @@ export default function CreateTicketForm() {
         />
         {wordCount > maxWords && (
           <p className="text-red-500 text-sm mt-1">
-            Description exceeds maximum of {maxWords} words. Please reduce by {wordCount - maxWords} words.
+            Description exceeds maximum of {maxWords} words. Please reduce by{" "}
+            {wordCount - maxWords} words.
           </p>
         )}
       </div>

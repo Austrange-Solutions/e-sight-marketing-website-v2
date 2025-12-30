@@ -21,7 +21,7 @@ const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
 
   // Validate phone number
   const validatePhone = (phone: string): boolean => {
-    const cleaned = phone.replace(/\D/g, '');
+    const cleaned = phone.replace(/\D/g, "");
     if (cleaned.length === 0) {
       setPhoneError("");
       return true;
@@ -40,7 +40,10 @@ const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
 
   // Count words
   const countWords = (text: string): number => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,7 +72,7 @@ const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
         type="text"
         placeholder="Full Name"
         value={fullName}
-        onChange={e => setFullName(e.target.value)}
+        onChange={(e) => setFullName(e.target.value)}
       />
       <input
         className="w-full border rounded px-3 py-2"
@@ -77,18 +80,18 @@ const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
         inputMode="email"
         placeholder="Email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
       />
       <input
-        className={`w-full border rounded px-3 py-2 ${phoneError ? 'border-red-500' : 'border-gray-300'}`}
+        className={`w-full border rounded px-3 py-2 ${phoneError ? "border-red-500" : "border-gray-300"}`}
         type="tel"
         inputMode="numeric"
         pattern="[6-9][0-9]{9}"
         placeholder="Phone Number (10 digits)"
         maxLength={10}
         value={phoneNumber}
-        onChange={e => {
-          const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+        onChange={(e) => {
+          const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
           setPhoneNumber(cleaned);
           validatePhone(cleaned);
         }}
@@ -98,16 +101,18 @@ const UserPersonalCredentialForm: React.FC<Props> = ({ onSuccess }) => {
         <div className="text-green-600 text-sm">✓ Valid phone number</div>
       )}
       <textarea
-        className={`w-full border rounded px-3 py-2 ${addressWordCount > maxWords ? 'border-red-500' : 'border-gray-300'}`}
+        className={`w-full border rounded px-3 py-2 ${addressWordCount > maxWords ? "border-red-500" : "border-gray-300"}`}
         placeholder="Address"
         value={address}
-        onChange={e => {
+        onChange={(e) => {
           const newAddress = e.target.value;
           setAddress(newAddress);
           setAddressWordCount(countWords(newAddress));
         }}
       />
-      <div className={`text-sm ${addressWordCount > maxWords ? 'text-red-600' : 'text-gray-500'}`}>
+      <div
+        className={`text-sm ${addressWordCount > maxWords ? "text-red-600" : "text-gray-500"}`}
+      >
         {addressWordCount}/{maxWords} words
       </div>
       {addressWordCount > maxWords && (

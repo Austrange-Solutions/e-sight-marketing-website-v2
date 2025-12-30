@@ -3,58 +3,121 @@ import { connect as dbConnect } from "@/dbConfig/dbConfig";
 import Donation from "@/models/Donation";
 import Foundation from "@/models/Foundation";
 import mongoose from "mongoose";
-import { validateAndSanitize, sanitizeEmail, sanitizePhone, validateAndSanitizeWithWordLimit } from '@/lib/validation/xss';
+import {
+  validateAndSanitize,
+  sanitizeEmail,
+  sanitizePhone,
+  validateAndSanitizeWithWordLimit,
+} from "@/lib/validation/xss";
 
 // Both payment gateways available
 import Razorpay from "razorpay";
 import { Cashfree, CFEnvironment } from "cashfree-pg";
 
 // Force Node.js runtime and dynamic rendering
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // Active payment gateway: CASHFREE
-const ACTIVE_GATEWAY = 'cashfree'; // Change to 'razorpay' if needed
+const ACTIVE_GATEWAY = "cashfree"; // Change to 'razorpay' if needed
 
 // Avoid initializing gateway at import time to prevent build-time env errors
 
 // Initialize Razorpay (Available but inactive)
-const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET 
-  ? new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    })
-  : null;
+const razorpay =
+  process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
+    ? new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      })
+    : null;
 
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
 
     const body = await req.json();
-    const { name, email, phone, amount, message, isAnonymous, address, city, state, pan, foundation } = body;
+    const {
+      name,
+      email,
+      phone,
+      amount,
+      message,
+      isAnonymous,
+      address,
+      city,
+      state,
+      pan,
+      foundation,
+    } = body;
 
     // Validate and sanitize donor inputs to prevent XSS
     let sanitizedDonorData;
     try {
       sanitizedDonorData = {
-        name: validateAndSanitize(name, { fieldName: 'name', maxLength: 200, strict: true }),
+        name: validateAndSanitize(name, {
+          fieldName: "name",
+          maxLength: 200,
+          strict: true,
+        }),
         email: sanitizeEmail(email),
         phone: sanitizePhone(phone),
-        message: message ? validateAndSanitizeWithWordLimit(message, { fieldName: 'message', maxWords: 150, strict: true }) : '',
-        address: address ? validateAndSanitize(address, { fieldName: 'address', maxLength: 500, strict: false }) : undefined,
-        city: city ? validateAndSanitize(city, { fieldName: 'city', maxLength: 100, strict: false }) : undefined,
-        state: state ? validateAndSanitize(state, { fieldName: 'state', maxLength: 100, strict: false }) : undefined,
-        pan: pan ? validateAndSanitize(pan, { fieldName: 'PAN', maxLength: 20, strict: false }) : undefined,
+        message: message
+          ? validateAndSanitizeWithWordLimit(message, {
+              fieldName: "message",
+              maxWords: 150,
+              strict: true,
+            })
+          : "",
+        address: address
+          ? validateAndSanitize(address, {
+              fieldName: "address",
+              maxLength: 500,
+              strict: false,
+            })
+          : undefined,
+        city: city
+          ? validateAndSanitize(city, {
+              fieldName: "city",
+              maxLength: 100,
+              strict: false,
+            })
+          : undefined,
+        state: state
+          ? validateAndSanitize(state, {
+              fieldName: "state",
+              maxLength: 100,
+              strict: false,
+            })
+          : undefined,
+        pan: pan
+          ? validateAndSanitize(pan, {
+              fieldName: "PAN",
+              maxLength: 20,
+              strict: false,
+            })
+          : undefined,
       };
     } catch (validationError) {
       return NextResponse.json(
-        { success: false, message: validationError instanceof Error ? validationError.message : 'Invalid input detected' },
+        {
+          success: false,
+          message:
+            validationError instanceof Error
+              ? validationError.message
+              : "Invalid input detected",
+        },
         { status: 400 }
       );
     }
 
     // Validation
-    if (!sanitizedDonorData.name || !sanitizedDonorData.email || !sanitizedDonorData.phone || !amount) {
+    if (
+      !sanitizedDonorData.name ||
+      !sanitizedDonorData.email ||
+      !sanitizedDonorData.phone ||
+      !amount
+    ) {
       return NextResponse.json(
         { success: false, message: "All required fields must be provided" },
         { status: 400 }
@@ -72,29 +135,42 @@ export async function POST(req: NextRequest) {
     let foundationDoc;
     if (foundation) {
       // Try finding by code first
-      foundationDoc = await Foundation.findOne({ code: foundation, isActive: true });
-      
+      foundationDoc = await Foundation.findOne({
+        code: foundation,
+        isActive: true,
+      });
+
       // If not found by code and looks like ObjectId, try by _id
       if (!foundationDoc && mongoose.Types.ObjectId.isValid(foundation)) {
-        foundationDoc = await Foundation.findOne({ _id: foundation, isActive: true });
+        foundationDoc = await Foundation.findOne({
+          _id: foundation,
+          isActive: true,
+        });
       }
     }
 
     // If still no foundation, try to get first active one (fallback)
     if (!foundationDoc) {
-      foundationDoc = await Foundation.findOne({ isActive: true }).sort({ priority: 1 });
+      foundationDoc = await Foundation.findOne({ isActive: true }).sort({
+        priority: 1,
+      });
     }
 
     // If STILL no foundation, return error
     if (!foundationDoc) {
       return NextResponse.json(
-        { success: false, message: "Invalid foundation selection or no active foundations available" },
+        {
+          success: false,
+          message:
+            "Invalid foundation selection or no active foundations available",
+        },
         { status: 400 }
       );
     }
 
     const selectedFoundation = foundationDoc.code;
-    const foundationName = foundationDoc.displayName || foundationDoc.foundationName;
+    const foundationName =
+      foundationDoc.displayName || foundationDoc.foundationName;
 
     // Use platform fee from Foundation model (now stored per foundation)
     const platformFeePercent = foundationDoc.platformFeePercent || 10;
@@ -110,10 +186,19 @@ export async function POST(req: NextRequest) {
       companySharePercent: foundationDoc.companySharePercent,
     };
 
-    breakdown.afterPlatformFee = Math.round((amount - breakdown.platformFee) * 100) / 100;
-    breakdown.foundationAmount = Math.round(breakdown.afterPlatformFee * (foundationDoc.foundationSharePercent / 100) * 100) / 100;
-    breakdown.companyAmount = Math.round((breakdown.afterPlatformFee - breakdown.foundationAmount) * 100) / 100;
-    
+    breakdown.afterPlatformFee =
+      Math.round((amount - breakdown.platformFee) * 100) / 100;
+    breakdown.foundationAmount =
+      Math.round(
+        breakdown.afterPlatformFee *
+          (foundationDoc.foundationSharePercent / 100) *
+          100
+      ) / 100;
+    breakdown.companyAmount =
+      Math.round(
+        (breakdown.afterPlatformFee - breakdown.foundationAmount) * 100
+      ) / 100;
+
     // Calculate sticks equivalent
     const sticksEquivalent = amount / 1499;
 
@@ -125,14 +210,19 @@ export async function POST(req: NextRequest) {
     const secret = process.env.CASHFREE_SECRET_KEY;
     if (!appId || !secret) {
       return NextResponse.json(
-        { success: false, message: "Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY." },
+        {
+          success: false,
+          message:
+            "Missing Cashfree credentials. Please set CASHFREE_APP_ID and CASHFREE_SECRET_KEY.",
+        },
         { status: 500 }
       );
     }
 
-    const env = process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
-      ? CFEnvironment.PRODUCTION 
-      : CFEnvironment.SANDBOX;
+    const env =
+      process.env.CASHFREE_ENDPOINT === "https://api.cashfree.com/pg"
+        ? CFEnvironment.PRODUCTION
+        : CFEnvironment.SANDBOX;
     const cashfree = new Cashfree(env, appId, secret);
     const orderRequest = {
       order_id: orderId,
@@ -147,7 +237,7 @@ export async function POST(req: NextRequest) {
       order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
     };
 
-  const response = await cashfree.PGCreateOrder(orderRequest);
+    const response = await cashfree.PGCreateOrder(orderRequest);
 
     if (!response || !response.data) {
       return NextResponse.json(
@@ -180,7 +270,9 @@ export async function POST(req: NextRequest) {
       address: sanitizedDonorData.address || undefined,
       city: sanitizedDonorData.city || undefined,
       state: sanitizedDonorData.state || undefined,
-      pan: sanitizedDonorData.pan ? sanitizedDonorData.pan.toUpperCase() : undefined,
+      pan: sanitizedDonorData.pan
+        ? sanitizedDonorData.pan.toUpperCase()
+        : undefined,
     });
 
     return NextResponse.json({
@@ -200,7 +292,11 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: error instanceof Error ? error.message : "Failed to create donation" },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to create donation",
+      },
       { status: 500 }
     );
   }

@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import SupportTicket from "@/models/SupportTicket";
 import { sendSupportTicketEmail } from "@/helpers/resendEmail";
-import { validateAndSanitize, sanitizeEmail, sanitizePhone, validateAndSanitizeWithWordLimit } from "@/lib/validation/xss";
+import {
+  validateAndSanitize,
+  sanitizeEmail,
+  sanitizePhone,
+  validateAndSanitizeWithWordLimit,
+} from "@/lib/validation/xss";
 
 export async function POST(request: Request) {
   try {
@@ -24,19 +29,46 @@ export async function POST(request: Request) {
     let sanitizedData;
     try {
       sanitizedData = {
-        name: validateAndSanitize(name, { fieldName: 'name', maxLength: 100, strict: true }),
+        name: validateAndSanitize(name, {
+          fieldName: "name",
+          maxLength: 100,
+          strict: true,
+        }),
         email: sanitizeEmail(email),
         phone: sanitizePhone(phone),
-        gender: validateAndSanitize(gender, { fieldName: 'gender', maxLength: 20 }),
-        userType: validateAndSanitize(userType, { fieldName: 'userType', maxLength: 50 }),
-        problemCategory: validateAndSanitize(problemCategory, { fieldName: 'problemCategory', maxLength: 100 }),
-        customProblem: customProblem ? validateAndSanitize(customProblem, { fieldName: 'customProblem', maxLength: 200 }) : undefined,
-        description: validateAndSanitizeWithWordLimit(description, { fieldName: 'description', maxWords: 150, strict: true }),
+        gender: validateAndSanitize(gender, {
+          fieldName: "gender",
+          maxLength: 20,
+        }),
+        userType: validateAndSanitize(userType, {
+          fieldName: "userType",
+          maxLength: 50,
+        }),
+        problemCategory: validateAndSanitize(problemCategory, {
+          fieldName: "problemCategory",
+          maxLength: 100,
+        }),
+        customProblem: customProblem
+          ? validateAndSanitize(customProblem, {
+              fieldName: "customProblem",
+              maxLength: 200,
+            })
+          : undefined,
+        description: validateAndSanitizeWithWordLimit(description, {
+          fieldName: "description",
+          maxWords: 150,
+          strict: true,
+        }),
         photos: photos || [],
       };
     } catch (validationError) {
       return NextResponse.json(
-        { error: validationError instanceof Error ? validationError.message : 'Invalid input detected' },
+        {
+          error:
+            validationError instanceof Error
+              ? validationError.message
+              : "Invalid input detected",
+        },
         { status: 400 }
       );
     }
@@ -66,7 +98,12 @@ export async function POST(request: Request) {
 
     // Send email notification
     try {
-      await sendSupportTicketEmail(sanitizedData.email, sanitizedData.name, ticketId, sanitizedData.problemCategory);
+      await sendSupportTicketEmail(
+        sanitizedData.email,
+        sanitizedData.name,
+        ticketId,
+        sanitizedData.problemCategory
+      );
     } catch (emailError) {
       console.error("Failed to send support email:", emailError);
       // Continue even if email fails

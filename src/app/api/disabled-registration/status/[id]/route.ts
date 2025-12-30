@@ -31,7 +31,8 @@ export async function GET(
     }
 
     // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
-    const person = await DisabledPerson.findById(id).select( // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
+    const person = await DisabledPerson.findById(id).select(
+      // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
       "fullName email phone verificationStatus verificationHistory createdAt updatedAt verifiedAt rejectionReason"
     );
 

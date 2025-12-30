@@ -70,7 +70,10 @@ export default function DonatePage() {
 
   // Count words in message
   const countWords = (text: string): number => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
   };
 
   // Fetch active foundations
@@ -422,7 +425,9 @@ export default function DonatePage() {
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Phone Number *
-                      <span className="text-xs text-muted-foreground ml-2">(10 digits only)</span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        (10 digits only)
+                      </span>
                     </label>
                     <input
                       type="tel"
@@ -431,7 +436,9 @@ export default function DonatePage() {
                       value={formData.phone}
                       onChange={(e) => {
                         // Only allow numbers, max 10 digits
-                        const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        const cleaned = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
                         setFormData({ ...formData, phone: cleaned });
                       }}
                       className={`w-full px-4 py-3 bg-background border ${
@@ -445,17 +452,25 @@ export default function DonatePage() {
                         {errors.phone}
                       </p>
                     )}
-                    {formData.phone.length === 10 && !errors.phone && /^[6-9]/.test(formData.phone) && (
-                      <p className="text-green-600 text-sm mt-2">✓ Valid phone number</p>
-                    )}
+                    {formData.phone.length === 10 &&
+                      !errors.phone &&
+                      /^[6-9]/.test(formData.phone) && (
+                        <p className="text-green-600 text-sm mt-2">
+                          ✓ Valid phone number
+                        </p>
+                      )}
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Message (Optional)
-                      <span className={`text-xs ml-2 ${
-                        messageWordCount > maxWords ? 'text-destructive' : 'text-muted-foreground'
-                      }`}>
+                      <span
+                        className={`text-xs ml-2 ${
+                          messageWordCount > maxWords
+                            ? "text-destructive"
+                            : "text-muted-foreground"
+                        }`}
+                      >
                         ({messageWordCount}/{maxWords} words)
                       </span>
                     </label>
@@ -468,7 +483,7 @@ export default function DonatePage() {
                       }}
                       rows={4}
                       className={`w-full px-4 py-3 bg-background border ${
-                        errors.message ? 'border-destructive' : 'border-border'
+                        errors.message ? "border-destructive" : "border-border"
                       } rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none`}
                       placeholder="Share why you're supporting this cause..."
                     />

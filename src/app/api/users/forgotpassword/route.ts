@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import User from '@/models/userModel';
-import { connect } from '@/dbConfig/dbConfig';
-import { sendPasswordResetEmail } from '@/helpers/resendEmail';
-import { sanitizeEmail } from '@/lib/validation/xss';
+import { NextResponse } from "next/server";
+import User from "@/models/userModel";
+import { connect } from "@/dbConfig/dbConfig";
+import { sendPasswordResetEmail } from "@/helpers/resendEmail";
+import { sanitizeEmail } from "@/lib/validation/xss";
 
 export async function POST(req: Request) {
   await connect();
   try {
     const { email } = await req.json();
     if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Sanitize email input
@@ -18,17 +18,23 @@ export async function POST(req: Request) {
       sanitizedEmail = sanitizeEmail(email);
     } catch (validationError) {
       return NextResponse.json(
-        { error: validationError instanceof Error ? validationError.message : 'Invalid email format' },
+        {
+          error:
+            validationError instanceof Error
+              ? validationError.message
+              : "Invalid email format",
+        },
         { status: 400 }
       );
     }
 
     const user = await User.findOne({ email: sanitizedEmail });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     // Generate token and expiry
-    const token = Math.random().toString(36).substr(2) + Date.now().toString(36);
+    const token =
+      Math.random().toString(36).substr(2) + Date.now().toString(36);
     const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
     user.forgotPasswordToken = token;
     user.forgotPasswordTokenExpiry = expiry;
@@ -36,8 +42,13 @@ export async function POST(req: Request) {
     // Send email with reset link
     const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword?token=${token}`;
     await sendPasswordResetEmail(sanitizedEmail, resetUrl);
-    return NextResponse.json({ message: 'Password reset link sent to your email.' });
+    return NextResponse.json({
+      message: "Password reset link sent to your email.",
+    });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to send reset link' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to send reset link" },
+      { status: 500 }
+    );
   }
 }
