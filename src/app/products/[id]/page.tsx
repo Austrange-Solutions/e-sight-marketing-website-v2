@@ -48,6 +48,8 @@ export default function ProductDetailPage() {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [newRating, setNewRating] = useState<number>(0);
   const [newComment, setNewComment] = useState<string>("");
+  const [commentWordCount, setCommentWordCount] = useState<number>(0);
+  const maxCommentWords = 150;
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -137,6 +139,10 @@ export default function ProductDetailPage() {
       toast.error("Please write a longer review");
       return;
     }
+    if (commentWordCount > maxCommentWords) {
+      toast.error(`Review must be ${maxCommentWords} words or less`);
+      return;
+    }
 
     try {
       const res = await fetch(`/api/products/${id}/reviews`, {
@@ -153,6 +159,7 @@ export default function ProductDetailPage() {
       setReviews((prev) => [data.review, ...prev]);
       setNewComment("");
       setNewRating(0);
+      setCommentWordCount(0);
       toast.success("Review submitted");
     } catch (err) {
       console.error(err);
@@ -689,13 +696,50 @@ export default function ProductDetailPage() {
                         })}
                       </div>
                     </div>
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      rows={4}
-                      placeholder="Write your review..."
-                      className="w-full border border-border rounded p-2 sm:p-3 text-sm"
-                    />
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-xs sm:text-sm font-medium">
+                          Your Review:
+                        </label>
+                        <span
+                          className={`text-xs sm:text-sm ${
+                            commentWordCount > maxCommentWords
+                              ? "text-red-600"
+                              : commentWordCount > maxCommentWords * 0.9
+                        disabled={commentWordCount > maxCommentWords}
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {commentWordCount}/{maxCommentWords} words
+                        </span>
+                      </div>
+                      <textarea
+                          setCommentWordCount(0);
+                        value={newComment}
+                        onChange={(e) => {
+                          const text = e.target.value;
+                          setNewComment(text);
+                          const words = text
+                            .trim()
+                            .split(/\s+/)
+                            .filter((word) => word.length > 0).length;
+                          setCommentWordCount(words);
+                        }}
+                        rows={4}
+                        placeholder="Write your review..."
+                        className={`w-full border rounded p-2 sm:p-3 text-sm ${
+                          commentWordCount > maxCommentWords
+                            ? "border-red-500"
+                            : "border-border"
+                        }`}
+                      />
+                      {commentWordCount > maxCommentWords && (
+                        <p className="text-red-600 text-xs mt-1">
+                          Review must be {maxCommentWords} words or less
+                        </p>
+                      )}
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-2">
                       <button
                         type="submit"

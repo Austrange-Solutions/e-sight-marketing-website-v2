@@ -236,10 +236,12 @@ https://dw9tsoyfcyk5k.cloudfront.net/e-sight-ecommerce-product-images/donation-l
 
 ## Environment Variables Required
 
+⚠️ **IMPORTANT:** The credentials shown below are examples only. Use your actual AWS credentials from environment variables.
+
 ```env
 # AWS S3 (Already configured ✅)
-AWS_ACCESS_KEY_ID=AKIAUZIATI3EZ2HTDH6F
-AWS_SECRET_ACCESS_KEY=wqWoThpA/ecICDvVQf6fp1e/ojpcnIEQyY1/xQAM
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXX
+AWS_SECRET_ACCESS_KEY=****************************************
 S3_REGION=ap-south-1
 S3_BUCKET=austrange-storage
 S3_PREFIX=e-sight-ecommerce-product-images/

@@ -24,6 +24,35 @@ export default function CreateTicketForm() {
     photos: [] as string[],
   });
 
+  // Validation states
+  const [phoneError, setPhoneError] = useState("");
+  const [wordCount, setWordCount] = useState(0);
+  const maxWords = 150;
+
+  // Validate phone number (10 digits, starts with 6-9)
+  const validatePhone = (phone: string): boolean => {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 0) {
+      setPhoneError("");
+      return true;
+    }
+    if (cleaned.length !== 10) {
+      setPhoneError("Must be exactly 10 digits");
+      return false;
+    }
+    if (!/^[6-9]/.test(cleaned)) {
+      setPhoneError("Must start with 6, 7, 8, or 9");
+      return false;
+    }
+    setPhoneError("");
+    return true;
+  };
+
+  // Count words in description
+  const countWords = (text: string): number => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
   const problemCategories = [
     "General Inquiry",
     "Account Issue",
@@ -72,6 +101,19 @@ export default function CreateTicketForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate phone before submission
+    if (!validatePhone(formData.phone)) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    // Validate word count
+    if (wordCount > maxWords) {
+      toast.error(`Description must not exceed ${maxWords} words (current: ${wordCount})`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -167,6 +209,7 @@ export default function CreateTicketForm() {
           </label>
           <input
             type="email"
+            inputMode="email"
             required
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             value={formData.email}
@@ -180,17 +223,34 @@ export default function CreateTicketForm() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Phone Number
+            <span className="text-xs text-gray-500 ml-2">(10 digits only)</span>
           </label>
           <input
             type="tel"
+            inputMode="numeric"
             required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+            maxLength={10}
+            pattern="[6-9][0-9]{9}"
+            className={`w-full px-4 py-3 rounded-lg border ${
+              phoneError 
+                ? 'border-red-500 focus:ring-red-500' 
+                : 'border-gray-300 focus:ring-blue-500'
+            } focus:ring-2 focus:border-transparent outline-none transition-all`}
             value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            placeholder="+91 98765 43210"
+            onChange={(e) => {
+              // Only allow numbers
+              const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+              setFormData({ ...formData, phone: cleaned });
+              validatePhone(cleaned);
+            }}
+            placeholder="9876543210"
           />
+          {phoneError && (
+            <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+          )}
+          {formData.phone && !phoneError && formData.phone.length === 10 && (
+            <p className="text-green-600 text-sm mt-1">✓ Valid phone number</p>
+          )}
         </div>
 
         <div>
@@ -269,17 +329,33 @@ export default function CreateTicketForm() {
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Detailed Description
+          <span className={`text-xs ml-2 ${
+            wordCount > maxWords ? 'text-red-500' : 'text-gray-500'
+          }`}>
+            ({wordCount}/{maxWords} words)
+          </span>
         </label>
         <textarea
           required
           rows={5}
-          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+          className={`w-full px-4 py-3 rounded-lg border ${
+            wordCount > maxWords
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500'
+          } focus:ring-2 focus:border-transparent outline-none transition-all resize-none`}
           value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
+          onChange={(e) => {
+            const newDescription = e.target.value;
+            setFormData({ ...formData, description: newDescription });
+            setWordCount(countWords(newDescription));
+          }}
           placeholder="Please describe your issue in detail..."
         />
+        {wordCount > maxWords && (
+          <p className="text-red-500 text-sm mt-1">
+            Description exceeds maximum of {maxWords} words. Please reduce by {wordCount - maxWords} words.
+          </p>
+        )}
       </div>
 
       {/* <div className="mb-8">
@@ -320,9 +396,9 @@ export default function CreateTicketForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !!phoneError || wordCount > maxWords}
         className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-1 ${
-          loading
+          loading || phoneError || wordCount > maxWords
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
         }`}

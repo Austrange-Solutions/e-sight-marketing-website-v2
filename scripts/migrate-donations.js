@@ -55,7 +55,7 @@ async function migrateDonations() {
           console.log(`Progress: ${updated}/${donationsToUpdate.length} donations updated`);
         }
       } catch (error) {
-        console.error(`Error updating donation ${donation._id}:`, error);
+        console.error('Error updating donation:', donation._id, error);
         errors++;
       }
     }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import User from '@/models/userModel';
 import { connect } from '@/dbConfig/dbConfig';
 import { sendPasswordResetEmail } from '@/helpers/resendEmail';
+import { sanitizeEmail } from '@/lib/validation/xss';
 
 export async function POST(req: Request) {
   await connect();
@@ -10,7 +11,19 @@ export async function POST(req: Request) {
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
-    const user = await User.findOne({ email });
+
+    // Sanitize email input
+    let sanitizedEmail: string;
+    try {
+      sanitizedEmail = sanitizeEmail(email);
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: validationError instanceof Error ? validationError.message : 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    const user = await User.findOne({ email: sanitizedEmail });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -22,7 +35,7 @@ export async function POST(req: Request) {
     await user.save();
     // Send email with reset link
     const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword?token=${token}`;
-    await sendPasswordResetEmail(email, resetUrl);
+    await sendPasswordResetEmail(sanitizedEmail, resetUrl);
     return NextResponse.json({ message: 'Password reset link sent to your email.' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to send reset link' }, { status: 500 });

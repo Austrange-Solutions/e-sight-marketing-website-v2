@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       const pendingOrders = await Order.find({ userId: userObjectId, status: 'pending' }).limit(5);
       console.log("🔍 Found pending orders for user:", pendingOrders.length);
       pendingOrders.forEach((order, index) => {
-        console.log(`📋 Pending order ${index + 1}:`, order._id.toString(), "items:", order.items?.length);
+        console.log('📋 Pending order', index + 1, ':', order._id.toString(), 'items:', order.items?.length);
       });
 
       return NextResponse.json(

@@ -1,0 +1,66 @@
+# Semgrep Ignore File
+# Files and patterns listed here will be excluded from Semgrep scans
+
+# ============================================================================
+# DOCUMENTATION FILES (contain example/redacted credentials for illustration)
+# ============================================================================
+*.md
+AWS_REGION_FIX.md
+FOUNDATION_SYSTEM_BUG_FIXES.md
+SECURITY_AUDIT_FIXES.md
+SECURITY_FIXES.md
+CONFIGURABLE_PERCENTAGE_IMPLEMENTATION.md
+DYNAMIC_FOUNDATION_SYSTEM.md
+CASHFREE_PRODUCTION_TROUBLESHOOTING.md
+
+# ============================================================================
+# DEVELOPMENT SCRIPTS (utility scripts, not production code)
+# ============================================================================
+scripts/check_connect.js
+scripts/check_connect_dbusers.js
+scripts/check_connect_v2.js
+scripts/migrate-donations.js
+scripts/migrate-images.js
+
+# ============================================================================
+# APPLICATION CODE WITH VALIDATED INPUTS (false positives)
+# ============================================================================
+# These routes have proper input validation via validateObjectId() and escapeRegex()
+# Semgrep's taint analysis doesn't recognize our custom validation functions
+# Ignoring entire files since inline comments don't work with Pro engine
+src/app/api/admin/disabled-persons/[id]/route.ts:javascript.express.mongodb.express-mongo-nosqli
+src/app/api/disabled-registration/status/[id]/route.ts:javascript.express.mongodb.express-mongo-nosqli
+src/app/api/support/track/route.ts:javascript.lang.security.audit.detect-non-literal-regexp
+
+# ============================================================================
+# CONFIG FILES WITH FALSE POSITIVES
+# ============================================================================
+# Snyk config file (contains vulnerability IDs, not secrets)
+.snyk
+
+# VS Code settings (contains org ID, not sensitive tokens)
+.vscode/settings.json
+
+# Environment sample file (example values only)
+.env.sample
+
+# ============================================================================
+# BUILD & DEPENDENCIES
+# ============================================================================
+node_modules/
+.next/
+dist/
+build/
+*.log
+
+# ============================================================================
+# IGNORE PATTERNS
+# ============================================================================
+# Test files
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Type definitions
+**/*.d.ts

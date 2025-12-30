@@ -2,6 +2,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromToken } from "@/middleware/auth";
+import { validateAndSanitize, sanitizePhone, validateAndSanitizeWithWordLimit } from "@/lib/validation/xss";
 
 // Force Node.js runtime to avoid Edge Runtime crypto issues
 export const runtime = 'nodejs';
@@ -42,9 +43,45 @@ export async function PUT(request: NextRequest) {
 
     const { username, phone, address } = await request.json();
 
+    // Validate and sanitize user inputs to prevent XSS
+    let sanitizedUsername: string | undefined;
+    let sanitizedPhone: string | undefined;
+    let sanitizedAddress: string | undefined;
+
+    try {
+      if (username) {
+        sanitizedUsername = validateAndSanitize(username, {
+          fieldName: 'username',
+          maxLength: 100,
+          strict: false,
+        });
+      }
+      
+      if (phone) {
+        sanitizedPhone = sanitizePhone(phone);
+      }
+      
+      if (address) {
+        sanitizedAddress = validateAndSanitizeWithWordLimit(address, {
+          fieldName: 'address',
+          maxWords: 150,
+          strict: false,
+        });
+      }
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: validationError instanceof Error ? validationError.message : 'Invalid input detected' },
+        { status: 400 }
+      );
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       userData.id,
-      { username, phone, address },
+      { 
+        username: sanitizedUsername, 
+        phone: sanitizedPhone, 
+        address: sanitizedAddress 
+      },
       { new: true }
     ).select("-password");
 

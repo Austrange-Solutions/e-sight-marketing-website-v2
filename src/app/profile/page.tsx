@@ -109,7 +109,50 @@ export default function ProfilePage() {
     address: "",
   });
   const [saving, setSaving] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+  const [addressWordCount, setAddressWordCount] = useState(0);
+  const maxAddressWords = 150;
   const router = useRouter();
+
+  // Helper function to count words
+  const countWords = (text: string): number => {
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+  };
+
+  // Helper function to validate phone
+  const validatePhone = (phone: string): string => {
+    if (!phone) return "";
+    if (phone.length !== 10) {
+      return "Phone number must be exactly 10 digits";
+    }
+    if (!/^[6-9]/.test(phone)) {
+      return "Phone number must start with 6, 7, 8, or 9";
+    }
+    return "";
+  };
+
+  // Handle input changes with validation
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    
+    if (name === "phone") {
+      // Only allow digits, limit to 10
+      const cleaned = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({ ...prev, [name]: cleaned }));
+      setPhoneError(validatePhone(cleaned));
+    } else if (name === "address") {
+      const words = countWords(value);
+      setAddressWordCount(words);
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -399,32 +442,76 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Phone Number
                     </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[6-9][0-9]{9}"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="10-digit number (6-9 prefix)"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          phoneError
+                            ? "border-red-500"
+                            : formData.phone.length === 10 && !phoneError
+                            ? "border-green-500"
+                            : "border-border"
+                        }`}
+                      />
+                      {formData.phone.length === 10 && !phoneError && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    {phoneError && (
+                      <p className="text-red-600 text-sm mt-1">{phoneError}</p>
+                    )}
+                    {!phoneError && formData.phone && (
+                      <p className="text-muted-foreground text-sm mt-1">
+                        {formData.phone.length}/10 digits
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Address
+                    <label className="block text-sm font-medium text-foreground mb-2 flex justify-between">
+                      <span>Address</span>
+                      <span
+                        className={`text-sm ${
+                          addressWordCount > maxAddressWords
+                            ? "text-red-600"
+                            : addressWordCount > maxAddressWords * 0.9
+                            ? "text-yellow-600"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {addressWordCount}/{maxAddressWords} words
+                      </span>
                     </label>
                     <textarea
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
                       rows={3}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        addressWordCount > maxAddressWords
+                          ? "border-red-500"
+                          : "border-border"
+                      }`}
                     />
+                    {addressWordCount > maxAddressWords && (
+                      <p className="text-red-600 text-sm mt-1">
+                        Address must be {maxAddressWords} words or less
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex space-x-4">
                     <button
                       onClick={handleSaveProfile}
-                      disabled={saving}
+                      disabled={saving || !!phoneError || addressWordCount > maxAddressWords}
                       className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />

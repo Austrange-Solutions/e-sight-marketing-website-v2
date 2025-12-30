@@ -108,7 +108,7 @@ export async function generatePresignedUrls(
         const url = await generatePresignedUrl(key, expiresIn);
         urlMap.set(key, url);
       } catch (error) {
-        console.error(`Failed to generate URL for ${key}:`, error);
+        console.error('Failed to generate URL for key:', key, error);
       }
     })
   );

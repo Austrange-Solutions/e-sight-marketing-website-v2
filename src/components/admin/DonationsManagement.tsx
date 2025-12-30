@@ -126,7 +126,7 @@ export default function DonationsManagement() {
         if (data.donations && data.donations.length > 0) {
           console.log('=== Foundation Data Debug ===');
           data.donations.slice(0, 3).forEach((d: any, idx: number) => {
-            console.log(`Donation ${idx + 1}:`, {
+            console.log('Donation', idx + 1, ':', {
               id: d._id,
               foundation: d.foundation,
               foundationType: typeof d.foundation,

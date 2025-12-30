@@ -33,11 +33,13 @@ region: process.env.S3_REGION || process.env.AWS_REGION || "ap-south-1"
 - `src/app/api/aws/validate/route.ts` - Uses `S3_REGION`
 
 ## Environment Variable Requirements
+⚠️ **IMPORTANT:** The credentials shown below are examples only. Use your actual AWS credentials from environment variables.
+
 Your `.env` file should have:
 ```env
 S3_REGION=ap-south-1
-AWS_ACCESS_KEY_ID=AKIAUZIATI3EZ2HTDH6F
-AWS_SECRET_ACCESS_KEY=wqWoThpA/ecICDvVQf6fp1e/ojpcnIEQyY1/xQAM
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXX
+AWS_SECRET_ACCESS_KEY=****************************************
 S3_BUCKET=austrange-storage
 S3_PREFIX=e-sight-ecommerce-product-images/
 CLOUDFRONT_DOMAIN=https://dw9tsoyfcyk5k.cloudfront.net
@@ -60,7 +62,7 @@ NEXT_PUBLIC_CLOUDFRONT_DOMAIN=https://dw9tsoyfcyk5k.cloudfront.net
 ```
 https://austrange-storage.s3.ap-south-1.amazonaws.com/e-sight-ecommerce-product-images/...
 ?X-Amz-Algorithm=AWS4-HMAC-SHA256
-&X-Amz-Credential=AKIAUZIATI3EZ2HTDH6F%2F20251128%2Fap-south-1%2Fs3%2Faws4_request
+&X-Amz-Credential=AKIAXXXXXXXXXXXXXXXX%2F20251128%2Fap-south-1%2Fs3%2Faws4_request
 ```
 
 Notice: `ap-south-1` instead of `us-east-1`

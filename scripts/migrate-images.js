@@ -67,7 +67,7 @@ async function migrateProductImages() {
           console.log(`⚠️  Product ${product.name} has unusual image format: ${product.image}`);
         }
       } catch (error) {
-        console.error(`❌ Error processing ${product.name}:`, error.message);
+        console.error('❌ Error processing product:', product.name, error.message);
       }
     }
 

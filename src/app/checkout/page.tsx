@@ -390,6 +390,8 @@ const CheckoutPage = () => {
                         </label>
                         <input
                           type="tel"
+                          inputMode="numeric"
+                          pattern="[6-9][0-9]{9}"
                           name="phone"
                           value={shippingForm.phone}
                           onChange={handleInputChange}
@@ -413,6 +415,7 @@ const CheckoutPage = () => {
                       </label>
                       <input
                         type="email"
+                        inputMode="email"
                         name="email"
                         value={shippingForm.email}
                         onChange={handleInputChange}

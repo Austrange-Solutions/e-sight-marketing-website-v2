@@ -3,9 +3,18 @@ const path = require('path');
 
 function walk(dir) {
   let results = [];
+  const absoluteDir = path.resolve(dir);
   const list = fs.readdirSync(dir);
   list.forEach(function(file) {
-    file = path.resolve(dir, file);
+    const resolvedFile = path.resolve(dir, file);
+    
+    // Security: Ensure resolved path stays within the intended directory
+    if (!resolvedFile.startsWith(absoluteDir)) {
+      console.warn(`[Security] Skipping suspicious path: ${resolvedFile}`);
+      return;
+    }
+    
+    file = resolvedFile;
     const stat = fs.statSync(file);
     if (stat && stat.isDirectory()) {
       results = results.concat(walk(file));

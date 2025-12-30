@@ -192,6 +192,7 @@ export default function SignupPage() {
                                     id="email"
                                     name="email"
                                     type="email"
+                                    inputMode="email"
                                     required
                                     className={`appearance-none relative block w-full px-3 py-3 sm:py-2 pl-10 border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 text-base sm:text-sm ${
                                         validationErrors.email ? 'border-red-300' : 'border-border'

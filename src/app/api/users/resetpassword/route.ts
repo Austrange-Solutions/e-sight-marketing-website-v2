@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import User from '@/models/userModel';
 import { connect } from '@/dbConfig/dbConfig';
 import bcrypt from 'bcryptjs';
+import { validateAndSanitize } from '@/lib/validation/xss';
 
 export async function POST(req: Request) {
   await connect();
@@ -10,7 +11,23 @@ export async function POST(req: Request) {
     if (!token || !password) {
       return NextResponse.json({ error: 'Token and password are required' }, { status: 400 });
     }
-    const user = await User.findOne({ forgotPasswordToken: token });
+
+    // Sanitize token to prevent XSS
+    let sanitizedToken: string;
+    try {
+      sanitizedToken = validateAndSanitize(token, {
+        fieldName: 'token',
+        maxLength: 200,
+        strict: true,
+      });
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: 'Invalid token format' },
+        { status: 400 }
+      );
+    }
+
+    const user = await User.findOne({ forgotPasswordToken: sanitizedToken });
     if (!user || !user.forgotPasswordTokenExpiry || user.forgotPasswordTokenExpiry < new Date()) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
     }

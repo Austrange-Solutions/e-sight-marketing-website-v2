@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { sanitizeEmail } from "@/lib/validation/xss";
 
 export async function POST(request: NextRequest){
     await connect();
@@ -21,8 +22,19 @@ export async function POST(request: NextRequest){
         const { email, password } = parseResult.data;
         console.log(reqBody);
 
+        // Sanitize email input
+        let sanitizedEmail: string;
+        try {
+            sanitizedEmail = sanitizeEmail(email);
+        } catch (validationError) {
+            return NextResponse.json(
+                { error: validationError instanceof Error ? validationError.message : 'Invalid input detected' },
+                { status: 400 }
+            );
+        }
+
         //check if user exists
-        const user = await User.findOne({email})
+        const user = await User.findOne({email: sanitizedEmail})
         if(!user){
             return NextResponse.json({error: "User does not exist"}, {status: 400})
         }

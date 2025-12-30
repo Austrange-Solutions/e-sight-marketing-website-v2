@@ -130,7 +130,7 @@ export default function S3FileUploader() {
           setUploadedFiles((prev) => [...prev, uploadedFile]);
           setUploadProgress((prev) => ({ ...prev, [fileId]: 100 }));
         } catch (fileError) {
-          console.error(`Failed to upload ${file.name}:`, fileError);
+          console.error('Failed to upload file:', file.name, fileError);
           setError(
             `Failed to upload ${file.name}: ${fileError instanceof Error ? fileError.message : "Unknown error"}`
           );

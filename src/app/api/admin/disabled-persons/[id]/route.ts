@@ -5,6 +5,7 @@ import DisabledPerson from "@/models/disabledPersonModel";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
 import { sendDisabledStatusUpdateEmail } from "@/helpers/resendEmail";
 import mongoose from "mongoose";
+import { validateObjectId } from "@/lib/validation/objectId";
 
 // GET - Get individual disabled person details (Admin only)
 export async function GET(
@@ -21,11 +22,14 @@ export async function GET(
     const params = await context.params;
     const { id } = params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    try {
+      validateObjectId(id);
+    } catch (validationError) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    const person = await DisabledPerson.findById(id).lean();
+    // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
+    const person = await DisabledPerson.findById(id).lean(); // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
 
     if (!person) {
       return NextResponse.json({ error: "Person not found" }, { status: 404 });
@@ -55,8 +59,10 @@ export async function PATCH(
     const params = await context.params;
     const { id } = params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    try {
+      validateObjectId(id);
+    } catch (validationError) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
     const body = await request.json();
@@ -77,7 +83,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid verification status" }, { status: 400 });
     }
 
-    const person = await DisabledPerson.findById(id);
+    // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
+    const person = await DisabledPerson.findById(id); // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
     if (!person) {
       return NextResponse.json({ error: "Person not found" }, { status: 404 });
     }

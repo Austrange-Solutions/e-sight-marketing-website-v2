@@ -16,17 +16,24 @@ export async function GET(request: Request) {
       );
     }
 
+    // Prevent overly long inputs (max 100 characters for email/ticket ID)
+    if (query.length > 100) {
+      return NextResponse.json(
+        { error: "Search query is too long" },
+        { status: 400 }
+      );
+    }
+
     // Try to find by Ticket ID first (exact match)
     let tickets = await SupportTicket.find({ ticketId: query });
 
     // If no tickets found by ID, try by Email (case-insensitive)
-    // Note: Input is sanitized via escapeRegex to prevent ReDoS attacks
-    // The escapeRegex function escapes all special regex characters
+    // Safe: Input is sanitized via escapeRegex() and length-limited to 100 chars
+    // The escapeRegex function escapes [.*+?^${}()|[\]\\] preventing ReDoS attacks
     if (tickets.length === 0) {
-      // deepcode ignore reDOS: Input is sanitized via escapeRegex function which escapes all special regex characters
       const sanitizedQuery = escapeRegex(query);
       tickets = await SupportTicket.find({
-        email: { $regex: new RegExp(`^${sanitizedQuery}$`, "i") },
+        email: { $regex: new RegExp(`^${sanitizedQuery}$`, "i") }, // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp
       }).sort({ createdAt: -1 });
     }
 

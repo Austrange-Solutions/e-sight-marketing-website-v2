@@ -52,7 +52,7 @@ export async function getProducts(): Promise<ServerProduct[]> {
       }));
     } catch (error) {
       lastError = error;
-      console.error(`Failed to fetch products (attempt ${attempt}/${maxRetries}):`, {
+      console.error('Failed to fetch products (attempt', attempt, '/', maxRetries, '):', {
         message: error instanceof Error ? error.message : 'Unknown error',
         name: error instanceof Error ? error.name : 'Unknown',
         attempt: attempt

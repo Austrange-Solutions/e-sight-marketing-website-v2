@@ -75,6 +75,7 @@ export default function AdminLogin() {
                 id="email"
                 name="email"
                 type="email"
+                inputMode="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-t-md focus:outline-none focus:ring-ring focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Email address"

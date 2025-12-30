@@ -7,6 +7,7 @@ import { authOptions } from '@/app/api/auth/authOptions';
 import { getUserFromToken } from '@/middleware/auth';
 import mongoose from 'mongoose';
 import User from '@/models/userModel';
+import { validateAndSanitize, validateAndSanitizeWithWordLimit } from '@/lib/validation/xss';
 
 export const runtime = 'nodejs';
 
@@ -92,6 +93,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Rating must be 1-5' }, { status: 400 });
     }
 
+    // Sanitize comment to prevent XSS
+    let sanitizedComment: string;
+    try {
+      sanitizedComment = validateAndSanitizeWithWordLimit(String(comment).trim(), {
+        fieldName: 'comment',
+        maxWords: 150,
+        strict: true,
+      });
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: validationError instanceof Error ? validationError.message : 'Invalid characters in comment' },
+        { status: 400 }
+      );
+    }
+
     // find product by slug or id
     let product = await Product.findOne({ slug: id }).lean();
     if (!product) product = await Product.findById(id).lean();
@@ -106,7 +122,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       user: userId,
       username: (userData as any).name || (userData as any).username || (userData as any).email || 'Anonymous',
       rating: Math.min(5, Math.max(1, parsedRating)),
-      comment: String(comment).trim(),
+      comment: sanitizedComment,
     });
 
     return NextResponse.json({ success: true, review }, { status: 201 });

@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/authOptions";
 import { NextRequest, NextResponse } from "next/server";
+import { validateAndSanitize, sanitizeEmail, sanitizePhone } from "@/lib/validation/xss";
 
 // Force Node.js runtime to avoid Edge Runtime crypto issues
 export const runtime = 'nodejs';
@@ -53,6 +54,29 @@ export async function POST(request: NextRequest) {
         !shippingAddress.state || !shippingAddress.pincode) {
       return NextResponse.json(
         { error: "Missing required shipping address fields" },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize shipping address fields to prevent XSS
+    let sanitizedAddress;
+    try {
+      sanitizedAddress = {
+        name: validateAndSanitize(shippingAddress.name, { fieldName: 'name', maxLength: 100, strict: true }),
+        phone: sanitizePhone(shippingAddress.phone),
+        email: sanitizeEmail(shippingAddress.email),
+        address: validateAndSanitize(shippingAddress.address, { fieldName: 'address', maxLength: 500, strict: true }),
+        addressLine2: shippingAddress.addressLine2 ? validateAndSanitize(shippingAddress.addressLine2, { fieldName: 'addressLine2', maxLength: 200 }) : undefined,
+        landmark: shippingAddress.landmark ? validateAndSanitize(shippingAddress.landmark, { fieldName: 'landmark', maxLength: 100 }) : '',
+        city: validateAndSanitize(shippingAddress.city, { fieldName: 'city', maxLength: 100, strict: true }),
+        state: validateAndSanitize(shippingAddress.state, { fieldName: 'state', maxLength: 100, strict: true }),
+        pincode: validateAndSanitize(shippingAddress.pincode, { fieldName: 'pincode', maxLength: 10 }),
+        country: shippingAddress.country ? validateAndSanitize(shippingAddress.country, { fieldName: 'country', maxLength: 100 }) : 'India',
+        addressType: shippingAddress.addressType ? validateAndSanitize(shippingAddress.addressType, { fieldName: 'addressType', maxLength: 20 }) : 'Home',
+      };
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: validationError instanceof Error ? validationError.message : 'Invalid input detected in shipping address' },
         { status: 400 }
       );
     }
@@ -106,31 +130,31 @@ export async function POST(request: NextRequest) {
     // Generate unique order number
     const orderNumber = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
 
-    // Create checkout record with ALL required fields
+    // Create checkout record with ALL required fields (using sanitized data)
     const checkout = new Order({
       userId: userObjectId,
       orderNumber: orderNumber,
       
       // Customer Information (required)
       customerInfo: {
-        name: shippingAddress.name,
-        email: shippingAddress.email,
-        phone: shippingAddress.phone,
+        name: sanitizedAddress.name,
+        email: sanitizedAddress.email,
+        phone: sanitizedAddress.phone,
       },
       
       // Shipping Address
       shippingAddress: {
-        name: shippingAddress.name,
-        phone: shippingAddress.phone,
-        email: shippingAddress.email,
-        address: shippingAddress.address,
-        addressLine2: shippingAddress.addressLine2, 
-        landmark: shippingAddress.landmark || "",
-        city: shippingAddress.city,
-        state: shippingAddress.state,
-        pincode: shippingAddress.pincode,
-        country: shippingAddress.country || "India",
-        addressType: shippingAddress.addressType || "Home",
+        name: sanitizedAddress.name,
+        phone: sanitizedAddress.phone,
+        email: sanitizedAddress.email,
+        address: sanitizedAddress.address,
+        addressLine2: sanitizedAddress.addressLine2, 
+        landmark: sanitizedAddress.landmark,
+        city: sanitizedAddress.city,
+        state: sanitizedAddress.state,
+        pincode: sanitizedAddress.pincode,
+        country: sanitizedAddress.country,
+        addressType: sanitizedAddress.addressType,
       },
       
       items: checkoutItems,

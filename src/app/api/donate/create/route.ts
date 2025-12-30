@@ -3,6 +3,7 @@ import { connect as dbConnect } from "@/dbConfig/dbConfig";
 import Donation from "@/models/Donation";
 import Foundation from "@/models/Foundation";
 import mongoose from "mongoose";
+import { validateAndSanitize, sanitizeEmail, sanitizePhone, validateAndSanitizeWithWordLimit } from '@/lib/validation/xss';
 
 // Both payment gateways available
 import Razorpay from "razorpay";
@@ -32,8 +33,28 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { name, email, phone, amount, message, isAnonymous, address, city, state, pan, foundation } = body;
 
+    // Validate and sanitize donor inputs to prevent XSS
+    let sanitizedDonorData;
+    try {
+      sanitizedDonorData = {
+        name: validateAndSanitize(name, { fieldName: 'name', maxLength: 200, strict: true }),
+        email: sanitizeEmail(email),
+        phone: sanitizePhone(phone),
+        message: message ? validateAndSanitizeWithWordLimit(message, { fieldName: 'message', maxWords: 150, strict: true }) : '',
+        address: address ? validateAndSanitize(address, { fieldName: 'address', maxLength: 500, strict: false }) : undefined,
+        city: city ? validateAndSanitize(city, { fieldName: 'city', maxLength: 100, strict: false }) : undefined,
+        state: state ? validateAndSanitize(state, { fieldName: 'state', maxLength: 100, strict: false }) : undefined,
+        pan: pan ? validateAndSanitize(pan, { fieldName: 'PAN', maxLength: 20, strict: false }) : undefined,
+      };
+    } catch (validationError) {
+      return NextResponse.json(
+        { success: false, message: validationError instanceof Error ? validationError.message : 'Invalid input detected' },
+        { status: 400 }
+      );
+    }
+
     // Validation
-    if (!name || !email || !phone || !amount) {
+    if (!sanitizedDonorData.name || !sanitizedDonorData.email || !sanitizedDonorData.phone || !amount) {
       return NextResponse.json(
         { success: false, message: "All required fields must be provided" },
         { status: 400 }
@@ -119,9 +140,9 @@ export async function POST(req: NextRequest) {
       order_currency: "INR",
       customer_details: {
         customer_id: `donor_${Date.now()}`,
-        customer_name: name,
-        customer_email: email,
-        customer_phone: phone,
+        customer_name: sanitizedDonorData.name,
+        customer_email: sanitizedDonorData.email,
+        customer_phone: sanitizedDonorData.phone,
       },
       order_note: `Donation - ${sticksEquivalent.toFixed(2)} E-Kaathi Pro sticks`,
     };
@@ -139,9 +160,9 @@ export async function POST(req: NextRequest) {
 
     // Create donation record with pending status
     const donation = await Donation.create({
-      donorName: name,
-      email: email.toLowerCase(),
-      phone: phone,
+      donorName: sanitizedDonorData.name,
+      email: sanitizedDonorData.email,
+      phone: sanitizedDonorData.phone,
       amount: amount,
       platformFee: breakdown.platformFee,
       foundationAmount: breakdown.foundationAmount,
@@ -152,14 +173,14 @@ export async function POST(req: NextRequest) {
       sticksEquivalent: sticksEquivalent,
       orderId: order.order_id,
       status: "pending",
-      message: message || "",
+      message: sanitizedDonorData.message || "",
       isAnonymous: isAnonymous || false,
       foundation: foundationDoc._id, // Store ObjectId reference
       // Optional tax exemption fields
-      address: address || undefined,
-      city: city || undefined,
-      state: state || undefined,
-      pan: pan ? pan.toUpperCase() : undefined,
+      address: sanitizedDonorData.address || undefined,
+      city: sanitizedDonorData.city || undefined,
+      state: sanitizedDonorData.state || undefined,
+      pan: sanitizedDonorData.pan ? sanitizedDonorData.pan.toUpperCase() : undefined,
     });
 
     return NextResponse.json({

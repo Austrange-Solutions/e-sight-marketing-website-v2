@@ -1,6 +1,7 @@
 import { connect } from "@/dbConfig/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/userModel";
+import { sanitizeEmail, validateAndSanitize } from "@/lib/validation/xss";
 
 connect();
 export async function POST(request: NextRequest) {
@@ -17,9 +18,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Sanitize inputs to prevent XSS
+    let sanitizedEmail: string;
+    let sanitizedCode: string;
+    try {
+      sanitizedEmail = sanitizeEmail(email);
+      sanitizedCode = validateAndSanitize(String(code).trim(), {
+        fieldName: 'verification code',
+        maxLength: 100,
+        strict: true,
+      });
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: validationError instanceof Error ? validationError.message : 'Invalid email or code format' },
+        { status: 400 }
+      );
+    }
+
     const user = await User.findOne({
-      email,
-      verifyCode: code,
+      email: sanitizedEmail,
+      verifyCode: sanitizedCode,
       verifyCodeExpiry: { $gt: Date.now() },
       isVerified: false,
     });

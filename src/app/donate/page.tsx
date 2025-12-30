@@ -65,6 +65,13 @@ export default function DonatePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paymentError, setPaymentError] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
+  const [messageWordCount, setMessageWordCount] = useState(0);
+  const maxWords = 150;
+
+  // Count words in message
+  const countWords = (text: string): number => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
 
   // Fetch active foundations
   useEffect(() => {
@@ -147,6 +154,8 @@ export default function DonatePage() {
       newErrors.phone = "Phone number is required";
     } else if (!/^[0-9]{10}$/.test(formData.phone)) {
       newErrors.phone = "Please enter a valid 10-digit phone number";
+    } else if (!/^[6-9]/.test(formData.phone)) {
+      newErrors.phone = "Phone number must start with 6, 7, 8, or 9";
     }
 
     // Optional PAN validation (if provided)
@@ -159,6 +168,11 @@ export default function DonatePage() {
     const amount = isCustom ? parseFloat(customAmount) || 0 : selectedAmount;
     if (amount < 1) {
       newErrors.amount = "Please enter a valid donation amount";
+    }
+
+    // Validate message word count
+    if (formData.message && messageWordCount > maxWords) {
+      newErrors.message = `Message must not exceed ${maxWords} words (current: ${messageWordCount} words)`;
     }
 
     setErrors(newErrors);
@@ -295,7 +309,10 @@ export default function DonatePage() {
                   <div className="relative">
                     <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
-                      type="text"
+                      type="number"
+                      inputMode="numeric"
+                      min="1"
+                      step="1"
                       value={customAmount}
                       onChange={(e) => handleCustomAmountChange(e.target.value)}
                       placeholder="Enter amount"
@@ -385,6 +402,7 @@ export default function DonatePage() {
                     </label>
                     <input
                       type="email"
+                      inputMode="email"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
@@ -404,17 +422,22 @@ export default function DonatePage() {
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Phone Number *
+                      <span className="text-xs text-muted-foreground ml-2">(10 digits only)</span>
                     </label>
                     <input
                       type="tel"
+                      inputMode="numeric"
+                      pattern="[6-9][0-9]{9}"
                       value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
+                      onChange={(e) => {
+                        // Only allow numbers, max 10 digits
+                        const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setFormData({ ...formData, phone: cleaned });
+                      }}
                       className={`w-full px-4 py-3 bg-background border ${
                         errors.phone ? "border-destructive" : "border-border"
                       } rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground`}
-                      placeholder="10-digit mobile number"
+                      placeholder="9876543210"
                       maxLength={10}
                     />
                     {errors.phone && (
@@ -422,22 +445,38 @@ export default function DonatePage() {
                         {errors.phone}
                       </p>
                     )}
+                    {formData.phone.length === 10 && !errors.phone && /^[6-9]/.test(formData.phone) && (
+                      <p className="text-green-600 text-sm mt-2">✓ Valid phone number</p>
+                    )}
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       Message (Optional)
+                      <span className={`text-xs ml-2 ${
+                        messageWordCount > maxWords ? 'text-destructive' : 'text-muted-foreground'
+                      }`}>
+                        ({messageWordCount}/{maxWords} words)
+                      </span>
                     </label>
                     <textarea
                       value={formData.message}
-                      onChange={(e) =>
-                        setFormData({ ...formData, message: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const newMessage = e.target.value;
+                        setFormData({ ...formData, message: newMessage });
+                        setMessageWordCount(countWords(newMessage));
+                      }}
                       rows={4}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none"
+                      className={`w-full px-4 py-3 bg-background border ${
+                        errors.message ? 'border-destructive' : 'border-border'
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none`}
                       placeholder="Share why you're supporting this cause..."
-                      maxLength={500}
                     />
+                    {errors.message && (
+                      <p className="text-destructive text-sm mt-2">
+                        {errors.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* Tax Exemption Section */}

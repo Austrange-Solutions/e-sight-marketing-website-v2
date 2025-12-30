@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         await donation.save();
         updated++;
       } catch (error) {
-        console.error(`Error updating donation ${donation._id}:`, error);
+        console.error('Error updating donation:', donation._id, error);
         errors++;
       }
     }

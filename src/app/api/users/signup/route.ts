@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import bcryptjs from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/resendEmail";
+import { validateAndSanitize, sanitizeEmail, sanitizePhone } from "@/lib/validation/xss";
 
 export async function POST(request: NextRequest){
     await connect();
@@ -22,21 +23,45 @@ export async function POST(request: NextRequest){
         }
         const { username, email, password, phone } = parseResult.data;
 
+        // Validate and sanitize inputs to prevent XSS
+        let sanitizedUsername: string;
+        let sanitizedEmail: string;
+        let sanitizedPhone: string | undefined;
+
+        try {
+            sanitizedUsername = validateAndSanitize(username, {
+                fieldName: 'username',
+                maxLength: 100,
+                strict: false,
+            });
+            
+            sanitizedEmail = sanitizeEmail(email);
+            
+            if (phone) {
+                sanitizedPhone = sanitizePhone(phone);
+            }
+        } catch (validationError) {
+            return NextResponse.json(
+                { error: validationError instanceof Error ? validationError.message : 'Invalid input detected' },
+                { status: 400 }
+            );
+        }
+
         // Check if user already exists with email
-        const existingUserByEmail = await User.findOne({email})
+        const existingUserByEmail = await User.findOne({email: sanitizedEmail})
         if(existingUserByEmail){
             return NextResponse.json({error: "User with this email already exists"}, {status: 400})
         }
 
         // Check if user already exists with username
-        const existingUserByUsername = await User.findOne({username})
+        const existingUserByUsername = await User.findOne({username: sanitizedUsername})
         if(existingUserByUsername){
             return NextResponse.json({error: "User with this username already exists"}, {status: 400})
         }
 
         // Check if user already exists with phone (if phone is provided)
-        if (phone) {
-            const existingUserByPhone = await User.findOne({phone})
+        if (sanitizedPhone) {
+            const existingUserByPhone = await User.findOne({phone: sanitizedPhone})
             if(existingUserByPhone){
                 return NextResponse.json({error: "User with this phone number already exists"}, {status: 400})
             }
@@ -47,10 +72,10 @@ export async function POST(request: NextRequest){
         const hashedPassword = await bcryptjs.hash(password, salt)
 
         const newUser = new User({
-            username,
-            email,
+            username: sanitizedUsername,
+            email: sanitizedEmail,
             password: hashedPassword,
-            phone: phone || undefined
+            phone: sanitizedPhone || undefined
         })
 
         const savedUser = await newUser.save()
@@ -69,7 +94,7 @@ export async function POST(request: NextRequest){
         try {
             const { sendVerificationEmail } = await import("@/helpers/resendEmail");
             await sendVerificationEmail(
-  email,
+  sanitizedEmail,
   "Verify your email",
   code // just the code, not HTML
 );

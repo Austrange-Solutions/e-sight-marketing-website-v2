@@ -90,6 +90,7 @@ export default function VerifyEmailPage() {
                   id="email"
                   name="email"
                   type="email"
+                  inputMode="email"
                   required
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Enter your email"
