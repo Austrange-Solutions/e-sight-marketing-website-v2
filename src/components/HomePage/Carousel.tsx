@@ -91,7 +91,16 @@ export default function Carousel({
             playsInline
             muted
             loop
-            autoPlay={autoplay}
+            autoPlay
+            controls={false}
+            preload="auto"
+            onError={(e) => {
+              console.error("Video load error:", e);
+              console.error("Video source:", s.url);
+            }}
+            onLoadedData={() => {
+              console.log("Video loaded successfully:", s.url);
+            }}
           />
         ) : (
           <Image

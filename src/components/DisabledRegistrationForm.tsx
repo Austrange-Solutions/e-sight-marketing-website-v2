@@ -177,15 +177,18 @@ const formSchema = z.object({
     .max(1000, "Must not exceed 1000 characters")
     .optional()
     .or(z.literal("")),
+  // Documents field made optional since upload functionality is currently commented out
   documents: z
     .object({
-      passportPhoto: z.object({
-        fileName: z.string(),
-        fileUrl: z.string(),
-        fileSize: z.number(),
-        fileType: z.string().optional(),
-        uploadedAt: z.date().optional(),
-      }),
+      passportPhoto: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
       aadharCard: z
         .object({
           fileName: z.string(),
@@ -204,13 +207,15 @@ const formSchema = z.object({
           uploadedAt: z.date().optional(),
         })
         .optional(),
-      disabilityCertificate: z.object({
-        fileName: z.string(),
-        fileUrl: z.string(),
-        fileSize: z.number(),
-        fileType: z.string().optional(),
-        uploadedAt: z.date().optional(),
-      }),
+      disabilityCertificate: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
       udidCard: z
         .object({
           fileName: z.string(),
@@ -221,10 +226,7 @@ const formSchema = z.object({
         })
         .optional(),
     })
-    .refine((docs) => docs.aadharCard || docs.panCard, {
-      message: "At least one ID proof (Aadhar Card or PAN Card) is required",
-      path: ["aadharCard"],
-    }),
+    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -1109,7 +1111,7 @@ export default function DisabledRegistrationForm() {
       </Card>
 
       {/* Documents Upload */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Document Upload</CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -1152,7 +1154,7 @@ export default function DisabledRegistrationForm() {
             </p>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Submit Button */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

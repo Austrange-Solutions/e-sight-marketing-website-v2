@@ -130,21 +130,15 @@ export const disabledRegistrationSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  // Documents
+  // Documents - Made optional since upload functionality is currently disabled
   documents: z.object({
-    passportPhoto: documentSchema,
+    passportPhoto: documentSchema.optional(),
     aadharCard: documentSchema.optional(),
     panCard: documentSchema.optional(),
-    disabilityCertificate: documentSchema,
+    disabilityCertificate: documentSchema.optional(),
     udidCard: documentSchema.optional(),
     additionalDocuments: z.array(documentSchema).optional(),
-  }).refine(
-    (docs) => docs.aadharCard || docs.panCard,
-    {
-      message: "At least one ID proof (Aadhar Card or PAN Card) is required",
-      path: ["aadharCard"],
-    }
-  ),
+  }).optional(),
 
 });
 
