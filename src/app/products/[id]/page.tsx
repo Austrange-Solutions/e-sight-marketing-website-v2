@@ -706,8 +706,8 @@ export default function ProductDetailPage() {
                             commentWordCount > maxCommentWords
                               ? "text-red-600"
                               : commentWordCount > maxCommentWords * 0.9
-                              ? "text-orange-600"
-                              : "text-muted-foreground"
+                                ? "text-orange-600"
+                                : "text-muted-foreground"
                           }`}
                         >
                           {commentWordCount}/{maxCommentWords} words

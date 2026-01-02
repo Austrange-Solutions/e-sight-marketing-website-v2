@@ -324,21 +324,21 @@ export default function DisabledPersonDetailPage({
               href={sanitizeUrl(doc.fileUrl)}
               target="_blank"
               rel="noopener noreferrer"
-            onClick={(e) => {
-              if (sanitizeUrl(doc.fileUrl) === "#") {
-                e.preventDefault();
-              }
-            }}
-          >
-            <div className="relative w-full h-32">
-              <Image
-                src={doc.fileUrl}
-                alt={label}
-                fill
-                className="object-cover rounded border cursor-pointer hover:opacity-80"
-              />
-            </div>
-          </a>
+              onClick={(e) => {
+                if (sanitizeUrl(doc.fileUrl) === "#") {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <div className="relative w-full h-32">
+                <Image
+                  src={doc.fileUrl}
+                  alt={label}
+                  fill
+                  className="object-cover rounded border cursor-pointer hover:opacity-80"
+                />
+              </div>
+            </a>
           </>
         )}
       </div>
