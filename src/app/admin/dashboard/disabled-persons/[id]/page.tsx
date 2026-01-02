@@ -318,11 +318,12 @@ export default function DisabledPersonDetailPage({
           </a>
         </div>
         {isImage && (
-          {/* deepcode ignore DOMXSS: URL validated via sanitizeUrl which checks against CloudFront/S3 allowlist */}
-          <a
-            href={sanitizeUrl(doc.fileUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <>
+            {/* deepcode ignore DOMXSS: URL validated via sanitizeUrl which checks against CloudFront/S3 allowlist */}
+            <a
+              href={sanitizeUrl(doc.fileUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
             onClick={(e) => {
               if (sanitizeUrl(doc.fileUrl) === "#") {
                 e.preventDefault();
@@ -338,6 +339,7 @@ export default function DisabledPersonDetailPage({
               />
             </div>
           </a>
+          </>
         )}
       </div>
     );

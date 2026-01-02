@@ -247,16 +247,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleCancelOrder = async (orderId: string, orderNumber: string) => {
     const cancelReason = prompt(
       `Are you sure you want to cancel order ${orderNumber}? Please provide a reason:`

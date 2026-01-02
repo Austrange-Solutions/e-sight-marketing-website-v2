@@ -706,8 +706,7 @@ export default function ProductDetailPage() {
                             commentWordCount > maxCommentWords
                               ? "text-red-600"
                               : commentWordCount > maxCommentWords * 0.9
-                        disabled={commentWordCount > maxCommentWords}
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed
+                              ? "text-orange-600"
                               : "text-muted-foreground"
                           }`}
                         >
@@ -715,7 +714,6 @@ export default function ProductDetailPage() {
                         </span>
                       </div>
                       <textarea
-                          setCommentWordCount(0);
                         value={newComment}
                         onChange={(e) => {
                           const text = e.target.value;
