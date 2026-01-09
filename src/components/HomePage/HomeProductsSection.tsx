@@ -233,7 +233,7 @@ const HomeProductsSection = () => {
                         onError={(e) => {
                         console.error(`Image failed to load for ${product.name}:`, product.image);
                         const target = e.target as HTMLImageElement;
-                        target.src = product.image;
+                        // target.src = product.image;
                       }}
                     />
                       ) : (
@@ -282,13 +282,13 @@ const HomeProductsSection = () => {
                       {product.details && product.details.length > 0 ? (
                         product.details.slice(0, 4).map((feature, featureIndex) => (
                           <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
-                            <ArrowRight className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
+                            <ArrowRight className="w-4 h-4 mr-2 text-primary shrink-0" />
                             <span className="line-clamp-1">{feature}</span>
                           </li>
                         ))
                       ) : (
                         <li className="flex items-center text-sm text-muted-foreground">
-                          <ArrowRight className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-primary shrink-0" />
                           <span>Product details coming soon</span>
                         </li>
                       )}

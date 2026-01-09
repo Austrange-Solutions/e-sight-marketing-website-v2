@@ -172,7 +172,7 @@ export default function DonatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-primary/5 relative">
+    <div className="min-h-screen bg-linear-to-br from-accent/30 via-background to-primary/5 relative">
       {processing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl p-6 sm:p-8 max-w-md w-[90%] text-center border border-border">
@@ -186,7 +186,7 @@ export default function DonatePage() {
       )}
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 backdrop-blur-3xl" />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-secondary/10 backdrop-blur-3xl" />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -288,7 +288,7 @@ export default function DonatePage() {
                     className="bg-primary/10 border border-primary/20 rounded-lg p-6 mb-8"
                   >
                     <div className="flex items-start gap-3">
-                      <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                      <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
                       <div>
                         <h3 className="font-semibold text-foreground mb-2">Your Impact</h3>
                         <p className="text-foreground">{getImpactMessage()}</p>
@@ -308,7 +308,7 @@ export default function DonatePage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3"
                   >
-                    <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                     <div>
                       <h4 className="font-semibold text-destructive mb-1">Payment Error</h4>
                       <p className="text-sm text-destructive/90">{paymentError}</p>
@@ -614,7 +614,7 @@ export default function DonatePage() {
       </section>
 
       {/* Impact Section */}
-      <section className="py-16 bg-gradient-to-br from-primary/5 to-secondary/5">
+      <section className="py-16 bg-linear-to-br from-primary/5 to-secondary/5">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

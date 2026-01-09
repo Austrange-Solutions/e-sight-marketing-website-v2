@@ -5,6 +5,42 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        // Set domain to base domain so cookies are shared across subdomains
+        // e.g., for "products.example.com" or "donate.example.com", domain becomes ".example.com"
+        domain: (() => {
+          if (process.env.NODE_ENV === 'production' && process.env.NEXTAUTH_URL) {
+            try {
+              const url = new URL(process.env.NEXTAUTH_URL);
+              const hostname = url.hostname;
+              // Extract base domain from products.domain.com -> .domain.com
+              const parts = hostname.split('.');
+              if (parts.length > 2) {
+                // products.maceazy.com -> .maceazy.com
+                return `.${parts.slice(-2).join('.')}`;
+              }
+              // For production domains like "maceazy.com", set ".maceazy.com"
+              if (!hostname.startsWith('localhost')) {
+                return `.${hostname}`;
+              }
+            } catch {}
+          }
+          // For localhost, use .localhost to share across subdomains
+          if (typeof window !== 'undefined' && window.location.hostname.includes('localhost')) {
+            return '.localhost';
+          }
+          return undefined;
+        })(),
+      },
+    },
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
