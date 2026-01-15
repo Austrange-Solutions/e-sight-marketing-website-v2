@@ -1,18 +1,56 @@
-node_modules
-<<<<<<< Updated upstream
-
-# Next.js
-.next/
-out/
-
-# Node
+# Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+bun.lockb
 
+# Next.js
+.next/
+out/
+dist/
+build/
 
-# Documentation files (keep only README.md)
+# Production
+/build
+/.next/
+/out/
+
+# Environment variables and secrets
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.sample
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+build-output.log
+
+# Documentation files (keep only README.md public)
+*.md
+!README.md
+docs/
 THEMING-GUIDE.md
 THEME-IMPLEMENTATION-SUMMARY.md
 TESTING_GUIDE.md
@@ -29,21 +67,49 @@ DYNAMIC_FOUNDATION_VISUAL_ARCHITECTURE.md
 DYNAMIC_FOUNDATION_SYSTEM.md
 DYNAMIC_FOUNDATION_IMPLEMENTATION_SUMMARY.md
 DONATION_MIGRATION_GUIDE.md
+DONOR_DETAILS_IMPLEMENTATION.md
+DONOR_DETAILS_VISUAL_GUIDE.md
+DONATION_POOL_DONOR_DETAILS.md
+CSR_DONATION_POOL_SYSTEM.md
 DISABLED_REGISTRATION_FEATURE.md
 CROWDFUNDING_PORTAL.md
 CONFIGURABLE_PERCENTAGE_IMPLEMENTATION.md
 BEFORE-AFTER.md
 CASHFREE_PRODUCTION_TROUBLESHOOTING.md
 COOLIFY_DEPLOYMENT.md
-docs/
+AWS_REGION_FIX.md
+VISUAL_BREAKDOWN_ANALYSIS.md
 
+# Migration and utility scripts (contain DB connection strings)
+scripts/
+scripts/*.js
+scripts/add-product-slugs.js
+scripts/check_connect*.js
+scripts/check-foundations.js
+scripts/check-product-urls.js
+scripts/check-gallery-images.js
+scripts/check-uploaded-images.js
+scripts/migrate-*.js
+scripts/seed-*.js
+scripts/verify-*.js
 
-# IDE files
-.vscode
-.env
-.env.sample
-build-output.log
-/        
-# Snyk Security Extension - AI Rules (auto-generated)
+# Database dumps and backups
+*.sql
+*.sqlite
+*.db
+backups/
+
+# AWS and CloudFront configs
+*bucket-policy.json
+recommended-s3-bucket-policy.json
+simple-s3-bucket-policy.json
+updated-s3-bucket-policy.json
+working-s3-bucket-policy.json
+
+# Snyk Security Extension
 .github/instructions/snyk_rules.instructions.md
-=======
+
+# Temporary files
+tmp/
+temp/
+*.tmp
