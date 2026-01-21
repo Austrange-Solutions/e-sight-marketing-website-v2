@@ -54,7 +54,7 @@ const Navbar = () => {
   const getNavItems = () => {
     const baseItems = [
       { path: "/", label: "Home" },
-      { path: "/products", label: "Products" },
+      { path: "/store", label: "Products" },
       { path: "/about", label: "About" },
       { path: "/contact", label: "Contact" },
       { path: "/gallery", label: "Gallery" },
@@ -181,9 +181,9 @@ const Navbar = () => {
             <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
                 // Handle Products link specially - always goes to store subdomain
-                if (item.path === '/products') {
+                if (item.path === '/store') {
                   const buildStoreUrl = () => {
-                    if (typeof window !== 'undefined') {
+                    if (typeof window !== 'undefined' && mounted) {
                       const protocol = window.location.protocol;
                       const port = window.location.port ? `:${window.location.port}` : '';
                       const host = window.location.hostname
@@ -191,8 +191,12 @@ const Navbar = () => {
                         .replace(/^www\./, '');
                       return `${protocol}//store.${host}${port}`;
                     }
-                    return '/products';
+                    return '/store';
                   };
+                  // Only render external link after hydration
+                  if (!mounted) {
+                    return <div key={item.path} className="relative px-3 py-2 text-sm font-medium"></div>;
+                  }
                   const href = buildStoreUrl();
                   return (
                     <a
@@ -321,6 +325,36 @@ const Navbar = () => {
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
+              // Handle Products link specially - always goes to store subdomain
+              if (item.path === '/store') {
+                const buildStoreUrl = () => {
+                  if (typeof window !== 'undefined' && mounted) {
+                    const protocol = window.location.protocol;
+                    const port = window.location.port ? `:${window.location.port}` : '';
+                    const host = window.location.hostname
+                      .replace(/^(donate|store|products)\./, '')
+                      .replace(/^www\./, '');
+                    return `${protocol}//store.${host}${port}`;
+                  }
+                  return '/store';
+                };
+                // Only render external link after hydration
+                if (!mounted) {
+                  return <div key={item.path} className="block px-3 py-2 rounded-md text-base font-medium"></div>;
+                }
+                const href = buildStoreUrl();
+                return (
+                  <a
+                    key={item.path}
+                    href={href}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-2 rounded-md text-base font-medium transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                  >
+                    {item.label}
+                  </a>
+                );
+              }
+
               // If on donate subdomain, link to main domain
               const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
               const isExternal = isDonateDomain;

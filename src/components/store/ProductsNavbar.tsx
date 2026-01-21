@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useCart } from "@/contexts/CartContext";
 
-const ProductsNavbar = () => {
+const StoreNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -52,7 +52,7 @@ const ProductsNavbar = () => {
   const getNavItems = () => {
     const baseItems = [
     //   { path: "/", label: "Home" },
-      { path: "/products", label: "Products" },
+      { path: "/store", label: "Products" },
     //   { path: "/about", label: "About" },
     //   { path: "/contact", label: "Contact" },
     //   { path: "/gallery", label: "Gallery" },
@@ -74,9 +74,9 @@ const ProductsNavbar = () => {
 
   const navItems = getNavItems();
 
-  // Ensure "/products" always lands on store subdomain root
+  // Ensure "/store" always lands on store subdomain root
   const getNavLink = (path: string) => {
-    if (path === "/products") {
+    if (path === "/store") {
       if (isStoreDomain) {
         return { href: "/", isExternal: false };
       }
@@ -90,7 +90,7 @@ const ProductsNavbar = () => {
             .replace(/^www\./, '');
           return `${protocol}//store.${host}${port}`;
         }
-        return '/products';
+        return '/store';
       };
       const target = storeDomainUrl || buildStoreUrl();
       return { href: target, isExternal: true };
@@ -419,4 +419,4 @@ const ProductsNavbar = () => {
   );
 };
 
-export default ProductsNavbar;
+export default StoreNavbar;

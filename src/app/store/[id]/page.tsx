@@ -328,7 +328,7 @@ export default function ProductDetailPage() {
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
+                    className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                       selectedImageIndex === index
                         ? 'border-primary shadow-lg'
                         : 'border-border hover:border-primary/50'
@@ -467,7 +467,7 @@ export default function ProductDetailPage() {
                 <div className="space-y-3">
                   {product.details.map((detail, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <span className="text-sm text-muted-foreground">{detail}</span>
                     </div>
                   ))}

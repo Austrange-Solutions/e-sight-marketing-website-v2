@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google"; // Commented out as they're not being used
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import ProductsNavbar from "@/components/products/ProductsNavbar";
+import StoreNavbar from "@/components/store/StoreNavbar";
 import Footer from "@/components/Footer";
 import { SessionProvider } from "next-auth/react"
 import Providers from "@/components/Providers";
@@ -54,8 +54,8 @@ export default async function RootLayout({
               const host = (await headers()).get('host') || '';
               const sub = host.split('.')[0];
               const isStore = sub === 'store' || host.startsWith('store.');
-              const isLegacyProducts = sub === 'products' || host.startsWith('products.');
-              const Nav = (isStore || isLegacyProducts) ? ProductsNavbar : Navbar;
+              const isLegacyProducts = sub === 'store' || host.startsWith('store.');
+              const Nav = (isStore || isLegacyProducts) ? StoreNavbar : Navbar;
               return <Nav />;
             })()}
             <main className="grow"><Provider>{children}</Provider></main>

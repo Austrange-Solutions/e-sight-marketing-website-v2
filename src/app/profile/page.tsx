@@ -466,7 +466,7 @@ const fetchOrders = async (page = 1, reset = false) => {
                   <h3 className="text-lg font-medium text-foreground mb-2">No orders yet</h3>
                   <p className="text-muted-foreground mb-6">When you place your first order, it will appear here.</p>
                   <button
-                    onClick={() => router.push('/products')}
+                    onClick={() => router.push('/store')}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Start Shopping
