@@ -53,8 +53,9 @@ export default async function RootLayout({
             {(async () => {
               const host = (await headers()).get('host') || '';
               const sub = host.split('.')[0];
-              const isProducts = sub === 'products' || host.startsWith('products.');
-              const Nav = isProducts ? ProductsNavbar : Navbar;
+              const isStore = sub === 'store' || host.startsWith('store.');
+              const isLegacyProducts = sub === 'products' || host.startsWith('products.');
+              const Nav = (isStore || isLegacyProducts) ? ProductsNavbar : Navbar;
               return <Nav />;
             })()}
             <main className="grow"><Provider>{children}</Provider></main>

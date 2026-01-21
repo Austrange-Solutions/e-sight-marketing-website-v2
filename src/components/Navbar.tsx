@@ -12,9 +12,9 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
-  const [isProductsDomain, setIsProductsDomain] = useState(false);
+  const [isStoreDomain, setIsStoreDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
-  const [productsDomainUrl, setProductsDomainUrl] = useState('');
+  const [storeDomainUrl, setStoreDomainUrl] = useState('');
   const [resourceDropdownOpen, setResourceDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -31,21 +31,22 @@ const Navbar = () => {
     setMounted(true);
   }, []);
 
-  // Detect if we're on donate or products subdomain
+  // Detect if we're on donate or store subdomain (supports legacy products host)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       const isDonate = hostname.startsWith('donate.');
-      const isProducts = hostname.startsWith('products.');
+      const isStore = hostname.startsWith('store.');
+      const isLegacyProducts = hostname.startsWith('products.');
       setIsDonateDomain(isDonate);
-      setIsProductsDomain(isProducts);
+      setIsStoreDomain(isStore || isLegacyProducts);
 
-      // Determine main and products domain URLs
-      const mainHostname = hostname.replace(/^(donate|products)\./, '');
+      // Determine main and store domain URLs (retain legacy products host stripping)
+      const mainHostname = hostname.replace(/^(donate|store|products)\./, '');
       const protocol = window.location.protocol;
       const port = window.location.port ? `:${window.location.port}` : '';
       setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
-      setProductsDomainUrl(`${protocol}//products.${mainHostname}${port}`);
+      setStoreDomainUrl(`${protocol}//store.${mainHostname}${port}`);
     }
   }, []);
 
@@ -77,13 +78,13 @@ const Navbar = () => {
 
   const getNavLink = (path: string) => {
     if (path === "/products") {
-      if (isProductsDomain) {
-        // On products subdomain, go to its home
+      if (isStoreDomain) {
+        // On store subdomain, go to its home
         return { href: "/", isExternal: false };
       }
 
-      // From any other domain, go to products subdomain root
-      const target = productsDomainUrl || path;
+      // From any other domain, go to store subdomain root
+      const target = storeDomainUrl || path;
 
       return {
         href: target,
@@ -93,14 +94,14 @@ const Navbar = () => {
 
     // Auth routes always go to products subdomain
     if (path === "/login" || path === "/signup" || path === "/profile") {
-      if (isProductsDomain) {
+      if (isStoreDomain) {
         return { href: path, isExternal: false };
       }
-      // Redirect to products subdomain for auth
-      return { href: `${productsDomainUrl}${path}`, isExternal: true };
+      // Redirect to store subdomain for auth
+      return { href: `${storeDomainUrl}${path}`, isExternal: true };
     }
 
-    if (isDonateDomain || isProductsDomain) {
+    if (isDonateDomain || isStoreDomain) {
       return { href: `${mainDomainUrl}${path}`, isExternal: true };
     }
 
@@ -134,13 +135,13 @@ const Navbar = () => {
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
       // Redirect to products subdomain for login
-      window.location.href = `${productsDomainUrl}/login?redirect=/checkout`;
+      window.location.href = `${storeDomainUrl}/login?redirect=/checkout`;
       return;
     }
     closeCart();
-    // Checkout always on products subdomain
-    if (!isProductsDomain) {
-      window.location.href = `${productsDomainUrl}/checkout`;
+    // Checkout always on store subdomain
+    if (!isStoreDomain) {
+      window.location.href = `${storeDomainUrl}/checkout`;
     } else {
       router.push("/checkout");
     }

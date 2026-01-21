@@ -10,7 +10,7 @@ export function middleware(req: NextRequest) {
   }
 
   // Redirect suffix-style domains to proper subdomain
-  // e.g., domain.products -> products.domain, domain.donate -> donate.domain
+  // e.g., domain.store -> store.domain, domain.donate -> donate.domain
   try {
     const [hostOnly, port] = hostname.split(':');
     const parts = hostOnly.split('.');
@@ -18,7 +18,8 @@ export function middleware(req: NextRequest) {
       const suffixRaw = parts[parts.length - 1];
       const suffix = suffixRaw.toLowerCase();
       let targetSub: string | null = null;
-      if (suffix === 'products' || suffix === 'product') targetSub = 'products';
+      if (suffix === 'store') targetSub = 'store';
+      if (suffix === 'products' || suffix === 'product') targetSub = 'store'; // legacy support
       if (suffix === 'donate') targetSub = 'donate';
       if (targetSub) {
         const base = parts.slice(0, -1).join('.');
@@ -58,17 +59,34 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  // Handle products subdomain
+  // Redirect legacy products.* to store.* to preserve old links
   if (subdomain === 'products' || hostname.startsWith('products.')) {
+    try {
+      const url = req.nextUrl.clone();
+      const [hostOnly, port] = hostname.split(':');
+      const parts = hostOnly.split('.');
+      if (parts.length > 1) {
+        parts[0] = 'store';
+        url.hostname = parts.join('.');
+      } else {
+        url.hostname = `store.${hostOnly}`;
+      }
+      if (port) url.port = port;
+      return NextResponse.redirect(url);
+    } catch {}
+  }
+
+  // Handle store subdomain
+  if (subdomain === 'store' || hostname.startsWith('store.')) {
     const url = req.nextUrl.clone();
 
-    // Root of products subdomain shows products page
+    // Root of store subdomain shows products page
     if (url.pathname === '/') {
       url.pathname = '/products';
       return NextResponse.rewrite(url);
     }
 
-    // Any other paths under products subdomain
+    // Any other paths under store subdomain
     if (!url.pathname.startsWith('/products') && !url.pathname.startsWith('/_next') && !url.pathname.startsWith('/assets')) {
       url.pathname = `/products${url.pathname}`;
       return NextResponse.rewrite(url);

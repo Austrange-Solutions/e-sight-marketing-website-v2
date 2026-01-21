@@ -12,9 +12,9 @@ const ProductsNavbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
-  const [isProductsDomain, setIsProductsDomain] = useState(false);
+  const [isStoreDomain, setIsStoreDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
-  const [productsDomainUrl, setProductsDomainUrl] = useState('');
+  const [storeDomainUrl, setStoreDomainUrl] = useState('');
 
   const { data: session } = useSession();
   const isAuthenticated = !!session;
@@ -28,15 +28,16 @@ const ProductsNavbar = () => {
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       const isDonate = hostname.startsWith('donate.');
-      const isProducts = hostname.startsWith('products.');
+      const isStore = hostname.startsWith('store.');
+      const isLegacyProducts = hostname.startsWith('products.');
       setIsDonateDomain(isDonate);
-      setIsProductsDomain(isProducts);
+      setIsStoreDomain(isStore || isLegacyProducts);
 
-      const mainHostname = hostname.replace(/^(donate|products)\./, '');
+      const mainHostname = hostname.replace(/^(donate|store|products)\./, '');
       const protocol = window.location.protocol;
       const port = window.location.port ? `:${window.location.port}` : '';
       setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
-      setProductsDomainUrl(`${protocol}//products.${mainHostname}${port}`);
+      setStoreDomainUrl(`${protocol}//store.${mainHostname}${port}`);
     }
   }, []);
 
@@ -65,18 +66,18 @@ const ProductsNavbar = () => {
 
   const navItems = getNavItems();
 
-  // Ensure "/products" always lands on products subdomain root
+  // Ensure "/products" always lands on store subdomain root
   const getNavLink = (path: string) => {
     if (path === "/products") {
-      if (isProductsDomain) {
+      if (isStoreDomain) {
         return { href: "/", isExternal: false };
       }
-      const target = productsDomainUrl || path;
+      const target = storeDomainUrl || path;
       return { href: target, isExternal: true };
     }
 
-    // Other links go to main domain when on products subdomain
-    if (isProductsDomain) {
+    // Other links go to main domain when on store subdomain
+    if (isStoreDomain) {
       return { href: `${mainDomainUrl}${path}`, isExternal: true };
     }
 
@@ -106,7 +107,7 @@ const ProductsNavbar = () => {
 
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
-      if (isProductsDomain) {
+      if (isStoreDomain) {
         window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
       } else {
         router.push('/login?redirect=/checkout');
@@ -114,7 +115,7 @@ const ProductsNavbar = () => {
       return;
     }
     setIsCartOpen(false);
-    if (isProductsDomain) {
+    if (isStoreDomain) {
       window.location.href = `${mainDomainUrl}/checkout`;
     } else {
       router.push('/checkout');
