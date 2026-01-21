@@ -15,6 +15,7 @@ const ProductsNavbar = () => {
   const [isStoreDomain, setIsStoreDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
   const [storeDomainUrl, setStoreDomainUrl] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   const { data: session } = useSession();
   const isAuthenticated = !!session;
@@ -23,6 +24,11 @@ const ProductsNavbar = () => {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  // Prevent hydration mismatch - wait for client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -76,7 +82,7 @@ const ProductsNavbar = () => {
       }
       // Build a robust store URL even before useEffect sets state
       const buildStoreUrl = () => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && mounted) {
           const protocol = window.location.protocol;
           const port = window.location.port ? `:${window.location.port}` : '';
           const host = window.location.hostname
@@ -157,6 +163,10 @@ const ProductsNavbar = () => {
             <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
                 const { href, isExternal } = getNavLink(item.path);
+                // Only render external links after hydration to prevent mismatch
+                if (isExternal && !mounted) {
+                  return <div key={item.path} className="relative px-3 py-2 text-sm font-medium transition-colors duration-200 text-muted-foreground"></div>;
+                }
                 return isExternal ? (
                   <a key={item.path} href={href} className="relative px-3 py-2 text-sm font-medium transition-colors duration-200 text-muted-foreground hover:text-primary">
                     {item.label}
@@ -229,6 +239,10 @@ const ProductsNavbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
               const { href, isExternal } = getNavLink(item.path);
+              // Only render external links after hydration to prevent mismatch
+              if (isExternal && !mounted) {
+                return <div key={item.path} className="block px-3 py-2 rounded-md text-base font-medium transition-colors text-muted-foreground"></div>;
+              }
               return isExternal ? (
                 <a key={item.path} href={href} onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium transition-colors text-muted-foreground hover:text-primary hover:bg-accent">
                   {item.label}
