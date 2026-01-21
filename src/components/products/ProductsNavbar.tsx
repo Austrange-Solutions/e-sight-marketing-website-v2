@@ -34,10 +34,12 @@ const ProductsNavbar = () => {
       setIsStoreDomain(isStore || isLegacyProducts);
 
       const mainHostname = hostname.replace(/^(donate|store|products)\./, '');
+      // Also remove www. to avoid store.www.maceazy.com
+      const cleanHostname = mainHostname.replace(/^www\./, '');
       const protocol = window.location.protocol;
       const port = window.location.port ? `:${window.location.port}` : '';
       setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
-      setStoreDomainUrl(`${protocol}//store.${mainHostname}${port}`);
+      setStoreDomainUrl(`${protocol}//store.${cleanHostname}${port}`);
     }
   }, []);
 

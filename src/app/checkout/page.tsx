@@ -817,28 +817,30 @@ const CheckoutPage = () => {
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
                 {cartData && cartData.items && cartData.items.map((item: { _id: string, name: string, price: number, quantity: number, image: string }, index: number) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="relative">
-                      <Image
-                        src={item.image || "/placeholder-product.jpg"}
-                        alt={item.name}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                      <span className="absolute -top-2 -right-2 bg-accent0 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {item.quantity}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
-                      <p className="text-muted-foreground text-xs mb-1">we can give hope to blind people to atleast walk freely th...</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-semibold">₹{item.price * item.quantity}</span>
-                        <span className="text-xs text-muted-foreground">₹{item.price} each</span>
+                  item && item.price ? (
+                    <div key={index} className="flex items-start space-x-4">
+                      <div className="relative">
+                        <Image
+                          src={item.image || "/placeholder-product.jpg"}
+                          alt={item.name}
+                          width={64}
+                          height={64}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                        <span className="absolute -top-2 -right-2 bg-accent0 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {item.quantity}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                        <p className="text-muted-foreground text-xs mb-1">we can give hope to blind people to atleast walk freely th...</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-semibold">₹{item.price * item.quantity}</span>
+                          <span className="text-xs text-muted-foreground">₹{item.price} each</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : null
                 ))}
               </div>
 

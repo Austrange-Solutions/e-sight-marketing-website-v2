@@ -94,14 +94,31 @@ export async function POST(request: NextRequest) {
     // Calculate total
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
-    // Prepare items for checkout
-    const checkoutItems = cart.items.map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-      productId: item.productId._id,
-      name: item.productId.name,
-      price: item.productId.price,
-      quantity: item.quantity,
-      image: item.productId.image,
-    }));
+    // Prepare items for checkout - filter out invalid items
+    const checkoutItems = cart.items
+      .filter((item: { productId: { _id: string, name: string, price: number, image: string } | null, quantity: number }) => {
+        // Skip items with null/invalid productId or missing price
+        if (!item.productId || !item.productId.price) {
+          console.warn('⚠️ Skipping cart item with null or invalid product data');
+          return false;
+        }
+        return true;
+      })
+      .map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
+        productId: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity,
+        image: item.productId.image,
+      }));
+
+    // Ensure we have valid items
+    if (checkoutItems.length === 0) {
+      return NextResponse.json(
+        { error: "No valid items in cart" },
+        { status: 400 }
+      );
+    }
 
     // Generate unique order number
     const orderNumber = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
