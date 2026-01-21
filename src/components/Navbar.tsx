@@ -180,29 +180,39 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
+                // Handle Products link specially - always goes to store subdomain
+                if (item.path === '/products') {
+                  const buildStoreUrl = () => {
+                    if (typeof window !== 'undefined') {
+                      const protocol = window.location.protocol;
+                      const port = window.location.port ? `:${window.location.port}` : '';
+                      const host = window.location.hostname
+                        .replace(/^(donate|store|products)\./, '')
+                        .replace(/^www\./, '');
+                      return `${protocol}//store.${host}${port}`;
+                    }
+                    return '/products';
+                  };
+                  const href = buildStoreUrl();
+                  return (
+                    <a
+                      key={item.path}
+                      href={href}
+                      className="relative px-3 py-2 text-sm font-medium transition-colors duration-200 text-muted-foreground hover:text-primary"
+                    >
+                      {item.label}
+                    </a>
+                  );
+                }
+
+                // Other links: if on donate, go to main domain; else stay local
                 let href = item.path;
                 let isExternal = false;
                 if (isDonateDomain) {
-                  if (item.path === '/products') {
-                    const buildStoreUrl = () => {
-                      if (typeof window !== 'undefined') {
-                        const protocol = window.location.protocol;
-                        const port = window.location.port ? `:${window.location.port}` : '';
-                        const host = window.location.hostname
-                          .replace(/^donate\./, '')
-                          .replace(/^www\./, '');
-                        return `${protocol}//store.${host}${port}`;
-                      }
-                      return '/products';
-                    };
-                    href = storeDomainUrl || buildStoreUrl();
-                    isExternal = true;
-                  } else {
-                    href = `${mainDomainUrl}${item.path}`;
-                    isExternal = true;
-                  }
+                  href = `${mainDomainUrl}${item.path}`;
+                  isExternal = true;
                 }
-                
+
                 return isExternal ? (
                   <a
                     key={item.path}
