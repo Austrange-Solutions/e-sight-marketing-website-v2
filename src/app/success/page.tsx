@@ -82,7 +82,7 @@ function SuccessContent() {
             </button>
             
             <button
-              onClick={() => router.push("/products")}
+              onClick={() => router.push("/store")}
               className="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-50 transition duration-200"
             >
               Continue Shopping

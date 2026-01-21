@@ -328,7 +328,7 @@ function ProductCard({ product, index, onAddToCart, isAddingToCart }: ProductCar
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center gap-2"
             >
-              <Link href={`/products/${product._id}`}>
+              <Link href={`/store/${product._id}`}>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}

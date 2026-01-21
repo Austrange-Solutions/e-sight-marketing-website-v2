@@ -40,7 +40,7 @@ const sections: { id: string; title: string; faqs: FAQ[] }[] = [
       { q: "What is E-Kaathi?", a: "E-Kaathi is a smart mobility device for visually impaired individuals. It uses sensors, buzzers, and smart feedback mechanisms to detect obstacles and assist in safe navigation." },
       { q: "Is E-Kaathi available for purchase?", a: (
           <>
-            Yes. You can buy E-Kaathi directly from our <a href="/products" className="text-primary underline">Shop page</a> on the website. We deliver across India.
+            Yes. You can buy E-Kaathi directly from our <a href="/store" className="text-primary underline">Shop page</a> on the website. We deliver across India.
           </>
         ) },
       { q: "How does E-Kaathi work?", a: "E-Kaathi uses ultrasonic sensors to detect obstacles and provides vibration or buzzer feedback to alert the user. It’s designed to work both indoors and outdoors." },

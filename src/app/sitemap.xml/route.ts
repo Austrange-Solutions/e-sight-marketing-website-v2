@@ -9,7 +9,7 @@ export async function GET() {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
     // Static routes to include in the sitemap
-    const staticRoutes = ['/', '/products', '/gallery', '/donate', '/contact', '/about', '/privacy', '/terms-of-use'];
+    const staticRoutes = ['/', '/store', '/gallery', '/donate', '/contact', '/about', '/privacy', '/terms-of-use'];
 
     // Fetch published events to include in sitemap
     let events = [] as any[];

@@ -13,6 +13,31 @@ export function middleware(req: NextRequest) {
 
   // Handle donate subdomain
   const subdomain = hostname.split('.')[0];
+  
+  // Redirect legacy products subdomain to store
+  if (subdomain === 'products' || hostname.startsWith('products.')) {
+    const url = req.nextUrl.clone();
+    url.hostname = url.hostname.replace(/^products\./, 'store.');
+    return NextResponse.redirect(url);
+  }
+
+  // Handle store subdomain
+  if (subdomain === 'store' || hostname.startsWith('store.')) {
+    const url = req.nextUrl.clone();
+    
+    // Root of store subdomain shows store page
+    if (url.pathname === '/') {
+      url.pathname = '/store';
+      return NextResponse.rewrite(url);
+    }
+    
+    // Rewrite store subdomain paths to /store routes
+    if (!url.pathname.startsWith('/store') && !url.pathname.startsWith('/_next') && !url.pathname.startsWith('/assets')) {
+      url.pathname = `/store${url.pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+
   if (subdomain === 'donate' || hostname.startsWith('donate.')) {
     const url = req.nextUrl.clone();
     
