@@ -9,30 +9,6 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect suffix-style domains to proper subdomain
-  // e.g., domain.store -> store.domain, domain.donate -> donate.domain
-  try {
-    const [hostOnly, port] = hostname.split(':');
-    const parts = hostOnly.split('.');
-    if (parts.length > 1) {
-      const suffixRaw = parts[parts.length - 1];
-      const suffix = suffixRaw.toLowerCase();
-      let targetSub: string | null = null;
-      if (suffix === 'store') targetSub = 'store';
-      if (suffix === 'products' || suffix === 'product') targetSub = 'store'; // legacy support
-      if (suffix === 'donate') targetSub = 'donate';
-      if (targetSub) {
-        const base = parts.slice(0, -1).join('.');
-        if (base) {
-          const url = req.nextUrl.clone();
-          url.hostname = `${targetSub}.${base}`;
-          if (port) url.port = port;
-          return NextResponse.redirect(url);
-        }
-      }
-    }
-  } catch {}
-
   // if (pathname === "/ciel-video") return NextResponse.redirect("https://youtube.com/shorts/uREbbhqztMs?feature=share", 307)
 
   // Handle donate subdomain
@@ -55,40 +31,6 @@ export function middleware(req: NextRequest) {
     // Any other paths under donate subdomain
     if (!url.pathname.startsWith('/donate') && !url.pathname.startsWith('/_next') && !url.pathname.startsWith('/assets')) {
       url.pathname = `/donate${url.pathname}`;
-      return NextResponse.rewrite(url);
-    }
-  }
-
-  // Redirect legacy products.* to store.* to preserve old links
-  if (subdomain === 'products' || hostname.startsWith('products.')) {
-    try {
-      const url = req.nextUrl.clone();
-      const [hostOnly, port] = hostname.split(':');
-      const parts = hostOnly.split('.');
-      if (parts.length > 1) {
-        parts[0] = 'store';
-        url.hostname = parts.join('.');
-      } else {
-        url.hostname = `store.${hostOnly}`;
-      }
-      if (port) url.port = port;
-      return NextResponse.redirect(url);
-    } catch {}
-  }
-
-  // Handle store subdomain
-  if (subdomain === 'store' || hostname.startsWith('store.')) {
-    const url = req.nextUrl.clone();
-
-    // Root of store subdomain shows products page
-    if (url.pathname === '/') {
-      url.pathname = '/products';
-      return NextResponse.rewrite(url);
-    }
-
-    // Any other paths under store subdomain
-    if (!url.pathname.startsWith('/products') && !url.pathname.startsWith('/_next') && !url.pathname.startsWith('/assets')) {
-      url.pathname = `/products${url.pathname}`;
       return NextResponse.rewrite(url);
     }
   }
