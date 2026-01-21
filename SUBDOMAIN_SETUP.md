@@ -1,17 +1,14 @@
 # 🌐 Subdomain Configuration Guide
 
-## Setting Up donate.maceazy.com & store.maceazy.com
+## Setting Up donate.maceazy.com
 
-This guide explains how to configure your donation portal and e-commerce store to run on separate subdomains.
+This guide explains how to configure your donation portal to run on a subdomain (e.g., `donate.maceazy.com`).
 
 ---
 
 ## 📋 Overview
 
-The platform has been configured to work with **tenant subdomains**, meaning each subdomain operates as a separate entity while sharing the same codebase:
-- **donate.maceazy.com** - Donation portal exclusively
-- **store.maceazy.com** - E-commerce store (products, cart, checkout)
-- **products.maceazy.com** - Legacy support (redirects to store.maceazy.com)
+The donation portal has been configured to work as a **tenant subdomain**, meaning it operates as a separate entity while sharing the same codebase. When users visit `donate.maceazy.com`, they'll see the donation portal exclusively.
 
 ---
 
@@ -25,11 +22,8 @@ The middleware (`src/middleware.ts`) detects the subdomain and rewrites URLs:
 // When user visits: donate.maceazy.com
 // → Internally serves: /donate page
 
-// When user visits: store.maceazy.com
-// → Internally serves: /products page
-
-// When user visits: products.maceazy.com (legacy)
-// → Redirects permanently to: store.maceazy.com
+// When user visits: donate.maceazy.com/success
+// → Internally serves: /donate/success page
 ```
 
 ### Route Structure
@@ -37,23 +31,13 @@ The middleware (`src/middleware.ts`) detects the subdomain and rewrites URLs:
 ```
 Main Site (maceazy.com)
 ├── / (home)
+├── /products
 ├── /about
-├── /contact
-└── /gallery
+└── /contact
 
 Donate Subdomain (donate.maceazy.com)
 ├── / (donate page)
 └── /success (donation success)
-
-Store Subdomain (store.maceazy.com)
-├── / (products catalog)
-├── /[slug] (product details)
-├── /login (authentication)
-├── /signup (registration)
-├── /profile (user profile)
-└── /checkout (cart checkout)
-
-Legacy Redirect (products.maceazy.com → store.maceazy.com)
 ```
 
 ---
@@ -72,14 +56,12 @@ Since `localhost` doesn't support subdomains natively, use one of these methods:
 3. Add these lines:
    ```
    127.0.0.1    donate.localhost
-   127.0.0.1    store.localhost
    127.0.0.1    maceazy.localhost
    ```
 4. Save and close
 5. Access:
    - Main site: `http://maceazy.localhost:3000`
    - Donate: `http://donate.localhost:3000`
-   - Store: `http://store.localhost:3000`
 
 **Mac/Linux:**
 1. Open terminal
@@ -87,20 +69,17 @@ Since `localhost` doesn't support subdomains natively, use one of these methods:
 3. Add:
    ```
    127.0.0.1    donate.localhost
-   127.0.0.1    store.localhost
    127.0.0.1    maceazy.localhost
    ```
 4. Save (Ctrl+O, Enter, Ctrl+X)
 5. Access:
    - Main site: `http://maceazy.localhost:3000`
    - Donate: `http://donate.localhost:3000`
-   - Store: `http://store.localhost:3000`
 
-#### Method 2: Use direct routes (Quick Testing)
+#### Method 2: Use /donate route (Quick Testing)
 
-For quick testing without subdomain setup:
-- `http://localhost:3000/donate` - Donation portal
-- `http://localhost:3000/products` - Store (products catalog)
+For quick testing, just use:
+- `http://localhost:3000/donate` - Works directly without subdomain
 
 ---
 
@@ -122,10 +101,9 @@ vercel --prod
 
 1. Go to your project on [Vercel Dashboard](https://vercel.com/dashboard)
 2. Navigate to: **Settings → Domains**
-3. Add three domains:
+3. Add two domains:
    - `maceazy.com` (main site)
    - `donate.maceazy.com` (donation portal)
-   - `store.maceazy.com` (e-commerce store)
 
 ### Step 3: Update DNS Records
 
@@ -145,90 +123,76 @@ Name: donate
 Value: cname.vercel-dns.com
 ```
 
-#### Store Subdomain
-```
-Type: CNAME
-Name: store
-Value: cname.vercel-dns.com
-```
-
 **Example for Cloudflare:**
 | Type  | Name   | Content               | Proxy Status |
 |-------|--------|-----------------------|--------------|
 | CNAME | @      | cname.vercel-dns.com  | Proxied      |
 | CNAME | donate | cname.vercel-dns.com  | Proxied      |
-| CNAME | store  | cname.vercel-dns.com  | Proxied      |
 
 ### Step 4: Verify SSL
 
 Vercel automatically provisions SSL certificates. Wait 5-10 minutes, then verify:
 - ✅ https://maceazy.com (should work)
 - ✅ https://donate.maceazy.com (should work)
-- ✅ https://store.maceazy.com (should work)
 
 ---
 
-## 🔗 Navigation Configuration
+## 🔗 Donate Button Configuration
 
-The navigation automatically adjusts based on subdomain:
+The "Donate" button automatically adjusts based on environment:
 
 ### Development
 ```typescript
-// Main site (localhost:3000)
-- Products link → http://store.localhost:3000
-- Donate link → http://donate.localhost:3000
-
-// Store subdomain (store.localhost:3000)
-- Auth available (login/signup/profile)
-- Cart and checkout accessible
-- Other links → main site
-
-// Donate subdomain (donate.localhost:3000)
-- Focused donation experience
-- Links back to main site for navigation
+href={process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:3000/donate' 
+  : 'https://donate.maceazy.com'}
 ```
+- Local: Opens `/donate` route
+- Opens in same tab for testing
 
 ### Production
-```typescript
-// Main site (maceazy.com)
-- Products link → https://store.maceazy.com
-- Donate link → https://donate.maceazy.com
+- Production: Opens `https://donate.maceazy.com`
+- Opens in new tab (`target="_blank"`)
 
-// Store subdomain (store.maceazy.com)
-- Auth available (login/signup/profile)
-- Cart and checkout accessible
-- Other links → main site
+### Button Locations
+The donate button appears in:
+1. **Homepage Hero** - Primary CTA alongside "Explore Products"
+2. **Navbar** - Top right, always visible (desktop)
+3. **Mobile Menu** - Inside hamburger menu (mobile)
 
-// Donate subdomain (donate.maceazy.com)
-- Focused donation experience
-- Links back to main site
+---
+
+## 🎨 Styling
+
+The donate button uses a distinctive green gradient to stand out:
+
+```css
+bg-gradient-to-r from-green-500 to-emerald-600
+hover:from-green-600 hover:to-emerald-700
 ```
+
+With heart emoji: ❤️ Donate
 
 ---
 
 ## 🧪 Testing Checklist
 
 ### Local Testing
-- [ ] Main site loads at `http://localhost:3000` or `http://maceazy.localhost:3000`
-- [ ] Donate page loads at `http://donate.localhost:3000`
-- [ ] Store page loads at `http://store.localhost:3000`
-- [ ] Products navigation redirects to store subdomain
-- [ ] Donate button redirects to donate subdomain
-- [ ] Auth (login/signup/profile) works on store subdomain
-- [ ] Cart and checkout accessible on store subdomain
-- [ ] Legacy products.localhost redirects to store.localhost
+- [ ] Main site loads at `http://localhost:3000`
+- [ ] Donate page loads at `http://localhost:3000/donate`
+- [ ] Donate button in hero redirects correctly
+- [ ] Donate button in navbar redirects correctly
+- [ ] Donate button in mobile menu works
+- [ ] Success page loads at `http://localhost:3000/donate/success`
 
 ### Production Testing
 - [ ] Main site loads at `https://maceazy.com`
 - [ ] Donate subdomain loads at `https://donate.maceazy.com`
-- [ ] Store subdomain loads at `https://store.maceazy.com`
-- [ ] SSL certificates are valid for all domains
-- [ ] Cross-subdomain navigation works
-- [ ] Auth flows work correctly on store subdomain
-- [ ] Cart persists across store subdomain navigation
-- [ ] Payment flows work end-to-end
-- [ ] Donation flows work end-to-end
-- [ ] Legacy products.maceazy.com redirects to store.maceazy.com
+- [ ] Donate button opens in new tab
+- [ ] SSL certificates are valid
+- [ ] Success page loads at `https://donate.maceazy.com/success`
+- [ ] Payment flow works end-to-end
+- [ ] Leaderboard displays on donate subdomain
 
 ---
 
@@ -236,77 +200,65 @@ The navigation automatically adjusts based on subdomain:
 
 ### Issue: Subdomain not working locally
 **Solution**: 
-- Check `hosts` file has correct entries (`donate.localhost`, `store.localhost`)
+- Check `hosts` file has correct entries
 - Restart browser after editing hosts
 - Clear browser cache
-- Use full URL: `http://store.localhost:3000` (not `http://store:3000`)
+- Use `http://donate.localhost:3000` (not `http://donate:3000`)
 
 ### Issue: Subdomain not working in production
 **Solution**:
-- Verify DNS records are correct (both donate and store CNAMEs)
+- Verify DNS records are correct
 - Wait 24-48 hours for DNS propagation
-- Check Vercel domain settings (all three domains added)
-- Ensure SSL is provisioned for all domains
+- Check Vercel domain settings
+- Ensure SSL is provisioned
 
-### Issue: products.maceazy.com not redirecting
+### Issue: Donate button opens wrong URL
 **Solution**:
-- Check middleware.ts redirect logic
-- Verify legacy products subdomain DNS record exists
-- Clear browser cache
-- Check Vercel deployment logs
+- Check `NODE_ENV` environment variable
+- In production, ensure it's set to `production`
+- Redeploy if needed
 
-### Issue: Cart not working on store subdomain
-**Solution**:
-- Verify ProductsNavbar is loaded (check layout.tsx)
-- Check CartContext is properly initialized
-- Verify auth cookies are accessible
-- Check browser console for errors
-
-### Issue: 404 on store subdomain
+### Issue: 404 on donate subdomain
 **Solution**:
 - Check middleware.ts is deployed
-- Verify rewrite rules for `/products` routes
-- Check Vercel logs for routing errors
-- Ensure products page exists at `/app/products/page.tsx`
+- Verify rewrite rules are working
+- Check Vercel logs for errors
 
 ---
 
 ## 📱 Mobile Considerations
 
-Navigation is fully responsive across all subdomains:
+The donate button is fully responsive:
 
 **Desktop:**
-- Navbar shows subdomain-specific links
-- Store subdomain includes cart icon
-- Donate subdomain focused on donation CTA
-- Hover effects and smooth transitions
+- Appears in navbar next to other links
+- Gradient button with heart emoji
+- Hover effects
 
 **Mobile:**
-- Hamburger menu adapts to current subdomain
-- Full-width buttons for easy tapping
-- Cart accessible from mobile menu on store subdomain
-- Consistent styling across all subdomains
+- Appears in hamburger menu
+- Full-width button for easy tapping
+- Same gradient styling
 
 ---
 
 ## 🔐 Security Notes
 
-1. **HTTPS Only**: All subdomains automatically use HTTPS in production
-2. **CORS**: Middleware handles cross-origin properly between subdomains
-3. **Session Isolation**: Auth cookies scoped to appropriate subdomains
-4. **Payment Security**: Cashfree/Razorpay work seamlessly across subdomains
-5. **Legacy Redirect**: products.* redirects preserve query parameters
+1. **HTTPS Only**: Subdomain automatically uses HTTPS in production
+2. **CORS**: Middleware handles cross-origin properly
+3. **Session Sharing**: No cookies shared between subdomains (secure)
+4. **Razorpay**: Works seamlessly across subdomain
 
 ---
 
 ## 📊 Analytics Setup
 
-If using Google Analytics, track all subdomains:
+If using Google Analytics, add both domains:
 
 ```javascript
-// Google Analytics tracking for multi-subdomain setup
+// Google Analytics tracking
 gtag('config', 'GA_MEASUREMENT_ID', {
-  'cookie_domain': '.maceazy.com',  // Note the leading dot for subdomain tracking
+  'cookie_domain': 'maceazy.com',
   'cookie_flags': 'SameSite=None;Secure'
 });
 ```
@@ -338,16 +290,14 @@ Sitemap: https://donate.maceazy.com/sitemap.xml
 
 ## 🚦 Environment Variables
 
-No changes needed! The same `.env.local` works for all subdomains:
+No changes needed! The same `.env.local` works for both:
 - Main site
 - Donate subdomain
-- Store subdomain
 
 They share:
 - MongoDB connection
-- Payment gateway keys (Cashfree/Razorpay)
+- Razorpay keys
 - NextAuth configuration
-- AWS S3/CloudFront credentials
 
 ---
 
@@ -358,35 +308,31 @@ Before going live:
 - [ ] Code pushed to GitHub
 - [ ] Vercel project deployed
 - [ ] Main domain added: `maceazy.com`
-- [ ] Donate subdomain added: `donate.maceazy.com`
-- [ ] Store subdomain added: `store.maceazy.com`
-- [ ] DNS records configured (all three)
-- [ ] SSL certificates verified (all three)
-- [ ] Store navigation tested (products, cart, checkout)
+- [ ] Subdomain added: `donate.maceazy.com`
+- [ ] DNS records configured
+- [ ] SSL certificates verified
 - [ ] Donate button tested (both environments)
-- [ ] Auth flows tested (login, signup, profile on store)
-- [ ] Payment flows tested (both store and donate)
-- [ ] Legacy products.* redirect tested
-- [ ] Mobile responsive checked (all subdomains)
-- [ ] Analytics tracking setup (multi-subdomain)
+- [ ] Payment flow tested
+- [ ] Leaderboard working
+- [ ] Success page accessible
+- [ ] Mobile responsive checked
+- [ ] Analytics tracking setup
 
 ---
 
 ## 🎉 Success!
 
 Once configured, users can:
-- Visit `maceazy.com` for your main marketing site
-- Visit `store.maceazy.com` for e-commerce shopping
+- Visit `maceazy.com` for your main e-commerce site
 - Visit `donate.maceazy.com` for focused donation experience
-- Legacy `products.maceazy.com` automatically redirects to store
+- Click "Donate" button anywhere to contribute
 
 **Benefits:**
-- ✅ Clean separation of marketing, commerce, and donations
-- ✅ Dedicated URLs for each purpose
-- ✅ Easy to share: `store.maceazy.com`, `donate.maceazy.com`
-- ✅ Professional multi-tenant architecture
-- ✅ Better SEO and conversion rates
-- ✅ Backward compatibility with old product links
+- ✅ Clean separation of donation vs commerce
+- ✅ Dedicated donation URL for marketing
+- ✅ Easy to share: `donate.maceazy.com`
+- ✅ Professional appearance
+- ✅ Better conversion rates
 
 ---
 
@@ -394,12 +340,11 @@ Once configured, users can:
 
 For issues:
 1. Check Vercel logs
-2. Review middleware.ts for routing logic
-3. Verify DNS propagation for all subdomains
-4. Test cross-subdomain navigation
-5. Contact: support@maceazy.com
+2. Review middleware.ts
+3. Verify DNS propagation
+4. Contact: support@maceazy.com
 
 ---
 
-**Last Updated**: January 2026  
-**Version**: 2.0.0 (Store subdomain added)
+**Last Updated**: January 2024  
+**Version**: 1.0.0

@@ -20,7 +20,14 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({ email: "", password: "", general: "" });
   const [backendErrors, setBackendErrors] = useState<{ email?: string; password?: string }>({});
 
-  // Already authenticated; no auto-redirect
+  // Redirect if already authenticated (NextAuth)
+  useEffect(() => {
+    if (session) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectUrl = urlParams.get("redirect") || "/";
+      router.push(redirectUrl);
+    }
+  }, [session, router]);
 
   // Validate form
   const validateForm = () => {
@@ -69,7 +76,9 @@ export default function LoginPage() {
           localStorage.removeItem("userEmail");
         }
         toast.success("Login successful");
-        // Stay on login page; user can navigate elsewhere
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get("redirect") || "/";
+        router.push(redirectUrl);
       }
     } catch (error) {
       setErrors({ ...errors, general: "Login failed" });

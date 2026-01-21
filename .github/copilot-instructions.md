@@ -78,25 +78,18 @@ companyAmount = round(afterPlatformFee - foundationAmount to paise)
 
 ---
 
-### 2. Subdomain Routing (donate.maceazy.com & store.maceazy.com)
+### 2. Subdomain Routing (donate.maceazy.com)
 **Middleware-based subdomain detection** (`src/middleware.ts`):
 ```typescript
 // donate.maceazy.com → /donate page
 // donate.maceazy.com/success → /donate/success
 // donate.maceazy.com/terms-of-use → /donate/terms-of-use
-
-// store.maceazy.com → /products page (e-commerce store)
-// store.maceazy.com/[slug] → /products/[slug]
-// products.maceazy.com → redirects to store.maceazy.com (legacy support)
 ```
 
-**Local Testing:** Use `donate.localhost:3000` or `store.localhost:3000` (Chrome/Firefox support subdomains on localhost)
-- Alternative: Edit `C:\Windows\System32\drivers\etc\hosts` → `127.0.0.1 donate.localhost` and `127.0.0.1 store.localhost`
+**Local Testing:** Use `donate.localhost:3000` (Chrome/Firefox support subdomains on localhost)
+- Alternative: Edit `C:\Windows\System32\drivers\etc\hosts` → `127.0.0.1 donate.localhost`
 
-**Pattern:** 
-- All routes under `src/app/donate/` are accessible on donate subdomain
-- Product catalog accessible on store subdomain
-- Legacy `products.*` hosts automatically redirect to `store.*` for backward compatibility
+**Pattern:** All routes under `src/app/donate/` are automatically accessible on donate subdomain
 
 ---
 
@@ -365,7 +358,7 @@ RESEND_API_KEY=re_...
 - `CROWDFUNDING_PORTAL.md` - Feature documentation
 - `DISABLED_REGISTRATION_FEATURE.md` - Accessibility feature details
 - `THEMING-GUIDE.md` - UI theming system
-- `SUBDOMAIN_SETUP.md` - donate.maceazy.com & store.maceazy.com subdomain routing
+- `SUBDOMAIN_SETUP.md` - donate.maceazy.com subdomain routing
 - `docs/DEVELOPER_GUIDE.md` - Local workflow and recent changes
 - `docs/PROJECT_OVERVIEW.md` - Architecture summary
 

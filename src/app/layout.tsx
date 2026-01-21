@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google"; // Commented out as they're not being used
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import ProductsNavbar from "@/components/products/ProductsNavbar";
 import Footer from "@/components/Footer";
 import { SessionProvider } from "next-auth/react"
 import Providers from "@/components/Providers";
 import { Provider } from "./provider"
 import { getServerUser } from "@/lib/server/auth";
 import { getServerCart, ServerCartItem } from "@/lib/server/cart";
-import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
@@ -50,15 +48,8 @@ export default async function RootLayout({
       <body className={`antialiased`}>
         <Providers initialCart={cart}>
           <div className="flex flex-col min-h-screen">
-            {(async () => {
-              const host = (await headers()).get('host') || '';
-              const sub = host.split('.')[0];
-              const isStore = sub === 'store' || host.startsWith('store.');
-              const isLegacyProducts = sub === 'products' || host.startsWith('products.');
-              const Nav = (isStore || isLegacyProducts) ? ProductsNavbar : Navbar;
-              return <Nav />;
-            })()}
-            <main className="grow"><Provider>{children}</Provider></main>
+            <Navbar />
+            <main className="flex-grow"><Provider>{children}</Provider></main>
             <Footer />
           </div>
         </Providers>
