@@ -9,6 +9,20 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Redirect www.store.maceazy.com to store.maceazy.com
+  if (hostname.match(/^www\.store\./)) {
+    const url = req.nextUrl.clone();
+    url.hostname = hostname.replace(/^www\./, '');
+    return NextResponse.redirect(url, 301);
+  }
+
+  // Redirect www.donate.maceazy.com to donate.maceazy.com
+  if (hostname.match(/^www\.donate\./)) {
+    const url = req.nextUrl.clone();
+    url.hostname = hostname.replace(/^www\./, '');
+    return NextResponse.redirect(url, 301);
+  }
+
   // if (pathname === "/ciel-video") return NextResponse.redirect("https://youtube.com/shorts/uREbbhqztMs?feature=share", 307)
 
   // Handle donate subdomain
