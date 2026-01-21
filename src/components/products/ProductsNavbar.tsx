@@ -74,7 +74,19 @@ const ProductsNavbar = () => {
       if (isStoreDomain) {
         return { href: "/", isExternal: false };
       }
-      const target = storeDomainUrl || path;
+      // Build a robust store URL even before useEffect sets state
+      const buildStoreUrl = () => {
+        if (typeof window !== 'undefined') {
+          const protocol = window.location.protocol;
+          const port = window.location.port ? `:${window.location.port}` : '';
+          const host = window.location.hostname
+            .replace(/^(donate|store|products)\./, '')
+            .replace(/^www\./, '');
+          return `${protocol}//store.${host}${port}`;
+        }
+        return '/products';
+      };
+      const target = storeDomainUrl || buildStoreUrl();
       return { href: target, isExternal: true };
     }
 

@@ -13,6 +13,7 @@ const Navbar = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState('');
+  const [storeDomainUrl, setStoreDomainUrl] = useState('');
   const [resourceDropdownOpen, setResourceDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -29,7 +30,7 @@ const Navbar = () => {
     setMounted(true);
   }, []);
 
-  // Detect if we're on donate subdomain
+  // Detect if we're on donate subdomain and precompute main/store URLs
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
@@ -40,9 +41,11 @@ const Navbar = () => {
       if (isDonate) {
         // Remove 'donate.' from hostname
         const mainHostname = hostname.replace('donate.', '');
+        const cleanHostname = mainHostname.replace(/^www\./, '');
         const protocol = window.location.protocol;
         const port = window.location.port ? `:${window.location.port}` : '';
         setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
+        setStoreDomainUrl(`${protocol}//store.${cleanHostname}${port}`);
       }
     }
   }, []);
@@ -177,9 +180,28 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
-                // If on donate subdomain, link to main domain
-                const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
-                const isExternal = isDonateDomain;
+                let href = item.path;
+                let isExternal = false;
+                if (isDonateDomain) {
+                  if (item.path === '/products') {
+                    const buildStoreUrl = () => {
+                      if (typeof window !== 'undefined') {
+                        const protocol = window.location.protocol;
+                        const port = window.location.port ? `:${window.location.port}` : '';
+                        const host = window.location.hostname
+                          .replace(/^donate\./, '')
+                          .replace(/^www\./, '');
+                        return `${protocol}//store.${host}${port}`;
+                      }
+                      return '/products';
+                    };
+                    href = storeDomainUrl || buildStoreUrl();
+                    isExternal = true;
+                  } else {
+                    href = `${mainDomainUrl}${item.path}`;
+                    isExternal = true;
+                  }
+                }
                 
                 return isExternal ? (
                   <a
