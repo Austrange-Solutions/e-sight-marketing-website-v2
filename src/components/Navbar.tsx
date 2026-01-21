@@ -35,14 +35,15 @@ const Navbar = () => {
       const hostname = window.location.hostname;
       const isDonate = hostname.startsWith('donate.');
       setIsDonateDomain(isDonate);
-      setIsStoreDomain(isStore || isLegacyProducts);
-
-      // Determine main and store domain URLs (retain legacy products host stripping)
-      const mainHostname = hostname.replace(/^(donate|store|products)\./, '');
-      const protocol = window.location.protocol;
-      const port = window.location.port ? `:${window.location.port}` : '';
-      setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
-      setStoreDomainUrl(`${protocol}//store.${mainHostname}${port}`);
+      
+      // Determine main domain URL
+      if (isDonate) {
+        // Remove 'donate.' from hostname
+        const mainHostname = hostname.replace('donate.', '');
+        const protocol = window.location.protocol;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
+      }
     }
   }, []);
 
@@ -322,7 +323,7 @@ const Navbar = () => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsOpen(false)}
-              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
+              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-linear-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
             >
               ❤️ Donate Now
             </a>
@@ -595,7 +596,7 @@ const Navbar = () => {
                   disabled={cart.length === 0 || updating !== null}
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-primary to-[oklch(0.35_0.08_230)] text-primary-foreground py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
+                  className="w-full bg-linear-to-r from-primary to-[oklch(0.35_0.08_230)] text-primary-foreground py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
                 >
                   <motion.div
                     className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity"
