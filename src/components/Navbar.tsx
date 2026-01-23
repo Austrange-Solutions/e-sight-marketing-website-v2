@@ -102,22 +102,30 @@ const Navbar = () => {
 
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
-      // Redirect to store subdomain for checkout
+      // Always redirect to store subdomain for login
       if (isDonateDomain) {
         const storeUrl = mainDomainUrl.replace('donate.', 'store.');
         window.location.href = `${storeUrl}/login?redirect=/store/checkout`;
       } else {
-        router.push('/login?redirect=/store/checkout');
+        // On main domain, redirect to store subdomain
+        const protocol = window.location.protocol;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const mainHostname = window.location.hostname.replace(/^www\./, '');
+        window.location.href = `${protocol}//store.${mainHostname}${port}/login?redirect=/store/checkout`;
       }
       return;
     }
     closeCart();
-    // Redirect to store subdomain for checkout
+    // Always redirect to store subdomain for checkout
     if (isDonateDomain) {
       const storeUrl = mainDomainUrl.replace('donate.', 'store.');
       window.location.href = `${storeUrl}/store/checkout`;
     } else {
-      router.push("/store/checkout");
+      // On main domain, redirect to store subdomain
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      const mainHostname = window.location.hostname.replace(/^www\./, '');
+      window.location.href = `${protocol}//store.${mainHostname}${port}/store/checkout`;
     }
   };
 
@@ -182,8 +190,8 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
-                // Handle Products link specially - always goes to store subdomain
-                if (item.path === '/store') {
+                // Handle Products and Profile links - always go to store subdomain
+                if (item.path === '/store' || item.path === '/store/profile') {
                   const buildStoreUrl = () => {
                     if (typeof window !== 'undefined' && mounted) {
                       const protocol = window.location.protocol;
@@ -191,9 +199,10 @@ const Navbar = () => {
                       const host = window.location.hostname
                         .replace(/^(donate|store|products)\./, '')
                         .replace(/^www\./, '');
-                      return `${protocol}//store.${host}${port}`;
+                      const path = item.path === '/store' ? '' : item.path;
+                      return `${protocol}//store.${host}${port}${path}`;
                     }
-                    return '/store';
+                    return item.path;
                   };
                   // Only render external link after hydration
                   if (!mounted) {
@@ -327,8 +336,8 @@ const Navbar = () => {
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
-              // Handle Products link specially - always goes to store subdomain
-              if (item.path === '/store') {
+              // Handle Products and Profile links - always go to store subdomain
+              if (item.path === '/store' || item.path === '/store/profile') {
                 const buildStoreUrl = () => {
                   if (typeof window !== 'undefined' && mounted) {
                     const protocol = window.location.protocol;
@@ -336,9 +345,10 @@ const Navbar = () => {
                     const host = window.location.hostname
                       .replace(/^(donate|store|products)\./, '')
                       .replace(/^www\./, '');
-                    return `${protocol}//store.${host}${port}`;
+                    const path = item.path === '/store' ? '' : item.path;
+                    return `${protocol}//store.${host}${port}${path}`;
                   }
-                  return '/store';
+                  return item.path;
                 };
                 // Only render external link after hydration
                 if (!mounted) {
