@@ -276,13 +276,20 @@ export async function GET() {
       });
     }
 
-    const items = validItems.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-      _id: item.productId._id,
-      name: item.productId.name,
-      price: item.productId.price,
-      quantity: item.quantity,
-      image: item.productId.image,
-    }));
+    const items = validItems.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => {
+      // Ensure price exists and is a valid number
+      const price = item.productId?.price || 0;
+      if (!price || typeof price !== 'number' || price < 0) {
+        console.warn(`⚠️ [CHECKOUT_GET] Invalid price for product ${item.productId?._id}: ${price}`);
+      }
+      return {
+        _id: item.productId._id,
+        name: item.productId.name || 'Unknown Product',
+        price: price,
+        quantity: item.quantity || 1,
+        image: item.productId.image || '/placeholder-product.jpg',
+      };
+    });
 
     const subtotal = items.reduce((total: number, item: { price: number, quantity: number }) => 
       total + (item.price * item.quantity), 0
