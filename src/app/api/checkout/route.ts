@@ -80,8 +80,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate subtotal
-    const subtotal = cart.items.reduce((total: number, item: { productId: { price: number }, quantity: number }) => 
+    // Filter out invalid or inactive products before any calculations
+    const validItems = cart.items.filter((item: { productId: any, quantity: number }) => {
+      if (!item.productId) {
+        console.warn('⚠️ [CHECKOUT] Skipping cart item with null product reference');
+        return false;
+      }
+      if (item.productId.status && item.productId.status !== 'active') {
+        console.warn(`⚠️ [CHECKOUT] Skipping inactive product: ${item.productId.name}`);
+        return false;
+      }
+      if (typeof item.productId.price !== 'number') {
+        console.warn(`⚠️ [CHECKOUT] Skipping product with invalid price: ${item.productId._id}`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validItems.length === 0) {
+      return NextResponse.json(
+        { error: "No valid items in cart" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate subtotal using only valid items to avoid null price errors
+    const subtotal = validItems.reduce((total: number, item: { productId: { price: number }, quantity: number }) => 
       total + (item.productId.price * item.quantity), 0
     );
 
@@ -94,31 +118,14 @@ export async function POST(request: NextRequest) {
     // Calculate total
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
-    // Prepare items for checkout - filter out invalid items
-    const checkoutItems = cart.items
-      .filter((item: { productId: { _id: string, name: string, price: number, image: string } | null, quantity: number }) => {
-        // Skip items with null/invalid productId or missing price
-        if (!item.productId || !item.productId.price) {
-          console.warn('⚠️ Skipping cart item with null or invalid product data');
-          return false;
-        }
-        return true;
-      })
-      .map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-        productId: item.productId._id,
-        name: item.productId.name,
-        price: item.productId.price,
-        quantity: item.quantity,
-        image: item.productId.image,
-      }));
-
-    // Ensure we have valid items
-    if (checkoutItems.length === 0) {
-      return NextResponse.json(
-        { error: "No valid items in cart" },
-        { status: 400 }
-      );
-    }
+    // Prepare items for checkout - map only validated items
+    const checkoutItems = validItems.map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
+      productId: item.productId._id,
+      name: item.productId.name,
+      price: item.productId.price,
+      quantity: item.quantity,
+      image: item.productId.image,
+    }));
 
     // Generate unique order number
     const orderNumber = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();

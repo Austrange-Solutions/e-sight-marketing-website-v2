@@ -18,6 +18,17 @@ const CheckoutPage = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const router = useRouter();
 
+  // Normalize image URLs coming from the API (S3 keys, CloudFront URLs, or local paths)
+  const normalizeImage = (image?: string) => {
+    if (!image) return "/placeholder-product.jpg";
+    if (image.startsWith("http")) return image;
+    if (image.startsWith("/")) return image;
+
+    const cdn = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN?.replace(/\/+$/, "");
+    const key = image.replace(/^\/+/, "");
+    return cdn ? `${cdn}/${key}` : "/placeholder-product.jpg";
+  };
+
   // Shipping form state
   const [shippingForm, setShippingForm] = useState({
     name: "",
@@ -755,7 +766,7 @@ const CheckoutPage = () => {
                       <div key={item._id || index} className="flex items-start space-x-4">
                         <div className="relative">
                           <Image
-                            src={item.image || "/placeholder-product.jpg"}
+                            src={normalizeImage(item.image)}
                             alt={item.name}
                             width={64}
                             height={64}
