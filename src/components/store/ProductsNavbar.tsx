@@ -62,7 +62,7 @@ const StoreNavbar = () => {
     if (isAuthenticated) {
       return [
         ...baseItems,
-        { path: "/profile", label: "Profile" },
+        { path: "/store/profile", label: "Profile" },
       ];
     } else {
       return [
@@ -128,17 +128,17 @@ const StoreNavbar = () => {
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
       if (isStoreDomain) {
-        window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
+        window.location.href = `${mainDomainUrl}/login?redirect=/store/checkout`;
       } else {
-        router.push('/login?redirect=/checkout');
+        router.push('/login?redirect=/store/checkout');
       }
       return;
     }
     setIsCartOpen(false);
     if (isStoreDomain) {
-      window.location.href = `${mainDomainUrl}/checkout`;
+      window.location.href = `${mainDomainUrl}/store/checkout`;
     } else {
-      router.push('/checkout');
+      router.push('/store/checkout');
     }
   };
 

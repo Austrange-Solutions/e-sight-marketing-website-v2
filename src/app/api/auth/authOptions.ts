@@ -49,9 +49,10 @@ export const authOptions: NextAuthOptions = {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         // Set domain to .maceazy.com to share across all subdomains
+        // Use .localhost in development to support store.localhost:3000
         domain: process.env.NODE_ENV === 'production' 
           ? '.maceazy.com' 
-          : 'localhost', // For local development
+          : '.localhost', // Leading dot allows subdomain sharing
       },
     },
     callbackUrl: {
@@ -62,7 +63,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         domain: process.env.NODE_ENV === 'production' 
           ? '.maceazy.com' 
-          : 'localhost',
+          : '.localhost',
       },
     },
     csrfToken: {

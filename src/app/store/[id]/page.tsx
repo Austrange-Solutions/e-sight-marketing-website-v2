@@ -105,7 +105,7 @@ export default function ProductDetailPage() {
         image: product!.image,
         stock: product!.stock,
       });
-      window.location.href = '/checkout';
+      window.location.href = '/store/checkout';
     } catch (e) {
       console.error('Buy now failed', e);
       toast.error('Failed to proceed to checkout');
