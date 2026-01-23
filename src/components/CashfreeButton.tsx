@@ -49,6 +49,13 @@ const CashfreeButton: React.FC<Props> = ({
     
     try {
       // Create order
+      console.log("📤 [CASHFREE BUTTON] Creating order with:", {
+        amount: product.price,
+        userName: userDetails.name,
+        userEmail: userDetails.email,
+        userPhone: userDetails.phone
+      });
+      
       const orderResponse = await fetch("/api/cashfree/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,8 +68,15 @@ const CashfreeButton: React.FC<Props> = ({
 
       const orderData = await orderResponse.json();
       
+      console.log("📥 [CASHFREE BUTTON] Order response:", {
+        status: orderResponse.status,
+        ok: orderResponse.ok,
+        hasPaymentSessionId: !!orderData.paymentSessionId,
+        error: orderData.error
+      });
       
       if (!orderResponse.ok) {
+        console.error("❌ [CASHFREE BUTTON] Order creation failed:", orderData);
         throw new Error(orderData.error || "Failed to create order");
       }
 
