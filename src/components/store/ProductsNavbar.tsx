@@ -74,7 +74,7 @@ const StoreNavbar = () => {
 
   const navItems = getNavItems();
 
-  // Ensure "/store" always lands on store subdomain root
+  // Ensure "/store" and "/store/profile" always land on store subdomain
   const getNavLink = (path: string) => {
     if (path === "/store") {
       if (isStoreDomain) {
@@ -93,6 +93,26 @@ const StoreNavbar = () => {
         return '/store';
       };
       const target = storeDomainUrl || buildStoreUrl();
+      return { href: target, isExternal: true };
+    }
+
+    if (path === "/store/profile") {
+      if (isStoreDomain) {
+        return { href: "/store/profile", isExternal: false };
+      }
+      // Redirect to store subdomain for profile
+      const buildProfileUrl = () => {
+        if (typeof window !== 'undefined' && mounted) {
+          const protocol = window.location.protocol;
+          const port = window.location.port ? `:${window.location.port}` : '';
+          const host = window.location.hostname
+            .replace(/^(donate|store|products)\./, '')
+            .replace(/^www\./, '');
+          return `${protocol}//store.${host}${port}/store/profile`;
+        }
+        return '/store/profile';
+      };
+      const target = storeDomainUrl ? `${storeDomainUrl}/store/profile` : buildProfileUrl();
       return { href: target, isExternal: true };
     }
 
@@ -128,17 +148,27 @@ const StoreNavbar = () => {
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
       if (isStoreDomain) {
-        window.location.href = `${mainDomainUrl}/login?redirect=/store/checkout`;
-      } else {
+        // Already on store subdomain, use router
         router.push('/login?redirect=/store/checkout');
+      } else {
+        // Not on store subdomain, redirect to store subdomain
+        const protocol = window.location.protocol;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const mainHostname = window.location.hostname.replace(/^www\./, '');
+        window.location.href = `${protocol}//store.${mainHostname}${port}/login?redirect=/store/checkout`;
       }
       return;
     }
     setIsCartOpen(false);
     if (isStoreDomain) {
-      window.location.href = `${mainDomainUrl}/store/checkout`;
-    } else {
+      // Already on store subdomain, use router
       router.push('/store/checkout');
+    } else {
+      // Not on store subdomain, redirect to store subdomain
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      const mainHostname = window.location.hostname.replace(/^www\./, '');
+      window.location.href = `${protocol}//store.${mainHostname}${port}/store/checkout`;
     }
   };
 

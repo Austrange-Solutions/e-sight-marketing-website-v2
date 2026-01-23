@@ -713,7 +713,7 @@ const CheckoutPage = () => {
                           }}
                           onSuccess={() => {
                             // Keep processing overlay visible until navigation completes
-                            router.push("/success?payment=completed");
+                            router.push("/store/success?payment=completed");
                           }}
                           onFailure={() => {
                             alert("Payment failed. Please try again.");
