@@ -64,7 +64,7 @@ const Navbar = () => {
     if (isAuthenticated) {
       return [
         ...baseItems,
-        { path: "/profile", label: "Profile" },
+        { path: "/store/profile", label: "Profile" },
       ];
     } else {
       return [
@@ -102,20 +102,22 @@ const Navbar = () => {
 
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
-      // If on donate subdomain, redirect to main domain for login
+      // Redirect to store subdomain for checkout
       if (isDonateDomain) {
-        window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
+        const storeUrl = mainDomainUrl.replace('donate.', 'store.');
+        window.location.href = `${storeUrl}/login?redirect=/store/checkout`;
       } else {
-        router.push('/login?redirect=/checkout');
+        router.push('/login?redirect=/store/checkout');
       }
       return;
     }
     closeCart();
-    // If on donate subdomain, redirect to main domain for checkout
+    // Redirect to store subdomain for checkout
     if (isDonateDomain) {
-      window.location.href = `${mainDomainUrl}/checkout`;
+      const storeUrl = mainDomainUrl.replace('donate.', 'store.');
+      window.location.href = `${storeUrl}/store/checkout`;
     } else {
-      router.push("/checkout");
+      router.push("/store/checkout");
     }
   };
 

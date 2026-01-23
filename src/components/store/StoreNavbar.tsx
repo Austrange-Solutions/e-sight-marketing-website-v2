@@ -128,17 +128,17 @@ const StoreNavbar = () => {
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
       if (isStoreDomain) {
-        window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
+        window.location.href = `${mainDomainUrl}/login?redirect=/store/checkout`;
       } else {
-        router.push('/login?redirect=/checkout');
+        router.push('/login?redirect=/store/checkout');
       }
       return;
     }
     setIsCartOpen(false);
     if (isStoreDomain) {
-      window.location.href = `${mainDomainUrl}/checkout`;
+      window.location.href = `${mainDomainUrl}/store/checkout`;
     } else {
-      router.push('/checkout');
+      router.push('/store/checkout');
     }
   };
 
