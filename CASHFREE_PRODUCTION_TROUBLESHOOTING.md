@@ -14,21 +14,7 @@ This error occurs when switching from Cashfree Sandbox to Production mode.
 
 **Check your `.env.local` or production environment:**
 
-```bash
-# For PRODUCTION (Live)
-CASHFREE_ENDPOINT=https://api.cashfree.com/pg
-NEXT_PUBLIC_CASHFREE_ENDPOINT=https://api.cashfree.com/pg
-CASHFREE_APP_ID=your_production_app_id
-CASHFREE_SECRET_KEY=your_production_secret_key
-NEXT_PUBLIC_CASHFREE_APP_ID=your_production_app_id
 
-# For SANDBOX (Testing)
-CASHFREE_ENDPOINT=https://sandbox.cashfree.com/pg
-NEXT_PUBLIC_CASHFREE_ENDPOINT=https://sandbox.cashfree.com/pg
-CASHFREE_APP_ID=your_sandbox_app_id
-CASHFREE_SECRET_KEY=your_sandbox_secret_key
-NEXT_PUBLIC_CASHFREE_APP_ID=your_sandbox_app_id
-```
 
 **⚠️ IMPORTANT**: 
 - Both server-side (`CASHFREE_*`) and client-side (`NEXT_PUBLIC_CASHFREE_*`) must match!
@@ -115,13 +101,6 @@ customer_details: {
 1. Go to your application in Coolify
 2. Navigate to **Environment Variables**
 3. Add ALL required variables:
-   ```bash
-   CASHFREE_ENDPOINT=https://api.cashfree.com/pg
-   NEXT_PUBLIC_CASHFREE_ENDPOINT=https://api.cashfree.com/pg
-   CASHFREE_APP_ID=<your_production_app_id>
-   CASHFREE_SECRET_KEY=<your_production_secret_key>
-   NEXT_PUBLIC_CASHFREE_APP_ID=<your_production_app_id>
-   ```
 4. **Redeploy** the application (changes require rebuild)
 
 ---
