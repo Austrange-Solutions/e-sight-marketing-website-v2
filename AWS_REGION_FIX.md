@@ -32,17 +32,7 @@ region: process.env.S3_REGION || process.env.AWS_REGION || "ap-south-1"
 - `src/app/api/aws/delete/route.ts` - Uses `S3_REGION`
 - `src/app/api/aws/validate/route.ts` - Uses `S3_REGION`
 
-## Environment Variable Requirements
-Your `.env` file should have:
-```env
-S3_REGION=ap-south-1
-AWS_ACCESS_KEY_ID=AKIAUZIATI3EZ2HTDH6F
-AWS_SECRET_ACCESS_KEY=wqWoThpA/ecICDvVQf6fp1e/ojpcnIEQyY1/xQAM
-S3_BUCKET=austrange-storage
-S3_PREFIX=e-sight-ecommerce-product-images/
-CLOUDFRONT_DOMAIN=https://dw9tsoyfcyk5k.cloudfront.net
-NEXT_PUBLIC_CLOUDFRONT_DOMAIN=https://dw9tsoyfcyk5k.cloudfront.net
-```
+
 
 ## What to Verify in Production
 1. **Ensure environment variables are set** in your deployment platform (Coolify, Vercel, etc.)
