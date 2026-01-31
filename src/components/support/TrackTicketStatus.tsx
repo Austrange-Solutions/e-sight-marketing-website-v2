@@ -34,10 +34,15 @@ export default function TrackTicketStatus() {
 
       if (response.data.success) {
         setTickets(response.data.tickets);
+        if (response.data.tickets.length === 0) {
+          toast.error("No tickets found. Please check your Ticket ID or Email and try again.");
+        }
       }
     } catch (error: any) {
       console.error("Error fetching ticket:", error);
-      toast.error(error.response?.data?.error || "No tickets found");
+      const errorMessage = error.response?.data?.error || "No tickets found matching your criteria";
+      toast.error(errorMessage);
+      setTickets([]);
     } finally {
       setLoading(false);
     }
@@ -66,10 +71,10 @@ export default function TrackTicketStatus() {
         <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <input
-              type="text"
+              type="email"
               required
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Enter Ticket ID or Email Address"
+              placeholder="Enter Email Address"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
             />

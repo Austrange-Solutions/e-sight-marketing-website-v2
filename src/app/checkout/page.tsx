@@ -4,6 +4,25 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import CashfreeButton from "@/components/CashfreeButton";
 
+// Helper function to get full image URL
+const getImageUrl = (imagePath: string): string => {
+  if (!imagePath) return "/placeholder-product.jpg";
+  
+  // If already a full URL, return as is
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
+  
+  // If it's a local path, return as is
+  if (imagePath.startsWith("/")) {
+    return imagePath;
+  }
+  
+  // Otherwise, prepend CloudFront domain
+  const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || "https://d2z15s8mxf9k1i.cloudfront.net";
+  return `${cloudFrontDomain}/${imagePath}`;
+};
+
 const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -1073,11 +1092,15 @@ const CheckoutPage = () => {
                       <div key={index} className="flex items-start space-x-4">
                         <div className="relative">
                           <Image
-                            src={item.image || "/placeholder-product.jpg"}
+                            src={getImageUrl(item.image)}
                             alt={item.name}
                             width={64}
                             height={64}
                             className="w-16 h-16 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/placeholder-product.jpg";
+                            }}
                           />
                           <span className="absolute -top-2 -right-2 bg-accent0 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                             {item.quantity}

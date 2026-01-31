@@ -21,7 +21,7 @@ const DocumentsPage = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(
-    null
+    null,
   );
   const [viewerOpen, setViewerOpen] = useState(false);
 
@@ -33,7 +33,7 @@ const DocumentsPage = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "/api/resources?category=documents&limit=100"
+        "/api/resources?category=documents&limit=100",
       );
       const data = await response.json();
 
@@ -113,26 +113,21 @@ const DocumentsPage = () => {
               >
                 {/* Document Preview */}
                 <div
-                  className="relative w-full h-[400px] overflow-hidden cursor-pointer"
+                  className="relative w-full h-[400px] overflow-hidden cursor-pointer bg-gray-50"
                   onClick={() => handleViewResource(resource)}
                 >
-                  {/* Document Preview */}
-                  <div className="bg-gray-50 rounded-md overflow-hidden flex items-center justify-center">
-                    {resource.fileType.startsWith("image/") ? (
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={resource.fileUrl}
-                          alt={resource.title}
-                          fill
-                          className="object-contain bg-white"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-white">
-                        <FileText className="w-16 h-16 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+                  {resource.fileType.startsWith("image/") ? (
+                    <Image
+                      src={resource.fileUrl}
+                      alt={resource.title}
+                      fill
+                      className="object-contain bg-white"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white">
+                      <FileText className="w-16 h-16 text-gray-400" />
+                    </div>
+                  )}
                 </div>
 
                 {/* Document Info */}

@@ -3,9 +3,23 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: [
-      "austrange-storage.s3.ap-south-1.amazonaws.com",
-      "dw9tsoyfcyk5k.cloudfront.net",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "austrange-storage.s3.ap-south-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "maceazy-marketing.s3.ap-south-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dw9tsoyfcyk5k.cloudfront.net",
+      },
+      {
+        protocol: "https",
+        hostname: "d2z15s8mxf9k1i.cloudfront.net",
+      },
     ],
   },
   // Temporarily ignore ESLint during production builds so the build can complete
@@ -53,6 +67,14 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload",
+          },
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
         ],
       },

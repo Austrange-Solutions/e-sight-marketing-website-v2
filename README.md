@@ -11,6 +11,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **User Authentication** and profile management
 - **Privacy Policy** - Comprehensive privacy protection for Maceazy app users
 - **Accessibility Focused** - Designed for visually impaired users and assistive technologies
+- **Enterprise-Grade Security** - Clickjacking protection, XSS prevention, and comprehensive security headers
 
 ## Getting Started
 
@@ -60,5 +61,24 @@ bun dev --turbopack
 
 # Run the small donation breakdown tests
 node ./src/__tests__/donationBreakdown.test.js
+
+# Test security headers
+node scripts/test-security-headers.js http://localhost:3000
 ```
+
+## Security
+
+This project implements comprehensive security measures:
+
+- **Clickjacking Protection** - X-Frame-Options and CSP frame-ancestors
+- **XSS Prevention** - Content Security Policy with strict directives
+- **HSTS** - Strict-Transport-Security with preload
+- **Additional Headers** - X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+
+For complete security documentation, see:
+- `CLICKJACKING_PROTECTION.md` - Clickjacking defense implementation
+- `XSS_PROTECTION_IMPLEMENTATION.md` - XSS protection details
+- `SECURITY_AUDIT_FIXES.md` - Security audit results
+
+Test clickjacking protection by opening `test-clickjacking-protection.html` in your browser.
 
