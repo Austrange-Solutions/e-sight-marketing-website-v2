@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Users, Clock, CheckCircle, XCircle, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface DisabledPerson {
@@ -42,7 +48,8 @@ export default function DisabledPersonsManagement({
       person.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       person.phone.includes(searchQuery);
 
-    const matchesStatus = statusFilter === "all" || person.verificationStatus === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || person.verificationStatus === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -84,7 +91,8 @@ export default function DisabledPersonsManagement({
   // Count by status
   const statusCounts = persons.reduce(
     (acc, person) => {
-      acc[person.verificationStatus] = (acc[person.verificationStatus] || 0) + 1;
+      acc[person.verificationStatus] =
+        (acc[person.verificationStatus] || 0) + 1;
       return acc;
     },
     {} as Record<string, number>
@@ -94,7 +102,9 @@ export default function DisabledPersonsManagement({
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
-          <h3 className="text-lg font-medium text-gray-900">Disabled Persons Registration</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            Disabled Persons Registration
+          </h3>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-5 gap-3">
             <Card className="p-3">
               <CardHeader className="p-0">
@@ -108,7 +118,9 @@ export default function DisabledPersonsManagement({
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-2xl font-semibold">{persons.length}</div>
-                <CardDescription className="mt-1">All registered disabled persons</CardDescription>
+                <CardDescription className="mt-1">
+                  All registered disabled persons
+                </CardDescription>
               </CardContent>
             </Card>
 
@@ -123,8 +135,12 @@ export default function DisabledPersonsManagement({
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-semibold text-yellow-800">{statusCounts.pending || 0}</div>
-                <CardDescription className="mt-1">Awaiting admin review</CardDescription>
+                <div className="text-2xl font-semibold text-yellow-800">
+                  {statusCounts.pending || 0}
+                </div>
+                <CardDescription className="mt-1">
+                  Awaiting admin review
+                </CardDescription>
               </CardContent>
             </Card>
 
@@ -139,8 +155,12 @@ export default function DisabledPersonsManagement({
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-semibold text-yellow-800">{statusCounts.under_review || 0}</div>
-                <CardDescription className="mt-1">Being evaluated by admin</CardDescription>
+                <div className="text-2xl font-semibold text-yellow-800">
+                  {statusCounts.under_review || 0}
+                </div>
+                <CardDescription className="mt-1">
+                  Being evaluated by admin
+                </CardDescription>
               </CardContent>
             </Card>
 
@@ -155,8 +175,12 @@ export default function DisabledPersonsManagement({
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-semibold text-green-800">{statusCounts.verified || 0}</div>
-                <CardDescription className="mt-1">Approved registrations</CardDescription>
+                <div className="text-2xl font-semibold text-green-800">
+                  {statusCounts.verified || 0}
+                </div>
+                <CardDescription className="mt-1">
+                  Approved registrations
+                </CardDescription>
               </CardContent>
             </Card>
 
@@ -171,8 +195,12 @@ export default function DisabledPersonsManagement({
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-semibold text-red-800">{statusCounts.rejected || 0}</div>
-                <CardDescription className="mt-1">Rejected registrations</CardDescription>
+                <div className="text-2xl font-semibold text-red-800">
+                  {statusCounts.rejected || 0}
+                </div>
+                <CardDescription className="mt-1">
+                  Rejected registrations
+                </CardDescription>
               </CardContent>
             </Card>
           </div>
@@ -182,20 +210,26 @@ export default function DisabledPersonsManagement({
           <button
             onClick={async () => {
               try {
-                const res = await fetch('/api/admin/disabled-persons/export?format=csv');
-                if (!res.ok) throw new Error('Export failed');
+                const res = await fetch(
+                  "/api/admin/disabled-persons/export?format=csv"
+                );
+                if (!res.ok) throw new Error("Export failed");
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                const a = document.createElement("a");
+                // Validate blob URL format (blob URLs are safe)
+                if (url.startsWith("blob:") && URL.canParse(url)) {
+                  a.href = url;
+                  a.download = `disabled-people-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}.csv`;
+                  // deepcode ignore DOMXSS: Blob URL validated with startsWith('blob:') and URL.canParse() checks
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                }
                 window.URL.revokeObjectURL(url);
               } catch (err) {
                 console.error(err);
-                alert('Failed to export CSV');
+                alert("Failed to export CSV");
               }
             }}
             className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50"
@@ -206,20 +240,26 @@ export default function DisabledPersonsManagement({
           <button
             onClick={async () => {
               try {
-                const res = await fetch('/api/admin/disabled-persons/export?format=xlsx');
-                if (!res.ok) throw new Error('Export failed');
+                const res = await fetch(
+                  "/api/admin/disabled-persons/export?format=xlsx"
+                );
+                if (!res.ok) throw new Error("Export failed");
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `disabled-people-${new Date().toISOString().slice(0,10).replaceAll('-','')}.xlsx`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                const a = document.createElement("a");
+                // Validate blob URL format (blob URLs are safe)
+                if (url.startsWith("blob:") && URL.canParse(url)) {
+                  a.href = url;
+                  a.download = `disabled-people-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}.xlsx`;
+                  // deepcode ignore DOMXSS: Blob URL validated with startsWith('blob:') and URL.canParse() checks
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                }
                 window.URL.revokeObjectURL(url);
               } catch (err) {
                 console.error(err);
-                alert('Failed to export XLSX');
+                alert("Failed to export XLSX");
               }
             }}
             className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50"
@@ -271,7 +311,9 @@ export default function DisabledPersonsManagement({
             <div className="flex justify-between items-start mb-2">
               <div>
                 <h4 className="font-medium text-gray-900">{person.fullName}</h4>
-                <p className="text-sm text-gray-600 break-all">{person.email}</p>
+                <p className="text-sm text-gray-600 break-all">
+                  {person.email}
+                </p>
                 <p className="text-sm text-gray-600">{person.phone}</p>
               </div>
               <span
@@ -283,15 +325,25 @@ export default function DisabledPersonsManagement({
               </span>
             </div>
             <div className="text-xs text-gray-500 space-y-1">
-                <p>
-                  {person.disabilityType} ({person.disabilityPercentage}%)
+              <p>
+                {person.disabilityType} ({person.disabilityPercentage}%)
+              </p>
+              <p>
+                {person.city}, {person.state}
+              </p>
+              {person.aadharNumber && (
+                <p className="text-xs text-gray-500">
+                  Aadhaar: {person.aadharNumber}
                 </p>
-                <p>
-                  {person.city}, {person.state}
+              )}
+              {person.guardianName && (
+                <p className="text-xs text-gray-500">
+                  Guardian: {person.guardianName}
                 </p>
-                {person.aadharNumber && <p className="text-xs text-gray-500">Aadhaar: {person.aadharNumber}</p>}
-                {person.guardianName && <p className="text-xs text-gray-500">Guardian: {person.guardianName}</p>}
-                <p>Registered: {new Date(person.createdAt).toLocaleDateString()}</p>
+              )}
+              <p>
+                Registered: {new Date(person.createdAt).toLocaleDateString()}
+              </p>
             </div>
           </div>
         ))}
@@ -330,17 +382,31 @@ export default function DisabledPersonsManagement({
                 className="cursor-pointer hover:bg-gray-50 transition-colors"
               >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{person.fullName}</div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {person.fullName}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{person.email}</div>
                   <div className="text-xs text-gray-500">{person.phone}</div>
-                  {person.aadharNumber && <div className="text-xs text-gray-500">Aadhaar: {person.aadharNumber}</div>}
-                  {person.guardianName && <div className="text-xs text-gray-500">Guardian: {person.guardianName}</div>}
+                  {person.aadharNumber && (
+                    <div className="text-xs text-gray-500">
+                      Aadhaar: {person.aadharNumber}
+                    </div>
+                  )}
+                  {person.guardianName && (
+                    <div className="text-xs text-gray-500">
+                      Guardian: {person.guardianName}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{person.disabilityType}</div>
-                  <div className="text-xs text-gray-500">{person.disabilityPercentage}%</div>
+                  <div className="text-sm text-gray-900">
+                    {person.disabilityType}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {person.disabilityPercentage}%
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{person.city}</div>

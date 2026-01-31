@@ -1,8 +1,9 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, FileText, Image as ImageIcon } from 'lucide-react';
-import FileViewer from '@/components/resources/FileViewer';
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowLeft, FileText, Image as ImageIcon } from "lucide-react";
+import FileViewer from "@/components/resources/FileViewer";
 
 interface Resource {
   _id: string;
@@ -19,7 +20,9 @@ interface Resource {
 const AnnualReportsPage = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(
+    null
+  );
   const [viewerOpen, setViewerOpen] = useState(false);
 
   useEffect(() => {
@@ -29,14 +32,16 @@ const AnnualReportsPage = () => {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/resources?category=annual-reports&limit=100');
+      const response = await fetch(
+        "/api/resources?category=annual-reports&limit=100"
+      );
       const data = await response.json();
 
       if (data.success) {
         setResources(data.data);
       }
     } catch (error) {
-      console.error('Error fetching annual reports:', error);
+      console.error("Error fetching annual reports:", error);
     } finally {
       setLoading(false);
     }
@@ -49,19 +54,22 @@ const AnnualReportsPage = () => {
     try {
       await fetch(`/api/resources/${resource._id}`);
     } catch (error) {
-      console.error('Error tracking view:', error);
+      console.error("Error tracking view:", error);
     }
   };
 
   // Group resources by year
-  const resourcesByYear = resources.reduce((acc: Record<number, Resource[]>, resource) => {
-    const year = new Date(resource.createdAt).getFullYear();
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(resource);
-    return acc;
-  }, {});
+  const resourcesByYear = resources.reduce(
+    (acc: Record<number, Resource[]>, resource) => {
+      const year = new Date(resource.createdAt).getFullYear();
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(resource);
+      return acc;
+    },
+    {}
+  );
 
   const years = Object.keys(resourcesByYear)
     .map(Number)
@@ -81,7 +89,9 @@ const AnnualReportsPage = () => {
           </Link>
 
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#0C5277]">Annual Reports</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#0C5277]">
+              Annual Reports
+            </h1>
             <p className="text-lg text-[#1B9BD8] max-w-3xl mx-auto">
               View our yearly impact reports and financial summaries
             </p>
@@ -96,7 +106,9 @@ const AnnualReportsPage = () => {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">Loading reports...</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                Loading reports...
+              </p>
             </div>
           </div>
         ) : resources.length === 0 ? (
@@ -128,17 +140,20 @@ const AnnualReportsPage = () => {
                         className="relative w-full h-[400px] bg-gray-50 overflow-hidden cursor-pointer"
                         onClick={() => handleViewResource(resource)}
                       >
-                        {resource.fileType.startsWith('image/') ? (
-                          <img
+                        {resource.fileType.startsWith("image/") ? (
+                          <Image
                             src={resource.fileUrl}
                             alt={resource.title}
-                            className="w-full h-full object-contain bg-white"
+                            fill
+                            className="object-contain bg-white"
                           />
-                        ) : resource.fileType.toLowerCase().includes('pdf') ? (
+                        ) : resource.fileType.toLowerCase().includes("pdf") ? (
                           <div className="w-full h-full flex items-center justify-center bg-white">
                             <div className="text-center p-8">
                               <FileText className="w-32 h-32 text-gray-400 mx-auto mb-4" />
-                              <p className="text-sm text-gray-500 font-medium">PDF Document</p>
+                              <p className="text-sm text-gray-500 font-medium">
+                                PDF Document
+                              </p>
                             </div>
                           </div>
                         ) : (
@@ -146,7 +161,7 @@ const AnnualReportsPage = () => {
                             <div className="text-center p-8">
                               <FileText className="w-32 h-32 text-gray-400 mx-auto mb-4" />
                               <p className="text-sm text-gray-500 font-medium uppercase">
-                                {resource.fileType.split('/')[1] || 'Document'}
+                                {resource.fileType.split("/")[1] || "Document"}
                               </p>
                             </div>
                           </div>

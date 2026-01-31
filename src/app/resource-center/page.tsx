@@ -1,7 +1,8 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { FileText } from 'lucide-react';
-import FileViewer from '@/components/resources/FileViewer';
+"use client";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { FileText } from "lucide-react";
+import FileViewer from "@/components/resources/FileViewer";
 
 interface Resource {
   _id: string;
@@ -16,21 +17,23 @@ interface Resource {
 }
 
 const categoryLabels: Record<string, string> = {
-  'annual-reports': 'Annual Reports',
-  'project-reports': 'Project Reports',
-  'documents': 'Documents',
+  "annual-reports": "Annual Reports",
+  "project-reports": "Project Reports",
+  documents: "Documents",
 };
 
 const categoryColors: Record<string, string> = {
-  'annual-reports': 'bg-[#1B9BD8] text-white',
-  'project-reports': 'bg-emerald-500 text-white',
-  'documents': 'bg-purple-500 text-white',
+  "annual-reports": "bg-[#1B9BD8] text-white",
+  "project-reports": "bg-emerald-500 text-white",
+  documents: "bg-purple-500 text-white",
 };
 
 const ResourceCenterPage = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(
+    null
+  );
   const [viewerOpen, setViewerOpen] = useState(false);
 
   useEffect(() => {
@@ -40,14 +43,14 @@ const ResourceCenterPage = () => {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/resources?limit=100');
+      const response = await fetch("/api/resources?limit=100");
       const data = await response.json();
 
       if (data.success) {
         setResources(data.data);
       }
     } catch (error) {
-      console.error('Error fetching resources:', error);
+      console.error("Error fetching resources:", error);
     } finally {
       setLoading(false);
     }
@@ -60,7 +63,7 @@ const ResourceCenterPage = () => {
     try {
       await fetch(`/api/resources/${resource._id}`);
     } catch (error) {
-      console.error('Error tracking view:', error);
+      console.error("Error tracking view:", error);
     }
   };
 
@@ -74,7 +77,8 @@ const ResourceCenterPage = () => {
               Resource Center
             </h1>
             <p className="text-lg text-[#1B9BD8] max-w-3xl mx-auto">
-              Access our comprehensive collection of reports, documents, and resources
+              Access our comprehensive collection of reports, documents, and
+              resources
             </p>
           </div>
         </div>
@@ -87,7 +91,9 @@ const ResourceCenterPage = () => {
           <div className="flex items-center justify-center py-32">
             <div className="text-center">
               <div className="inline-block w-16 h-16 border-4 border-[#1B9BD8] border-t-transparent rounded-full animate-spin mb-6"></div>
-              <p className="text-[#1B9BD8] text-lg font-medium">Loading resources...</p>
+              <p className="text-[#1B9BD8] text-lg font-medium">
+                Loading resources...
+              </p>
             </div>
           </div>
         ) : resources.length === 0 ? (
@@ -112,17 +118,20 @@ const ResourceCenterPage = () => {
                   className="relative w-full h-[400px] bg-gray-50 overflow-hidden cursor-pointer"
                   onClick={() => handleViewResource(resource)}
                 >
-                  {resource.fileType.startsWith('image/') ? (
-                    <img
+                  {resource.fileType.startsWith("image/") ? (
+                    <Image
                       src={resource.fileUrl}
                       alt={resource.title}
-                      className="w-full h-full object-contain bg-white"
+                      fill
+                      className="object-contain bg-white"
                     />
-                  ) : resource.fileType.toLowerCase().includes('pdf') ? (
+                  ) : resource.fileType.toLowerCase().includes("pdf") ? (
                     <div className="w-full h-full flex items-center justify-center bg-white">
                       <div className="text-center p-8">
                         <FileText className="w-32 h-32 text-gray-400 mx-auto mb-4" />
-                        <p className="text-sm text-gray-500 font-medium">PDF Document</p>
+                        <p className="text-sm text-gray-500 font-medium">
+                          PDF Document
+                        </p>
                       </div>
                     </div>
                   ) : (
@@ -130,7 +139,7 @@ const ResourceCenterPage = () => {
                       <div className="text-center p-8">
                         <FileText className="w-32 h-32 text-gray-400 mx-auto mb-4" />
                         <p className="text-sm text-gray-500 font-medium uppercase">
-                          {resource.fileType.split('/')[1] || 'Document'}
+                          {resource.fileType.split("/")[1] || "Document"}
                         </p>
                       </div>
                     </div>
@@ -147,7 +156,7 @@ const ResourceCenterPage = () => {
                     onClick={() => handleViewResource(resource)}
                     className="px-8 py-2.5 bg-[#1B9BD8] hover:bg-[#0C5277] text-white font-semibold rounded transition-colors duration-200 uppercase text-sm tracking-wide"
                   >
-                    VIEW 
+                    VIEW
                   </button>
                 </div>
               </div>

@@ -16,16 +16,19 @@ export const disabledRegistrationSchema = z.object({
     .string()
     .min(3, "Full name must be at least 3 characters")
     .max(100, "Full name must not exceed 100 characters")
-    .regex(/^[a-zA-Z\s.]+$/, "Full name can only contain letters, spaces, and dots"),
+    .regex(
+      /^[a-zA-Z\s.]+$/,
+      "Full name can only contain letters, spaces, and dots"
+    ),
 
-  email: z
-    .string()
-    .email("Invalid email address")
-    .toLowerCase(),
+  email: z.string().email("Invalid email address").toLowerCase(),
 
   phone: z
     .string()
-    .regex(/^[6-9]\d{9}$/, "Phone number must be a valid 10-digit Indian mobile number"),
+    .regex(
+      /^[6-9]\d{9}$/,
+      "Phone number must be a valid 10-digit Indian mobile number"
+    ),
 
   // Aadhaar number (optional if PAN provided)
   aadharNumber: z
@@ -34,14 +37,12 @@ export const disabledRegistrationSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  dateOfBirth: z
-    .string()
-    .refine((date) => {
-      const birthDate = new Date(date);
-      const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      return age >= 1 && age <= 120;
-    }, "Age must be between 1 and 120 years"),
+  dateOfBirth: z.string().refine((date) => {
+    const birthDate = new Date(date);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    return age >= 1 && age <= 120;
+  }, "Age must be between 1 and 120 years"),
 
   gender: z.enum(["Male", "Female", "Other"], {
     message: "Please select a valid gender",
@@ -52,49 +53,53 @@ export const disabledRegistrationSchema = z.object({
     .string()
     .min(10, "Address must be at least 10 characters")
     .max(500, "Address must not exceed 500 characters"),
-  addressLine2: z.string().max(200, "Address line 2 must not exceed 200 characters").optional().or(z.literal("")),
+  addressLine2: z
+    .string()
+    .max(200, "Address line 2 must not exceed 200 characters")
+    .optional()
+    .or(z.literal("")),
 
   city: z
     .string()
     .min(2, "City name must be at least 2 characters")
     .max(100, "City name must not exceed 100 characters"),
 
-  state: z
-    .string()
-    .min(2, "Please select a valid state"),
+  state: z.string().min(2, "Please select a valid state"),
 
   pincode: z
     .string()
     .regex(/^\d{6}$/, "Pincode must be a valid 6-digit number"),
 
   // Disability Information
-  disabilityType: z.string()
+  disabilityType: z
+    .string()
     .min(1, "Please select a disability type")
     .refine(
-      (value) => [
-        "Blindness",
-        "Low Vision",
-        "Leprosy Cured Persons",
-        "Hearing Impairment (Deaf and hard of hearing)",
-        "Locomotor Disability",
-        "Dwarfism",
-        "Intellectual Disability",
-        "Mental Illness",
-        "Autism Spectrum Disorder",
-        "Cerebral Palsy",
-        "Muscular Dystrophy",
-        "Chronic Neurological Conditions",
-        "Specific Learning Disabilities (e.g., Dyslexia)",
-        "Multiple Sclerosis",
-        "Speech and Language Disability",
-        "Thalassemia",
-        "Hemophilia",
-        "Sickle Cell Disease",
-        "Multiple Disabilities (More than one of the above)",
-        "Acid Attack Victims",
-        "Parkinson's Disease",
-        "Others"
-      ].includes(value),
+      (value) =>
+        [
+          "Blindness",
+          "Low Vision",
+          "Leprosy Cured Persons",
+          "Hearing Impairment (Deaf and hard of hearing)",
+          "Locomotor Disability",
+          "Dwarfism",
+          "Intellectual Disability",
+          "Mental Illness",
+          "Autism Spectrum Disorder",
+          "Cerebral Palsy",
+          "Muscular Dystrophy",
+          "Chronic Neurological Conditions",
+          "Specific Learning Disabilities (e.g., Dyslexia)",
+          "Multiple Sclerosis",
+          "Speech and Language Disability",
+          "Thalassemia",
+          "Hemophilia",
+          "Sickle Cell Disease",
+          "Multiple Disabilities (More than one of the above)",
+          "Acid Attack Victims",
+          "Parkinson's Disease",
+          "Others",
+        ].includes(value),
       "Please select a valid disability type"
     ),
 
@@ -126,30 +131,30 @@ export const disabledRegistrationSchema = z.object({
 
   guardianPhone: z
     .string()
-    .regex(/^[6-9]\d{9}$/, "Guardian phone must be a valid 10-digit Indian mobile number")
+    .regex(
+      /^[6-9]\d{9}$/,
+      "Guardian phone must be a valid 10-digit Indian mobile number"
+    )
     .optional()
     .or(z.literal("")),
 
-  // Documents
-  documents: z.object({
-    passportPhoto: documentSchema,
-    aadharCard: documentSchema.optional(),
-    panCard: documentSchema.optional(),
-    disabilityCertificate: documentSchema,
-    udidCard: documentSchema.optional(),
-    additionalDocuments: z.array(documentSchema).optional(),
-  }).refine(
-    (docs) => docs.aadharCard || docs.panCard,
-    {
-      message: "At least one ID proof (Aadhar Card or PAN Card) is required",
-      path: ["aadharCard"],
-    }
-  ),
-
+  // Documents - Made optional since upload functionality is currently disabled
+  documents: z
+    .object({
+      passportPhoto: documentSchema.optional(),
+      aadharCard: documentSchema.optional(),
+      panCard: documentSchema.optional(),
+      disabilityCertificate: documentSchema.optional(),
+      udidCard: documentSchema.optional(),
+      additionalDocuments: z.array(documentSchema).optional(),
+    })
+    .optional(),
 });
 
 // Type inference for TypeScript
-export type DisabledRegistrationFormData = z.infer<typeof disabledRegistrationSchema>;
+export type DisabledRegistrationFormData = z.infer<
+  typeof disabledRegistrationSchema
+>;
 
 // Partial schema for status check (only needs email or ID)
 export const statusCheckSchema = z.object({

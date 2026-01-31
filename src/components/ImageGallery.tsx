@@ -1,18 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Trash2, 
-  Edit, 
-  Eye, 
-  Download, 
-  Tag, 
-  Calendar, 
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import {
+  Trash2,
+  Edit,
+  Eye,
+  Download,
+  Tag,
+  Calendar,
   FileImage,
   Search,
   RefreshCw,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle,
+} from "lucide-react";
+import { isValidUrl, sanitizeUrl } from "@/lib/validation";
 
 interface UploadedImage {
   _id: string;
@@ -25,7 +27,7 @@ interface UploadedImage {
   fileType: string;
   width?: number;
   height?: number;
-  uploadMethod: 'direct' | 'signed-url';
+  uploadMethod: "direct" | "signed-url";
   tags: string[];
   description?: string;
   altText?: string;
@@ -51,65 +53,65 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   showFilters = true,
   showStats = true,
   limit = 20,
-  onImageSelect
+  onImageSelect,
 }) => {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
-  
+
   // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [fileTypeFilter, setFileTypeFilter] = useState('');
-  const [sortBy, setSortBy] = useState('uploadedAt');
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [fileTypeFilter, setFileTypeFilter] = useState("");
+  const [sortBy, setSortBy] = useState("uploadedAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
-  
+
   // Pagination info
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  
+
   // Edit modal state
   const [editingImage, setEditingImage] = useState<UploadedImage | null>(null);
   const [editForm, setEditForm] = useState({
-    description: '',
-    altText: '',
-    tags: ''
+    description: "",
+    altText: "",
+    tags: "",
   });
 
   const fetchImages = async () => {
     try {
       setLoading(true);
-      setError('');
-      
+      setError("");
+
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
         sortBy,
-        sortOrder
+        sortOrder,
       });
-      
-      if (searchTerm) params.append('search', searchTerm);
-      if (fileTypeFilter) params.append('fileType', fileTypeFilter);
-      
+
+      if (searchTerm) params.append("search", searchTerm);
+      if (fileTypeFilter) params.append("fileType", fileTypeFilter);
+
       const response = await fetch(`/api/images?${params}`);
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch images');
+        throw new Error("Failed to fetch images");
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setImages(data.data);
         setTotalCount(data.pagination.totalCount);
         setTotalPages(data.pagination.totalPages);
       } else {
-        throw new Error(data.error || 'Failed to fetch images');
+        throw new Error(data.error || "Failed to fetch images");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch images');
-      console.error('Error fetching images:', err);
+      setError(err instanceof Error ? err.message : "Failed to fetch images");
+      console.error("Error fetching images:", err);
     } finally {
       setLoading(false);
     }
@@ -120,16 +122,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   }, [page, searchTerm, fileTypeFilter, sortBy, sortOrder]);
 
   const handleDeleteImage = async (imageId: string) => {
-    if (!confirm('Are you sure you want to delete this image?')) return;
-    
+    if (!confirm("Are you sure you want to delete this image?")) return;
+
     try {
       const response = await fetch(`/api/images/${imageId}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
-      
+
       if (response.ok) {
-        setImages(images.filter(img => img._id !== imageId));
-        setSelectedImages(prev => {
+        setImages(images.filter((img) => img._id !== imageId));
+        setSelectedImages((prev) => {
           const newSet = new Set(prev);
           newSet.delete(imageId);
           return newSet;
@@ -139,77 +141,85 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         alert(`Failed to delete image: ${error.error}`);
       }
     } catch (err) {
-      alert('Failed to delete image');
-      console.error('Delete error:', err);
+      alert("Failed to delete image");
+      console.error("Delete error:", err);
     }
   };
 
   const handleEditImage = (image: UploadedImage) => {
     setEditingImage(image);
     setEditForm({
-      description: image.description || '',
-      altText: image.altText || '',
-      tags: image.tags.join(', ')
+      description: image.description || "",
+      altText: image.altText || "",
+      tags: image.tags.join(", "),
     });
   };
 
   const handleSaveEdit = async () => {
     if (!editingImage) return;
-    
+
     try {
       const response = await fetch(`/api/images/${editingImage._id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           description: editForm.description,
           altText: editForm.altText,
-          tags: editForm.tags.split(',').map(tag => tag.trim()).filter(Boolean)
-        })
+          tags: editForm.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+        }),
       });
-      
+
       if (response.ok) {
         const result = await response.json();
-        setImages(images.map(img => 
-          img._id === editingImage._id ? result.data : img
-        ));
+        setImages(
+          images.map((img) =>
+            img._id === editingImage._id ? result.data : img
+          )
+        );
         setEditingImage(null);
       } else {
         const error = await response.json();
         alert(`Failed to update image: ${error.error}`);
       }
     } catch (err) {
-      alert('Failed to update image');
-      console.error('Update error:', err);
+      alert("Failed to update image");
+      console.error("Update error:", err);
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedImages.size === 0) return;
-    
+
     if (!confirm(`Delete ${selectedImages.size} selected images?`)) return;
-    
+
     try {
-      const response = await fetch(`/api/images?ids=${Array.from(selectedImages).join(',')}`, {
-        method: 'DELETE'
-      });
-      
+      const response = await fetch(
+        `/api/images?ids=${Array.from(selectedImages).join(",")}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       if (response.ok) {
-        setImages(images.filter(img => !selectedImages.has(img._id)));
+        setImages(images.filter((img) => !selectedImages.has(img._id)));
         setSelectedImages(new Set());
       } else {
         const error = await response.json();
         alert(`Failed to delete images: ${error.error}`);
       }
     } catch (err) {
-      alert('Failed to delete images');
-      console.error('Bulk delete error:', err);
+      alert("Failed to delete images");
+      console.error("Bulk delete error:", err);
     }
   };
 
   const toggleImageSelection = (imageId: string) => {
-    setSelectedImages(prev => {
+    setSelectedImages((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(imageId)) {
         newSet.delete(imageId);
@@ -224,7 +234,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
     if (selectedImages.size === images.length) {
       setSelectedImages(new Set());
     } else {
-      setSelectedImages(new Set(images.map(img => img._id)));
+      setSelectedImages(new Set(images.map((img) => img._id)));
     }
   };
 
@@ -244,7 +254,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
           <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
           <span className="text-red-700">Error: {error}</span>
         </div>
-        <button 
+        <button
           onClick={fetchImages}
           className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
@@ -272,14 +282,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 />
               </div>
               <button
-                onClick={() => setSearchTerm('')}
+                onClick={() => setSearchTerm("")}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
                 Clear
               </button>
             </div>
           )}
-          
+
           {showFilters && (
             <div className="flex items-center space-x-4">
               <select
@@ -293,7 +303,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <option value="image/webp">WebP</option>
                 <option value="image/gif">GIF</option>
               </select>
-              
+
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -304,7 +314,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <option value="fileSize">File Size</option>
                 <option value="fileType">File Type</option>
               </select>
-              
+
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
@@ -358,7 +368,9 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
               <div className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={selectedImages.size === images.length && images.length > 0}
+                  checked={
+                    selectedImages.size === images.length && images.length > 0
+                  }
                   onChange={selectAllImages}
                   className="mr-2"
                 />
@@ -380,7 +392,9 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       {images.length === 0 ? (
         <div className="text-center py-12">
           <FileImage className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No images found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No images found
+          </h3>
           <p className="text-gray-500">Upload some images to get started</p>
         </div>
       ) : (
@@ -389,14 +403,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             <div
               key={image._id}
               className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow ${
-                selectedImages.has(image._id) ? 'ring-2 ring-blue-500' : ''
+                selectedImages.has(image._id) ? "ring-2 ring-blue-500" : ""
               }`}
             >
               {/* Image Preview */}
               <div className="relative">
-                <img
+                <Image
                   src={image.cloudFrontUrl}
                   alt={image.altText || image.originalName}
+                  width={400}
+                  height={192}
                   className="w-full h-48 object-cover cursor-pointer"
                   onClick={() => onImageSelect?.(image)}
                 />
@@ -410,15 +426,27 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 </div>
                 <div className="absolute top-2 right-2 flex space-x-1">
                   <button
-                    onClick={() => window.open(image.cloudFrontUrl, '_blank')}
+                    onClick={() => {
+                      const safeUrl = sanitizeUrl(image.cloudFrontUrl);
+                      if (safeUrl !== "#") {
+                        // deepcode ignore OR: URL validated via sanitizeUrl against CloudFront/S3 allowlist
+                        window.open(safeUrl, "_blank", "noopener,noreferrer");
+                      }
+                    }}
                     className="p-1 bg-black bg-opacity-50 text-white rounded hover:bg-opacity-70"
                     title="View Full Size"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
+                  {/* deepcode ignore DOMXSS: URL validated via sanitizeUrl which checks against CloudFront/S3 allowlist */}
                   <a
-                    href={image.cloudFrontUrl}
+                    href={sanitizeUrl(image.cloudFrontUrl)}
                     download={image.originalName}
+                    onClick={(e) => {
+                      if (sanitizeUrl(image.cloudFrontUrl) === "#") {
+                        e.preventDefault();
+                      }
+                    }}
                     className="p-1 bg-black bg-opacity-50 text-white rounded hover:bg-opacity-70"
                     title="Download"
                   >
@@ -457,9 +485,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                     {image.uploadedAgo}
                   </div>
                   <div>{image.fileSizeFormatted}</div>
-                  <div>{image.fileType.split('/')[1].toUpperCase()}</div>
+                  <div>{image.fileType.split("/")[1].toUpperCase()}</div>
                   {image.width && image.height && (
-                    <div>{image.width} × {image.height}px</div>
+                    <div>
+                      {image.width} × {image.height}px
+                    </div>
                   )}
                 </div>
 
@@ -503,11 +533,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
           >
             Previous
           </button>
-          
+
           <span className="px-4 py-2 text-sm text-gray-600">
             Page {page} of {totalPages}
           </span>
-          
+
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === totalPages}
@@ -523,7 +553,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-medium mb-4">Edit Image</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -531,12 +561,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 </label>
                 <textarea
                   value={editForm.description}
-                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                   rows={3}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Alt Text
@@ -544,11 +576,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <input
                   type="text"
                   value={editForm.altText}
-                  onChange={(e) => setEditForm({...editForm, altText: e.target.value})}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, altText: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Tags (comma separated)
@@ -556,13 +590,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <input
                   type="text"
                   value={editForm.tags}
-                  onChange={(e) => setEditForm({...editForm, tags: e.target.value})}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, tags: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                   placeholder="tag1, tag2, tag3"
                 />
               </div>
             </div>
-            
+
             <div className="flex space-x-3 mt-6">
               <button
                 onClick={handleSaveEdit}

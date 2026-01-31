@@ -1,13 +1,25 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRef } from 'react';
-import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X, Eye } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
-import OrderDetailsModal from '@/components/OrderDetailsModal';
+import { useState, useEffect } from "react";
+import { useRef } from "react";
+import Image from "next/image";
+import {
+  User,
+  Package,
+  Calendar,
+  MapPin,
+  Phone,
+  Mail,
+  Edit,
+  Save,
+  X,
+  Eye,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import OrderDetailsModal from "@/components/OrderDetailsModal";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface Order {
   _id: string;
@@ -52,18 +64,24 @@ interface Order {
   };
   totalAmount: number;
   paymentInfo: {
-    method: 'cashfree' | 'cod';
-    status: 'pending' | 'paid' | 'failed' | 'refunded';
+    method: "cashfree" | "cod";
+    status: "pending" | "paid" | "failed" | "refunded";
     cashfreeOrderId?: string;
     cashfreePaymentId?: string;
     paidAt?: string;
   };
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status:
+    | "pending"
+    | "confirmed"
+    | "processing"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
   cancellation: {
     isCancelled: boolean;
     cancelledAt?: string;
     cancelReason?: string;
-    refundStatus: 'none' | 'pending' | 'processed' | 'failed';
+    refundStatus: "none" | "pending" | "processed" | "failed";
   };
   createdAt: string;
   updatedAt: string;
@@ -71,89 +89,137 @@ interface Order {
 
 export default function ProfilePage() {
   const [ordersLoading, setOrdersLoading] = useState(false);
-const [ordersPage, setOrdersPage] = useState(1);
-const [hasMoreOrders, setHasMoreOrders] = useState(true);
-const ORDERS_PAGE_SIZE = 5;
-const ordersLoaderRef = useRef<HTMLDivElement | null>(null);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [hasMoreOrders, setHasMoreOrders] = useState(true);
+  const ORDERS_PAGE_SIZE = 5;
+  const ordersLoaderRef = useRef<HTMLDivElement | null>(null);
   const { data: session, status } = useSession();
   const user = session?.user;
-  const authLoading = status === 'loading';
+  const authLoading = status === "loading";
   const isAuthenticated = !!session;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [logoutLoading, setLogoutLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
+  const [activeTab, setActiveTab] = useState<"profile" | "orders">("profile");
   const [editMode, setEditMode] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [formData, setFormData] = useState({
-    username: '',
-    phone: '',
-    address: ''
+    username: "",
+    phone: "",
+    address: "",
   });
   const [saving, setSaving] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+  const [addressWordCount, setAddressWordCount] = useState(0);
+  const maxAddressWords = 150;
   const router = useRouter();
 
-useEffect(() => {
-  if (!authLoading) {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    if (user) {
-      setFormData({
-  username: user.name || '',
-  phone: '',
-  address: ''
-      });
-    }
-    setOrders([]);
-    setOrdersPage(1);
-    setHasMoreOrders(true);
-    fetchOrders(1, true);
-  }
-}, [authLoading, isAuthenticated, user, router]);
+  // Helper function to count words
+  const countWords = (text: string): number => {
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+  };
 
-useEffect(() => {
-  if (activeTab !== 'orders' || !hasMoreOrders || ordersLoading) return;
-  const handleScroll = () => {
-    if (!ordersLoaderRef.current) return;
-    const rect = ordersLoaderRef.current.getBoundingClientRect();
-    if (rect.top < window.innerHeight) {
-      setOrdersPage(prev => prev + 1);
+  // Helper function to validate phone
+  const validatePhone = (phone: string): string => {
+    if (!phone) return "";
+    if (phone.length !== 10) {
+      return "Phone number must be exactly 10 digits";
+    }
+    if (!/^[6-9]/.test(phone)) {
+      return "Phone number must start with 6, 7, 8, or 9";
+    }
+    return "";
+  };
+
+  // Handle input changes with validation
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    if (name === "phone") {
+      // Only allow digits, limit to 10
+      const cleaned = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({ ...prev, [name]: cleaned }));
+      setPhoneError(validatePhone(cleaned));
+    } else if (name === "address") {
+      const words = countWords(value);
+      setAddressWordCount(words);
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, [activeTab, hasMoreOrders, ordersLoading]);
 
-useEffect(() => {
-  if (ordersPage > 1) fetchOrders(ordersPage);
-}, [ordersPage]);
-
-const fetchOrders = async (page = 1, reset = false) => {
-  setOrdersLoading(true);
-  try {
-    const res = await fetch(`/api/orders?page=${page}&limit=${ORDERS_PAGE_SIZE}`, { credentials: 'include' });
-    if (res.ok) {
-      const data = await res.json();
-      if (reset) {
-        setOrders(data.orders || []);
-      } else {
-        setOrders(prev => {
-          const existingIds = new Set(prev.map(o => o._id));
-          const newOrders = (data.orders || []).filter((o: Order) => !existingIds.has(o._id));
-          return [...prev, ...newOrders];
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.push("/login");
+        return;
+      }
+      if (user) {
+        setFormData({
+          username: user.name || "",
+          phone: "",
+          address: "",
         });
       }
-      setHasMoreOrders((data.orders || []).length === ORDERS_PAGE_SIZE);
+      setOrders([]);
+      setOrdersPage(1);
+      setHasMoreOrders(true);
+      fetchOrders(1, true);
     }
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-  } finally {
-    setOrdersLoading(false);
-    setLoading(false);
-  }
-};
+  }, [authLoading, isAuthenticated, user, router]);
+
+  useEffect(() => {
+    if (activeTab !== "orders" || !hasMoreOrders || ordersLoading) return;
+    const handleScroll = () => {
+      if (!ordersLoaderRef.current) return;
+      const rect = ordersLoaderRef.current.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        setOrdersPage((prev) => prev + 1);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [activeTab, hasMoreOrders, ordersLoading]);
+
+  useEffect(() => {
+    if (ordersPage > 1) fetchOrders(ordersPage);
+  }, [ordersPage]);
+
+  const fetchOrders = async (page = 1, reset = false) => {
+    setOrdersLoading(true);
+    try {
+      const res = await fetch(
+        `/api/orders?page=${page}&limit=${ORDERS_PAGE_SIZE}`,
+        { credentials: "include" }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (reset) {
+          setOrders(data.orders || []);
+        } else {
+          setOrders((prev) => {
+            const existingIds = new Set(prev.map((o) => o._id));
+            const newOrders = (data.orders || []).filter(
+              (o: Order) => !existingIds.has(o._id)
+            );
+            return [...prev, ...newOrders];
+          });
+        }
+        setHasMoreOrders((data.orders || []).length === ORDERS_PAGE_SIZE);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setOrdersLoading(false);
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     setLogoutLoading(true);
@@ -172,26 +238,20 @@ const fetchOrders = async (page = 1, reset = false) => {
     try {
       // TODO: Implement profile update via NextAuth backend or custom API if needed
       setEditMode(false);
-      alert('Profile updated (mock)!');
+      alert("Profile updated (mock)!");
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Error updating profile. Please try again.');
+      console.error("Error updating profile:", error);
+      alert("Error updating profile. Please try again.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const handleCancelOrder = async (orderId: string, orderNumber: string) => {
-    const cancelReason = prompt(`Are you sure you want to cancel order ${orderNumber}? Please provide a reason:`);
-    
+    const cancelReason = prompt(
+      `Are you sure you want to cancel order ${orderNumber}? Please provide a reason:`
+    );
+
     if (!cancelReason) return;
 
     try {
@@ -220,21 +280,28 @@ const fetchOrders = async (page = 1, reset = false) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-yellow-600';
-      case 'confirmed': return 'text-blue-600';
-      case 'processing': return 'text-orange-600';
-      case 'shipped': return 'text-purple-600';
-      case 'delivered': return 'text-green-600';
-      case 'cancelled': return 'text-destructive';
-      default: return 'text-muted-foreground';
+      case "pending":
+        return "text-yellow-600";
+      case "confirmed":
+        return "text-blue-600";
+      case "processing":
+        return "text-orange-600";
+      case "shipped":
+        return "text-purple-600";
+      case "delivered":
+        return "text-green-600";
+      case "cancelled":
+        return "text-destructive";
+      default:
+        return "text-muted-foreground";
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -247,24 +314,26 @@ const fetchOrders = async (page = 1, reset = false) => {
   // }
 
   if (authLoading || loading) {
-  return (
-    <div className="mt-[4%] min-h-screen bg-accent py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="border border-border rounded-lg p-6 animate-pulse bg-accent">
-              <div className="h-6 w-1/3 bg-muted-foreground/20 rounded mb-2" />
-              <div className="h-4 w-1/4 bg-muted-foreground/20 rounded mb-2" />
-              <div className="h-4 w-1/2 bg-muted-foreground/20 rounded mb-2" />
-              <div className="h-12 w-full bg-muted rounded mb-2" />
-            </div>
-          ))}
+    return (
+      <div className="mt-[4%] min-h-screen bg-accent py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="border border-border rounded-lg p-6 animate-pulse bg-accent"
+              >
+                <div className="h-6 w-1/3 bg-muted-foreground/20 rounded mb-2" />
+                <div className="h-4 w-1/4 bg-muted-foreground/20 rounded mb-2" />
+                <div className="h-4 w-1/2 bg-muted-foreground/20 rounded mb-2" />
+                <div className="h-12 w-full bg-muted rounded mb-2" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-  
+    );
+  }
 
   if (!isAuthenticated) {
     return null; // Will redirect in useEffect
@@ -282,7 +351,7 @@ const fetchOrders = async (page = 1, reset = false) => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  Welcome back, {user?.name || user?.email || 'User'}!
+                  Welcome back, {user?.name || user?.email || "User"}!
                 </h1>
                 <p className="text-muted-foreground">{user?.email}</p>
               </div>
@@ -292,7 +361,7 @@ const fetchOrders = async (page = 1, reset = false) => {
               disabled={logoutLoading}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
             >
-              {logoutLoading ? 'Signing out...' : 'Sign Out'}
+              {logoutLoading ? "Signing out..." : "Sign Out"}
             </button>
           </div>
         </div>
@@ -302,22 +371,22 @@ const fetchOrders = async (page = 1, reset = false) => {
           <div className="border-b border-border">
             <nav className="-mb-px flex">
               <button
-                onClick={() => setActiveTab('profile')}
+                onClick={() => setActiveTab("profile")}
                 className={`py-4 px-6 text-sm font-medium border-b-2 ${
-                  activeTab === 'profile'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                  activeTab === "profile"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <User className="w-4 h-4 inline mr-2" />
                 Profile
               </button>
               <button
-                onClick={() => setActiveTab('orders')}
+                onClick={() => setActiveTab("orders")}
                 className={`py-4 px-6 text-sm font-medium border-b-2 ${
-                  activeTab === 'orders'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                  activeTab === "orders"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Package className="w-4 h-4 inline mr-2" />
@@ -327,10 +396,12 @@ const fetchOrders = async (page = 1, reset = false) => {
           </div>
 
           {/* Profile Tab */}
-          {activeTab === 'profile' && (
+          {activeTab === "profile" && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-foreground">Profile Information</h2>
+                <h2 className="text-xl font-semibold text-foreground">
+                  Profile Information
+                </h2>
                 {!editMode && (
                   <button
                     onClick={() => setEditMode(true)}
@@ -345,7 +416,9 @@ const fetchOrders = async (page = 1, reset = false) => {
               {editMode ? (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Username</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Username
+                    </label>
                     <input
                       type="text"
                       name="username"
@@ -354,45 +427,97 @@ const fetchOrders = async (page = 1, reset = false) => {
                       className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[6-9][0-9]{9}"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="10-digit number (6-9 prefix)"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          phoneError
+                            ? "border-red-500"
+                            : formData.phone.length === 10 && !phoneError
+                              ? "border-green-500"
+                              : "border-border"
+                        }`}
+                      />
+                      {formData.phone.length === 10 && !phoneError && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    {phoneError && (
+                      <p className="text-red-600 text-sm mt-1">{phoneError}</p>
+                    )}
+                    {!phoneError && formData.phone && (
+                      <p className="text-muted-foreground text-sm mt-1">
+                        {formData.phone.length}/10 digits
+                      </p>
+                    )}
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Address</label>
+                    <label className="block text-sm font-medium text-foreground mb-2 flex justify-between">
+                      <span>Address</span>
+                      <span
+                        className={`text-sm ${
+                          addressWordCount > maxAddressWords
+                            ? "text-red-600"
+                            : addressWordCount > maxAddressWords * 0.9
+                              ? "text-yellow-600"
+                              : "text-muted-foreground"
+                        }`}
+                      >
+                        {addressWordCount}/{maxAddressWords} words
+                      </span>
+                    </label>
                     <textarea
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
                       rows={3}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        addressWordCount > maxAddressWords
+                          ? "border-red-500"
+                          : "border-border"
+                      }`}
                     />
+                    {addressWordCount > maxAddressWords && (
+                      <p className="text-red-600 text-sm mt-1">
+                        Address must be {maxAddressWords} words or less
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex space-x-4">
                     <button
                       onClick={handleSaveProfile}
-                      disabled={saving}
+                      disabled={
+                        saving ||
+                        !!phoneError ||
+                        addressWordCount > maxAddressWords
+                      }
                       className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
-                      <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                      <span>{saving ? "Saving..." : "Save Changes"}</span>
                     </button>
                     <button
                       onClick={() => {
                         setEditMode(false);
                         setFormData({
-                          username: user?.name || '',
-                          phone: '',
-                          address: ''
+                          username: user?.name || "",
+                          phone: "",
+                          address: "",
                         });
                       }}
                       disabled={saving}
@@ -409,43 +534,53 @@ const fetchOrders = async (page = 1, reset = false) => {
                     <div className="flex items-center space-x-3">
                       <User className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Username</p>
-                        <p className="font-medium">{user?.name || user?.email || 'Not provided'}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Username
+                        </p>
+                        <p className="font-medium">
+                          {user?.name || user?.email || "Not provided"}
+                        </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <Mail className="w-5 h-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{user?.email || 'Not provided'}</p>
+                        <p className="font-medium">
+                          {user?.email || "Not provided"}
+                        </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <Phone className="w-5 h-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-muted-foreground">Phone</p>
-                        <p className="font-medium">{'Not provided'}</p>
+                        <p className="font-medium">{"Not provided"}</p>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-start space-x-3">
                       <MapPin className="w-5 h-5 text-gray-400 mt-1" />
                       <div>
                         <p className="text-sm text-muted-foreground">Address</p>
-                        <p className="font-medium">{'Not provided'}</p>
+                        <p className="font-medium">{"Not provided"}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Member since</p>
+                        <p className="text-sm text-muted-foreground">
+                          Member since
+                        </p>
                         <p className="font-medium">
-                          {user ? formatDate(new Date().toISOString()) : 'Not available'}
+                          {user
+                            ? formatDate(new Date().toISOString())
+                            : "Not available"}
                         </p>
                       </div>
                     </div>
@@ -456,17 +591,23 @@ const fetchOrders = async (page = 1, reset = false) => {
           )}
 
           {/* Orders Tab */}
-          {activeTab === 'orders' && (
+          {activeTab === "orders" && (
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-foreground mb-6">Order History</h2>
-              
+              <h2 className="text-xl font-semibold text-foreground mb-6">
+                Order History
+              </h2>
+
               {orders.length === 0 ? (
                 <div className="text-center py-12">
                   <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">No orders yet</h3>
-                  <p className="text-muted-foreground mb-6">When you place your first order, it will appear here.</p>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    No orders yet
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    When you place your first order, it will appear here.
+                  </p>
                   <button
-                    onClick={() => router.push('/store')}
+                    onClick={() => router.push("/store")}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Start Shopping
@@ -475,64 +616,91 @@ const fetchOrders = async (page = 1, reset = false) => {
               ) : (
                 <div className="space-y-6">
                   {orders.map((order) => (
-                    <div key={order._id} className="border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div
+                      key={order._id}
+                      className="border border-border rounded-lg p-6 hover:shadow-md transition-shadow"
+                    >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground text-lg">Order #{order.orderNumber}</h3>
+                          <h3 className="font-semibold text-foreground text-lg">
+                            Order #{order.orderNumber}
+                          </h3>
                           <p className="text-sm text-muted-foreground mt-1">
                             Placed on {formatDate(order.createdAt)}
                           </p>
                           <div className="mt-2 flex items-center gap-2">
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                              order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                              order.status === 'shipped' ? 'bg-purple-100 text-purple-800' :
-                              order.status === 'processing' ? 'bg-orange-100 text-orange-800' :
-                              order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                              order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
+                            <span
+                              className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                                order.status === "delivered"
+                                  ? "bg-green-100 text-green-800"
+                                  : order.status === "shipped"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : order.status === "processing"
+                                      ? "bg-orange-100 text-orange-800"
+                                      : order.status === "confirmed"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : order.status === "cancelled"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
                               {order.status}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {order.status === 'delivered' 
-                                ? '✓ Delivered'
-                                : order.status === 'shipped'
-                                ? '🚚 Expected in 2-3 days'
-                                : '📦 Delivered in 3-4 working days'}
+                              {order.status === "delivered"
+                                ? "✓ Delivered"
+                                : order.status === "shipped"
+                                  ? "🚚 Expected in 2-3 days"
+                                  : "📦 Delivered in 3-4 working days"}
                             </span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-foreground">₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                          <p className="text-2xl font-bold text-foreground">
+                            ₹{order.totalAmount.toLocaleString("en-IN")}
+                          </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • Tax Included
+                            {order.items.length}{" "}
+                            {order.items.length === 1 ? "item" : "items"} • Tax
+                            Included
                           </p>
                           {order.paymentInfo.method && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              {order.paymentInfo.method !== 'cod' ? '💳 Online' : '💵 COD'}
+                              {order.paymentInfo.method !== "cod"
+                                ? "💳 Online"
+                                : "💵 COD"}
                             </p>
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="border-t border-border pt-4">
                         {/* Summary of items */}
                         <div className="mb-4">
-                          <p className="text-sm font-medium text-foreground mb-2">Items Summary:</p>
+                          <p className="text-sm font-medium text-foreground mb-2">
+                            Items Summary:
+                          </p>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                             {order.items.slice(0, 3).map((item, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm">
-                                <img
-                                  src={item.image || item.productId?.image || '/assets/images/maceazy-logo.png'}
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 text-sm"
+                              >
+                                <Image
+                                  src={
+                                    item.image ||
+                                    item.productId?.image ||
+                                    "/assets/images/maceazy-logo.png"
+                                  }
                                   alt={item.name}
+                                  width={32}
+                                  height={32}
                                   className="w-8 h-8 object-cover rounded border border-border"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = '/assets/images/maceazy-logo.png';
-                                  }}
                                 />
                                 <span className="text-muted-foreground truncate">
-                                  {item.name.length > 15 ? item.name.substring(0, 15) + '...' : item.name}
+                                  {item.name.length > 15
+                                    ? item.name.substring(0, 15) + "..."
+                                    : item.name}
                                 </span>
                               </div>
                             ))}
@@ -546,13 +714,19 @@ const fetchOrders = async (page = 1, reset = false) => {
 
                         {/* Shipping to */}
                         <div className="mb-4 p-3 bg-accent/50 rounded-lg">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">Shipping to:</p>
-                          <p className="text-sm text-foreground font-medium">{order.shippingAddress.name}</p>
+                          <p className="text-xs font-medium text-muted-foreground mb-1">
+                            Shipping to:
+                          </p>
+                          <p className="text-sm text-foreground font-medium">
+                            {order.shippingAddress.name}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                            {order.shippingAddress.city},{" "}
+                            {order.shippingAddress.state} -{" "}
+                            {order.shippingAddress.pincode}
                           </p>
                         </div>
-                        
+
                         <div className="flex gap-3 mt-4 pt-4 border-t border-border">
                           <button
                             onClick={() => setSelectedOrder(order)}
@@ -561,10 +735,12 @@ const fetchOrders = async (page = 1, reset = false) => {
                             <Eye className="w-4 h-4" />
                             View Details
                           </button>
-                          
-                          {order.status === 'pending' && (
+
+                          {order.status === "pending" && (
                             <button
-                              onClick={() => handleCancelOrder(order._id, order.orderNumber)}
+                              onClick={() =>
+                                handleCancelOrder(order._id, order.orderNumber)
+                              }
                               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                             >
                               Cancel Order
@@ -574,15 +750,19 @@ const fetchOrders = async (page = 1, reset = false) => {
                       </div>
                     </div>
                   ))}
-                  {ordersLoading && Array.from({ length: ORDERS_PAGE_SIZE }).map((_, i) => (
-  <div key={i} className="border border-border rounded-lg p-6 animate-pulse bg-accent">
-    <div className="h-6 w-1/3 bg-muted-foreground/20 rounded mb-2" />
-    <div className="h-4 w-1/4 bg-muted-foreground/20 rounded mb-2" />
-    <div className="h-4 w-1/2 bg-muted-foreground/20 rounded mb-2" />
-    <div className="h-12 w-full bg-muted rounded mb-2" />
-  </div>
-))}
-<div ref={ordersLoaderRef} style={{ height: 1 }} />
+                  {ordersLoading &&
+                    Array.from({ length: ORDERS_PAGE_SIZE }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="border border-border rounded-lg p-6 animate-pulse bg-accent"
+                      >
+                        <div className="h-6 w-1/3 bg-muted-foreground/20 rounded mb-2" />
+                        <div className="h-4 w-1/4 bg-muted-foreground/20 rounded mb-2" />
+                        <div className="h-4 w-1/2 bg-muted-foreground/20 rounded mb-2" />
+                        <div className="h-12 w-full bg-muted rounded mb-2" />
+                      </div>
+                    ))}
+                  <div ref={ordersLoaderRef} style={{ height: 1 }} />
                 </div>
               )}
             </div>

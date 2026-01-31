@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import Image from "next/image";
 
 interface UploadResult {
   success: boolean;
@@ -17,7 +18,10 @@ interface FileUploadFormProps {
   onError?: (error: string) => void;
 }
 
-export default function FileUploadForm({ onUploadComplete, onError }: FileUploadFormProps) {
+export default function FileUploadForm({
+  onUploadComplete,
+  onError,
+}: FileUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<UploadResult | null>(null);
@@ -32,9 +36,9 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!file) {
-      setError('Please select a file first');
+      setError("Please select a file first");
       return;
     }
 
@@ -43,29 +47,28 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetch('/api/aws/upload', {
-        method: 'POST',
+      const response = await fetch("/api/aws/upload", {
+        method: "POST",
         body: formData, // No need to set Content-Type, browser will set it automatically with boundary
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
+        throw new Error(data.error || "Upload failed");
       }
 
       setResult(data);
       setFile(null); // Clear the file input
-      
-      console.log('Upload successful:', data);
+
+      console.log("Upload successful:", data);
       onUploadComplete?.(data.viewUrl);
-      
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Upload failed';
+      const errorMessage = err instanceof Error ? err.message : "Upload failed";
       setError(errorMessage);
-      console.error('Upload error:', err);
+      console.error("Upload error:", err);
       onError?.(errorMessage);
     } finally {
       setUploading(false);
@@ -85,7 +88,7 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
       handleFileSelect(droppedFile);
@@ -95,14 +98,14 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Upload to AWS S3</h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Drag & Drop Area */}
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
             dragOver
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400'
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-300 hover:border-gray-400"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -141,11 +144,11 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
           disabled={!file || uploading}
           className={`w-full py-2 px-4 rounded font-medium ${
             !file || uploading
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-green-500 text-white hover:bg-green-600'
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-green-500 text-white hover:bg-green-600"
           }`}
         >
-          {uploading ? 'Uploading...' : 'Upload to S3'}
+          {uploading ? "Uploading..." : "Upload to S3"}
         </button>
       </form>
 
@@ -161,23 +164,33 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
       {result && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           <p className="font-medium mb-2">Upload Successful! 🎉</p>
-          
+
           <div className="space-y-2 text-sm">
-            <p><strong>CloudFront URL:</strong></p>
+            <p>
+              <strong>CloudFront URL:</strong>
+            </p>
             <p className="break-all text-blue-600">{result.viewUrl}</p>
-            
-            <p><strong>Filename:</strong> {result.filename}</p>
-            <p><strong>Size:</strong> {(result.size / 1024 / 1024).toFixed(2)} MB</p>
-            <p><strong>Type:</strong> {result.type}</p>
+
+            <p>
+              <strong>Filename:</strong> {result.filename}
+            </p>
+            <p>
+              <strong>Size:</strong> {(result.size / 1024 / 1024).toFixed(2)} MB
+            </p>
+            <p>
+              <strong>Type:</strong> {result.type}
+            </p>
           </div>
 
           {/* Image Preview */}
-          {result.type.startsWith('image/') && (
+          {result.type.startsWith("image/") && (
             <div className="mt-3">
               <p className="font-medium mb-2">Preview:</p>
-              <img 
-                src={result.viewUrl} 
-                alt="Uploaded" 
+              <Image
+                src={result.viewUrl}
+                alt="Uploaded"
+                width={400}
+                height={192}
                 className="max-w-full h-48 object-cover rounded border"
               />
             </div>
@@ -187,7 +200,7 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
           <button
             onClick={() => {
               navigator.clipboard.writeText(result.viewUrl);
-              alert('CloudFront URL copied to clipboard!');
+              alert("CloudFront URL copied to clipboard!");
             }}
             className="mt-3 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
           >
@@ -198,7 +211,9 @@ export default function FileUploadForm({ onUploadComplete, onError }: FileUpload
 
       {/* Instructions */}
       <div className="mt-6 p-3 bg-gray-100 rounded text-sm text-gray-600">
-        <p><strong>Instructions:</strong></p>
+        <p>
+          <strong>Instructions:</strong>
+        </p>
         <ul className="list-disc list-inside mt-1 space-y-1">
           <li>Only image files are allowed (JPEG, PNG, WebP, GIF)</li>
           <li>Maximum file size: 5MB</li>
@@ -218,24 +233,24 @@ export function SimpleUploadExample() {
     if (!selectedFile) return;
 
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append("file", selectedFile);
 
     try {
-      const response = await fetch('/api/aws/upload', {
-        method: 'POST',
+      const response = await fetch("/api/aws/upload", {
+        method: "POST",
         body: formData,
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
-        console.log('Upload successful:', result.viewUrl);
+        console.log("Upload successful:", result.viewUrl);
         // Save result.viewUrl to your database
       } else {
-        console.error('Upload failed:', result.error);
+        console.error("Upload failed:", result.error);
       }
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
     }
   };
 
@@ -246,7 +261,7 @@ export function SimpleUploadExample() {
         accept="image/*"
         onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
       />
-      <button 
+      <button
         onClick={uploadFile}
         disabled={!selectedFile}
         className="ml-2 px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"

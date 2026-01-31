@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clickjacking Protection Test - MACEAZY</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #764ba2;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+
+    h2 {
+      color: #667eea;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .test-section {
+      margin: 30px 0;
+      padding: 25px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .status.pass {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.fail {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: 3px solid #667eea;
+      border-radius: 8px;
+      margin: 20px 0;
+      background-color: #fff;
+    }
+
+    .iframe-container {
+      position: relative;
+      margin: 20px 0;
+    }
+
+    .iframe-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(102, 126, 234, 0.9);
+      color: #fff;
+      padding: 5px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      z-index: 10;
+      font-size: 14px;
+    }
+
+    .expected-result {
+      background-color: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .expected-result h3 {
+      margin-top: 0;
+      color: #856404;
+    }
+
+    .console-message {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      margin: 15px 0;
+      overflow-x: auto;
+    }
+
+    .test-url {
+      background-color: #e7f3ff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      color: #004085;
+      border-left: 4px solid #004085;
+    }
+
+    .instructions {
+      background-color: #d1ecf1;
+      border-left: 4px solid #0c5460;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .instructions ol {
+      margin: 10px 0;
+      padding-left: 25px;
+    }
+
+    .instructions li {
+      margin: 8px 0;
+    }
+
+    code {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .badge.critical {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .badge.recommended {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    .note {
+      background-color: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid #e9ecef;
+      text-align: center;
+      color: #6c757d;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛡️ Clickjacking Protection Test - MACEAZY</h1>
+    
+    <div class="instructions">
+      <h3>📋 How to Use This Test</h3>
+      <ol>
+        <li>Open your browser's <strong>Developer Tools</strong> (F12)</li>
+        <li>Go to the <strong>Console</strong> tab</li>
+        <li>Look for error messages related to frame loading</li>
+        <li>Check if the iframes below are empty or show security errors</li>
+        <li>Compare results with the "Expected Results" sections</li>
+      </ol>
+    </div>
+
+    <h2>Test 1: Main Domain (maceazy.com)</h2>
+    <div class="test-section">
+      <div class="test-url">
+        <strong>Testing URL:</strong> https://maceazy.com
+      </div>
+      
+      <div class="expected-result">
+        <h3>✅ Expected Result (If Protection is Working)</h3>
+        <ul>
+          <li><strong>Visual:</strong> Iframe should be empty/blank</li>
+          <li><strong>Console Error:</strong> "Refused to display 'https://maceazy.com' in a frame because it set 'X-Frame-Options' to 'deny'."</li>
+          <li><strong>Status:</strong> <span class="status pass">✓ PROTECTED</span></li>
+        </ul>
+      </div>
+
+      <div class="iframe-container">
+        <div class="iframe-label">Production Site</div>
+        <iframe 
+          src="https://maceazy.com" 
+          title="MACEAZY Main Site"
+          sandbox="allow-scripts allow-same-origin">
+        </iframe>
+      </div>
+
+      <div class="console-message">
+Expected Console Error:<br>
+Refused to display 'https://maceazy.com' in a frame because it set 'X-Frame-Options' to 'deny'.
+      </div>
+    </div>
+
+    <h2>Test 2: Donate Subdomain (donate.maceazy.com)</h2>
+    <div class="test-section">
+      <div class="test-url">
+        <strong>Testing URL:</strong> https://donate.maceazy.com
+      </div>
+      
+      <div class="expected-result">
+        <h3>✅ Expected Result (If Protection is Working)</h3>
+        <ul>
+          <li><strong>Visual:</strong> Iframe should be empty/blank</li>
+          <li><strong>Console Error:</strong> "Refused to display 'https://donate.maceazy.com' in a frame because it set 'X-Frame-Options' to 'deny'."</li>
+          <li><strong>Status:</strong> <span class="status pass">✓ PROTECTED</span></li>
+        </ul>
+      </div>
+
+      <div class="iframe-container">
+        <div class="iframe-label">Donate Subdomain</div>
+        <iframe 
+          src="https://donate.maceazy.com" 
+          title="MACEAZY Donate Portal"
+          sandbox="allow-scripts allow-same-origin">
+        </iframe>
+      </div>
+
+      <div class="console-message">
+Expected Console Error:<br>
+Refused to display 'https://donate.maceazy.com' in a frame because it set 'X-Frame-Options' to 'deny'.
+      </div>
+    </div>
+
+    <h2>Test 3: Localhost (Development)</h2>
+    <div class="test-section">
+      <div class="test-url">
+        <strong>Testing URL:</strong> http://localhost:3000
+      </div>
+      
+      <div class="note">
+        <strong>⚠️ Note:</strong> Make sure your development server is running (<code>bun dev</code>) before testing.
+      </div>
+
+      <div class="expected-result">
+        <h3>✅ Expected Result (If Protection is Working)</h3>
+        <ul>
+          <li><strong>Visual:</strong> Iframe should be empty/blank</li>
+          <li><strong>Console Error:</strong> "Refused to display 'http://localhost:3000' in a frame because it set 'X-Frame-Options' to 'deny'."</li>
+          <li><strong>Status:</strong> <span class="status pass">✓ PROTECTED</span></li>
+        </ul>
+      </div>
+
+      <div class="iframe-container">
+        <div class="iframe-label">Local Development</div>
+        <iframe 
+          src="http://localhost:3000" 
+          title="MACEAZY Local Development"
+          sandbox="allow-scripts allow-same-origin">
+        </iframe>
+      </div>
+
+      <div class="console-message">
+Expected Console Error:<br>
+Refused to display 'http://localhost:3000' in a frame because it set 'X-Frame-Options' to 'deny'.
+      </div>
+    </div>
+
+    <h2>📊 Security Headers Verification</h2>
+    <div class="test-section">
+      <h3>How to Check Headers Manually</h3>
+      <div class="instructions">
+        <ol>
+          <li>Open Developer Tools (F12)</li>
+          <li>Go to <strong>Network</strong> tab</li>
+          <li>Refresh the page</li>
+          <li>Click on the first request (document)</li>
+          <li>Go to <strong>Headers</strong> section</li>
+          <li>Look for <strong>Response Headers</strong></li>
+        </ol>
+      </div>
+
+      <h3>Required Headers <span class="badge critical">CRITICAL</span></h3>
+      <div class="console-message">
+X-Frame-Options: DENY
+Content-Security-Policy: ... frame-ancestors 'none' ...
+      </div>
+
+      <h3>Additional Headers <span class="badge recommended">RECOMMENDED</span></h3>
+      <div class="console-message">
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+X-DNS-Prefetch-Control: on
+      </div>
+    </div>
+
+    <h2>🧪 Additional Testing Tools</h2>
+    <div class="test-section">
+      <h3>Online Security Scanners</h3>
+      <ul>
+        <li>
+          <strong>SecurityHeaders.com:</strong> 
+          <a href="https://securityheaders.com/?q=https://maceazy.com" target="_blank">
+            Test MACEAZY
+          </a>
+        </li>
+        <li>
+          <strong>Mozilla Observatory:</strong> 
+          <a href="https://observatory.mozilla.org/analyze/maceazy.com" target="_blank">
+            Analyze MACEAZY
+          </a>
+        </li>
+        <li>
+          <strong>HSTS Preload:</strong> 
+          <a href="https://hstspreload.org/?domain=maceazy.com" target="_blank">
+            Check HSTS Status
+          </a>
+        </li>
+      </ul>
+
+      <h3>Command Line Testing</h3>
+      <div class="console-message">
+# Test production headers
+curl -I https://maceazy.com
+
+# Test donate subdomain
+curl -I https://donate.maceazy.com
+
+# Test localhost (with dev server running)
+curl -I http://localhost:3000
+
+# Run security test script
+node scripts/test-security-headers.js https://maceazy.com
+      </div>
+    </div>
+
+    <h2>❌ What If Protection Fails?</h2>
+    <div class="test-section">
+      <div class="expected-result">
+        <h3>⚠️ Signs of Failure</h3>
+        <ul>
+          <li>Iframe displays the full website content</li>
+          <li>No console errors appear</li>
+          <li>Users can interact with the framed content</li>
+        </ul>
+      </div>
+
+      <div class="note">
+        <strong>🔧 Troubleshooting Steps:</strong>
+        <ol>
+          <li>Check <code>next.config.ts</code> headers configuration</li>
+          <li>Verify deployment build succeeded</li>
+          <li>Check CDN/proxy settings (Cloudflare, etc.)</li>
+          <li>Clear browser cache and test again</li>
+          <li>Review server logs for errors</li>
+          <li>Run: <code>node scripts/test-security-headers.js</code></li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>📚 Reference Documentation</h2>
+    <div class="test-section">
+      <ul>
+        <li><strong>Internal:</strong> <code>CLICKJACKING_PROTECTION.md</code> - Complete implementation guide</li>
+        <li><strong>Internal:</strong> <code>XSS_PROTECTION_IMPLEMENTATION.md</code> - Related XSS protections</li>
+        <li><strong>Internal:</strong> <code>SECURITY_AUDIT_FIXES.md</code> - Previous security fixes</li>
+        <li><strong>External:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options" target="_blank">MDN: X-Frame-Options</a></li>
+        <li><strong>External:</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors" target="_blank">MDN: CSP frame-ancestors</a></li>
+        <li><strong>External:</strong> <a href="https://owasp.org/www-community/attacks/Clickjacking" target="_blank">OWASP: Clickjacking</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p><strong>MACEAZY E-Sight Marketing Website V2</strong></p>
+      <p>Security Test Page - Clickjacking Protection Verification</p>
+      <p>Last Updated: January 24, 2026</p>
+      <p style="color: #28a745; font-weight: bold;">🔒 Security Status: PROTECTED</p>
+    </div>
+  </div>
+
+  <script>
+    // Monitor iframe loading and log results
+    window.addEventListener('DOMContentLoaded', () => {
+      const iframes = document.querySelectorAll('iframe');
+      
+      iframes.forEach((iframe, index) => {
+        iframe.addEventListener('load', () => {
+          try {
+            // Try to access iframe content (will fail if blocked)
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            console.warn(`Iframe ${index + 1} loaded - PROTECTION MAY BE DISABLED!`);
+          } catch (e) {
+            console.log(`✓ Iframe ${index + 1} blocked - Protection working!`, e.message);
+          }
+        });
+
+        iframe.addEventListener('error', () => {
+          console.log(`✓ Iframe ${index + 1} failed to load - Protection working!`);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

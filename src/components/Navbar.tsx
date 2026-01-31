@@ -1,7 +1,17 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, ShoppingCart, Plus, Minus, Trash2, User, LogIn } from "lucide-react";
+import Image from "next/image";
+import {
+  Menu,
+  X,
+  ShoppingCart,
+  Plus,
+  Minus,
+  Trash2,
+  User,
+  LogIn,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -12,7 +22,7 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
-  const [mainDomainUrl, setMainDomainUrl] = useState('');
+  const [mainDomainUrl, setMainDomainUrl] = useState("");
   const [storeDomainUrl, setStoreDomainUrl] = useState('');
   const [resourceDropdownOpen, setResourceDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -20,7 +30,8 @@ const Navbar = () => {
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
   const user = session?.user;
-  const { cart, cartCount, isLoading, removeFromCart, updateQuantity } = useCart();
+  const { cart, cartCount, isLoading, removeFromCart, updateQuantity } =
+    useCart();
 
   const pathname = usePathname();
   const router = useRouter();
@@ -32,18 +43,18 @@ const Navbar = () => {
 
   // Detect if we're on donate subdomain and precompute main/store URLs
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
-      const isDonate = hostname.startsWith('donate.');
+      const isDonate = hostname.startsWith("donate.");
       setIsDonateDomain(isDonate);
-      
+
       // Determine main domain URL
       if (isDonate) {
         // Remove 'donate.' from hostname
-        const mainHostname = hostname.replace('donate.', '');
+        const mainHostname = hostname.replace("donate.", "");
         const cleanHostname = mainHostname.replace(/^www\./, '');
         const protocol = window.location.protocol;
-        const port = window.location.port ? `:${window.location.port}` : '';
+        const port = window.location.port ? `:${window.location.port}` : "";
         setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
         setStoreDomainUrl(`${protocol}//store.${cleanHostname}${port}`);
       }
@@ -64,30 +75,29 @@ const Navbar = () => {
     if (isAuthenticated) {
       return [
         ...baseItems,
-        { path: "/store/profile", label: "Profile" },
+        { path: "/profile", label: "Profile" },
       ];
     } else {
-      return [
-        ...baseItems,
-        { path: "/login", label: "Login" },
-      ];
+      return [...baseItems, { path: "/login", label: "Login" }];
     }
   };
 
   const navItems = getNavItems();
 
   const increaseQty = async (productId: string) => {
-    const item = cart.find(item => item.productId === productId);
+    const item = cart.find((item) => item.productId === productId);
     if (!item) return;
     if (item.quantity >= item.stock) {
-      console.log(`Cannot increase quantity for ${productId}: at stock limit ${item.stock}`);
+      console.log(
+        `Cannot increase quantity for ${productId}: at stock limit ${item.stock}`
+      );
       return;
     }
     updateQuantity(productId, item.quantity + 1);
   };
 
   const decreaseQty = async (productId: string) => {
-    const item = cart.find(item => item.productId === productId);
+    const item = cart.find((item) => item.productId === productId);
     if (!item) return;
     if (item.quantity <= 1) {
       removeFromCart(productId);
@@ -107,11 +117,7 @@ const Navbar = () => {
         const storeUrl = mainDomainUrl.replace('donate.', 'store.');
         window.location.href = `${storeUrl}/login?redirect=/store/checkout`;
       } else {
-        // On main domain, redirect to store subdomain
-        const protocol = window.location.protocol;
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const mainHostname = window.location.hostname.replace(/^www\./, '');
-        window.location.href = `${protocol}//store.${mainHostname}${port}/login?redirect=/store/checkout`;
+        router.push("/login?redirect=/checkout");
       }
       return;
     }
@@ -142,46 +148,53 @@ const Navbar = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (isCartOpen && !target.closest('.cart-drawer') && !target.closest('.cart-button')) {
+      if (
+        isCartOpen &&
+        !target.closest(".cart-drawer") &&
+        !target.closest(".cart-button")
+      ) {
         closeCart();
       }
     };
 
     if (isCartOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.addEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "hidden"; // Prevent background scrolling
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "unset";
     };
   }, [isCartOpen]);
 
-  const totalPrice = Array.isArray(cart) ? cart.reduce(
-    (total, item) => {
-      const price = item?.price || 0;
-      const quantity = item?.quantity || 0;
-      return total + (price * quantity);
-    },
-    0
-  ) : 0;
+  const totalPrice = Array.isArray(cart)
+    ? cart.reduce((total, item) => {
+        const price = item?.price || 0;
+        const quantity = item?.quantity || 0;
+        return total + price * quantity;
+      }, 0)
+    : 0;
 
   const totalQuantity = cartCount;
 
   return (
     <>
-
-  <nav suppressHydrationWarning className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border">
+      <nav
+        suppressHydrationWarning
+        className="fixed w-full bg-background/95 backdrop-blur-md shadow-md z-50 border-b border-border"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <img
+                <Image
                   src="/assets/images/maceazy-logo.png"
                   alt="Maceazy Logo"
+                  width={120}
+                  height={32}
                   className="ml-2 h-8"
                 />
               </Link>
@@ -190,43 +203,11 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => {
-                // Handle Products and Profile links - always go to store subdomain
-                if (item.path === '/store' || item.path === '/store/profile') {
-                  const buildStoreUrl = () => {
-                    if (typeof window !== 'undefined' && mounted) {
-                      const protocol = window.location.protocol;
-                      const port = window.location.port ? `:${window.location.port}` : '';
-                      const host = window.location.hostname
-                        .replace(/^(donate|store|products)\./, '')
-                        .replace(/^www\./, '');
-                      const path = item.path === '/store' ? '' : item.path;
-                      return `${protocol}//store.${host}${port}${path}`;
-                    }
-                    return item.path;
-                  };
-                  // Only render external link after hydration
-                  if (!mounted) {
-                    return <div key={item.path} className="relative px-3 py-2 text-sm font-medium"></div>;
-                  }
-                  const href = buildStoreUrl();
-                  return (
-                    <a
-                      key={item.path}
-                      href={href}
-                      className="relative px-3 py-2 text-sm font-medium transition-colors duration-200 text-muted-foreground hover:text-primary"
-                    >
-                      {item.label}
-                    </a>
-                  );
-                }
-
-                // Other links: if on donate, go to main domain; else stay local
-                let href = item.path;
-                let isExternal = false;
-                if (isDonateDomain) {
-                  href = `${mainDomainUrl}${item.path}`;
-                  isExternal = true;
-                }
+                // If on donate subdomain, link to main domain
+                const href = isDonateDomain
+                  ? `${mainDomainUrl}${item.path}`
+                  : item.path;
+                const isExternal = isDonateDomain;
 
                 return isExternal ? (
                   <a
@@ -240,10 +221,11 @@ const Navbar = () => {
                   <Link
                     key={item.path}
                     href={href}
-                    className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname === item.path
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                      pathname === item.path
                         ? "text-primary"
                         : "text-muted-foreground hover:text-primary"
-                      }`}
+                    }`}
                   >
                     {pathname === item.path && (
                       <motion.div
@@ -255,7 +237,6 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-
 
               {/* Donate Button */}
               {/* <a 
@@ -368,9 +349,11 @@ const Navbar = () => {
               }
 
               // If on donate subdomain, link to main domain
-              const href = isDonateDomain ? `${mainDomainUrl}${item.path}` : item.path;
+              const href = isDonateDomain
+                ? `${mainDomainUrl}${item.path}`
+                : item.path;
               const isExternal = isDonateDomain;
-              
+
               return isExternal ? (
                 <a
                   key={item.path}
@@ -385,10 +368,11 @@ const Navbar = () => {
                   key={item.path}
                   href={href}
                   onClick={() => setIsOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === item.path
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    pathname === item.path
                       ? "text-primary bg-accent"
                       : "text-muted-foreground hover:text-primary hover:bg-accent"
-                    }`}
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -396,8 +380,12 @@ const Navbar = () => {
             })}
 
             {/* Mobile Donate Button */}
-            <a 
-              href={process.env.NODE_ENV === 'development' ? 'http://localhost:3000/donate' : 'https://donate.maceazy.com'}
+            <a
+              href={
+                process.env.NODE_ENV === "development"
+                  ? "http://localhost:3000/donate"
+                  : "https://donate.maceazy.com"
+              }
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsOpen(false)}
@@ -410,7 +398,12 @@ const Navbar = () => {
             {isAuthenticated && user && (
               <div className="px-3 py-2 text-sm text-muted-foreground border-t border-border">
                 Welcome, {user.name || user.email}
-                <button onClick={() => signOut()} className="ml-2 text-xs text-primary underline">Logout</button>
+                <button
+                  onClick={() => signOut()}
+                  className="ml-2 text-xs text-primary underline"
+                >
+                  Logout
+                </button>
               </div>
             )}
           </div>
@@ -435,9 +428,10 @@ const Navbar = () => {
             className="absolute inset-0 backdrop-blur-md cursor-pointer"
             onClick={closeCart}
             style={{
-              background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%)',
-              backdropFilter: 'blur(12px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(180%)', // Safari support
+              background:
+                "linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%)",
+              backdropFilter: "blur(12px) saturate(180%)",
+              WebkitBackdropFilter: "blur(12px) saturate(180%)", // Safari support
             }}
           />
 
@@ -450,7 +444,7 @@ const Navbar = () => {
               type: "spring",
               stiffness: 300,
               damping: 30,
-              opacity: { duration: 0.2 }
+              opacity: { duration: 0.2 },
             }}
             className="cart-drawer relative w-full sm:w-96 bg-card h-full shadow-2xl flex flex-col z-10 border-l border-border"
           >
@@ -462,7 +456,8 @@ const Navbar = () => {
                 transition={{ delay: 0.1 }}
                 className="text-lg font-semibold text-foreground"
               >
-                My Cart ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})
+                My Cart ({totalQuantity}{" "}
+                {totalQuantity === 1 ? "item" : "items"})
               </motion.h2>
               <motion.button
                 onClick={closeCart}
@@ -490,9 +485,14 @@ const Navbar = () => {
                   >
                     <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   </motion.div>
-                  <p className="text-muted-foreground mb-4">Please login to view your cart</p>
+                  <p className="text-muted-foreground mb-4">
+                    Please login to view your cart
+                  </p>
                   <button
-                    onClick={() => { signIn(); closeCart(); }}
+                    onClick={() => {
+                      signIn();
+                      closeCart();
+                    }}
                     className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all hover:scale-105"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
@@ -540,9 +540,9 @@ const Navbar = () => {
                     hidden: {},
                     visible: {
                       transition: {
-                        staggerChildren: 0.1
-                      }
-                    }
+                        staggerChildren: 0.1,
+                      },
+                    },
                   }}
                   className="space-y-4"
                 >
@@ -551,7 +551,7 @@ const Navbar = () => {
                       key={item.productId}
                       variants={{
                         hidden: { y: 20, opacity: 0 },
-                        visible: { y: 0, opacity: 1 }
+                        visible: { y: 0, opacity: 1 },
                       }}
                       layout
                       className="relative"
@@ -562,22 +562,23 @@ const Navbar = () => {
                       >
                         {/* Product Image */}
                         <div className="relative">
-                          <img
-                            src={item.image || '/placeholder-image.jpg'}
-                            alt={item.name || 'Product'}
+                          <Image
+                            src={item.image || "/placeholder-image.jpg"}
+                            alt={item.name || "Product"}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded-lg"
-                            onError={(e) => {
-                              e.currentTarget.src = '/placeholder-image.jpg';
-                            }}
                           />
                         </div>
 
                         {/* Product Info */}
                         <div className="flex-1">
                           <h3 className="font-medium text-foreground line-clamp-1">
-                            {item.name || 'Unknown Product'}
+                            {item.name || "Unknown Product"}
                           </h3>
-                          <p className="text-sm text-muted-foreground">₹{item.price || 0}</p>
+                          <p className="text-sm text-muted-foreground">
+                            ₹{item.price || 0}
+                          </p>
 
                           {/* Stock Information */}
                           <div className="text-xs text-muted-foreground mt-1">
@@ -615,7 +616,11 @@ const Navbar = () => {
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               className="p-1.5 rounded-full bg-accent hover:bg-accent/80 transition-all"
-                              title={item.quantity >= item.stock ? `Stock limit reached (${item.stock})` : ''}
+                              title={
+                                item.quantity >= item.stock
+                                  ? `Stock limit reached (${item.stock})`
+                                  : ""
+                              }
                             >
                               <Plus size={14} />
                             </motion.button>
@@ -701,7 +706,12 @@ const Navbar = () => {
                             viewBox="0 0 24 24"
                             whileHover={{ x: 3 }}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
                           </motion.svg>
                         </motion.span>
                       </>
