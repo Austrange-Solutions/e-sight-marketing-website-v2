@@ -5,19 +5,21 @@ import { useRouter } from "next/navigation";
 // Helper function to get full image URL
 const getImageUrl = (imagePath: string): string => {
   if (!imagePath) return "/placeholder-product.jpg";
-  
+
   // If already a full URL, return as is
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
-  
+
   // If it's a local path, return as is
   if (imagePath.startsWith("/")) {
     return imagePath;
   }
-  
+
   // Otherwise, prepend CloudFront domain
-  const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || "https://d2z15s8mxf9k1i.cloudfront.net";
+  const cloudFrontDomain =
+    process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN ||
+    "https://d2z15s8mxf9k1i.cloudfront.net";
   return `${cloudFrontDomain}/${imagePath}`;
 };
 
@@ -154,7 +156,7 @@ const CheckoutPage = () => {
     requiredFields.forEach((field) => {
       const error = validateField(
         field,
-        shippingForm[field as keyof typeof shippingForm]
+        shippingForm[field as keyof typeof shippingForm],
       );
       if (error) {
         errors[field] = error;
@@ -168,7 +170,7 @@ const CheckoutPage = () => {
   }, [shippingForm]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -260,7 +262,7 @@ const CheckoutPage = () => {
         console.error(
           "❌ [CHECKOUT_PAGE] Failed to fetch cart:",
           res.status,
-          res.statusText
+          res.statusText,
         );
         const errorData = await res.json();
         console.error("Error details:", errorData);
@@ -348,14 +350,14 @@ const CheckoutPage = () => {
   // Fetch cart data on component mount
   useEffect(() => {
     const protocol = window.location.protocol;
-    const port = window.location.port ? `:${window.location.port}` : '';
-    const mainHostname = window.location.hostname.replace(/^www\./, '');
-    
+    const port = window.location.port ? `:${window.location.port}` : "";
+    const mainHostname = window.location.hostname.replace(/^www\./, "");
+
     // Check if already on store subdomain
-    if (window.location.hostname.startsWith('store.')) {
+    if (window.location.hostname.startsWith("store.")) {
       return; // Already on store subdomain, do nothing
     }
-    
+
     // Redirect to store subdomain
     window.location.href = `${protocol}//store.${mainHostname}${port}/store/checkout`;
   }, [router]);
@@ -756,7 +758,7 @@ const CheckoutPage = () => {
                       loading ||
                       !isFormValid ||
                       Object.keys(validationErrors).some(
-                        (key) => validationErrors[key]
+                        (key) => validationErrors[key],
                       ) ||
                       !policyAccepted
                     }
@@ -764,7 +766,7 @@ const CheckoutPage = () => {
                       loading ||
                       !isFormValid ||
                       Object.keys(validationErrors).some(
-                        (key) => validationErrors[key]
+                        (key) => validationErrors[key],
                       ) ||
                       !policyAccepted
                         ? "bg-gray-400 text-muted-foreground cursor-not-allowed"
@@ -776,7 +778,7 @@ const CheckoutPage = () => {
 
                   {/* Validation Summary */}
                   {Object.keys(validationErrors).some(
-                    (key) => validationErrors[key]
+                    (key) => validationErrors[key],
                   ) && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                       <div className="flex items-center mb-2">
@@ -798,7 +800,7 @@ const CheckoutPage = () => {
                       <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
                         {Object.entries(validationErrors).map(
                           ([field, error]) =>
-                            error && <li key={field}>{error}</li>
+                            error && <li key={field}>{error}</li>,
                         )}
                       </ul>
                     </div>
@@ -806,7 +808,7 @@ const CheckoutPage = () => {
 
                   {isFormValid &&
                     !Object.keys(validationErrors).some(
-                      (key) => validationErrors[key]
+                      (key) => validationErrors[key],
                     ) && (
                       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div className="flex items-center">
@@ -1051,7 +1053,7 @@ const CheckoutPage = () => {
                         quantity: number;
                         image: string;
                       },
-                      index: number
+                      index: number,
                     ) => (
                       <div key={index} className="flex items-start space-x-4">
                         <div className="relative">
@@ -1088,7 +1090,7 @@ const CheckoutPage = () => {
                           </div>
                         </div>
                       </div>
-                    )
+                    ),
                   )}
               </div>
 

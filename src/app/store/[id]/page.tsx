@@ -547,8 +547,10 @@ export default function ProductDetailPage() {
                 <div className="space-y-3">
                   {product.details.map((detail, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">{detail}</span>
+                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">
+                        {detail}
+                      </span>
                     </div>
                   ))}
                 </div>
