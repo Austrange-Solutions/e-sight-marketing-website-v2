@@ -117,7 +117,7 @@ export default function ProductDetailPage() {
         image: product!.image,
         stock: product!.stock,
       });
-      window.location.href = "/checkout";
+      window.location.href = "/store/checkout";
     } catch (e) {
       console.error("Buy now failed", e);
       toast.error("Failed to proceed to checkout");
@@ -388,7 +388,7 @@ export default function ProductDetailPage() {
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
+                    className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                       selectedImageIndex === index
                         ? "border-primary shadow-lg"
                         : "border-border hover:border-primary/50"
@@ -548,9 +548,7 @@ export default function ProductDetailPage() {
                   {product.details.map((detail, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">
-                        {detail}
-                      </span>
+                      <span className="text-sm text-muted-foreground">{detail}</span>
                     </div>
                   ))}
                 </div>

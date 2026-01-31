@@ -186,7 +186,7 @@ const HomeProductsSection = () => {
               No products available at the moment
             </p>
             <Link
-              href="/products"
+              href="/store"
               className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               Browse All Products
@@ -232,7 +232,7 @@ const HomeProductsSection = () => {
 
               return (
                 <Link
-                  href={`/products/${product.slug || product._id}`}
+                  href={`/store/${product.slug || product._id}`}
                   key={product._id}
                   className="block"
                 >
@@ -316,7 +316,7 @@ const HomeProductsSection = () => {
                                   key={featureIndex}
                                   className="flex items-center text-sm text-muted-foreground"
                                 >
-                                  <ArrowRight className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
+                                  <ArrowRight className="w-4 h-4 mr-2 text-primary shrink-0" />
                                   <span className="line-clamp-1">
                                     {feature}
                                   </span>
@@ -324,7 +324,7 @@ const HomeProductsSection = () => {
                               ))
                           ) : (
                             <li className="flex items-center text-sm text-muted-foreground">
-                              <ArrowRight className="w-4 h-4 mr-2 text-primary flex-shrink-0" />
+                              <ArrowRight className="w-4 h-4 mr-2 text-primary shrink-0" />
                               <span>Product details coming soon</span>
                             </li>
                           )}

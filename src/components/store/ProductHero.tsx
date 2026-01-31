@@ -10,7 +10,7 @@ type Props = {
 export default function ProductHero({
 }: Props) {
    return (
-      <section className="bg-gradient-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white py-24">
+      <section className="bg-linear-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

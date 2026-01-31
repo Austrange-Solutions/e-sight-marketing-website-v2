@@ -92,7 +92,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   // Generate product URL - prefer slug over _id
-  const productUrl = `/products/${product.slug || product._id}`;
+  const productUrl = `/store/${product.slug || product._id}`;
 
   return (
     <Link href={productUrl} className="block h-full">
@@ -141,7 +141,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Content Section - Mobile Optimized */}
-        <div className="p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col flex-grow">
+        <div className="p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col grow">
           {/* Product Name - Mobile Optimized */}
           <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-foreground mb-2 sm:mb-3 text-center line-clamp-2">
             {product.name}
@@ -182,7 +182,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
 
           {/* Key Features - Mobile Optimized */}
-          <div className="mb-3 sm:mb-4 md:mb-5 flex-grow">
+          <div className="mb-3 sm:mb-4 md:mb-5 grow">
             <h4 className="font-semibold text-foreground mb-2 text-left text-xs sm:text-sm md:text-base">
               Key Features:
             </h4>
@@ -193,13 +193,13 @@ export default function ProductCard({ product }: { product: Product }) {
                     key={index}
                     className="flex items-start text-xs sm:text-sm text-muted-foreground"
                   >
-                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-muted-foreground rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 flex-shrink-0"></span>
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-muted-foreground rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 shrink-0"></span>
                     <span className="line-clamp-2">{point}</span>
                   </li>
                 ))
               ) : (
                 <li className="flex items-start text-xs sm:text-sm text-muted-foreground">
-                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-muted-foreground rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 flex-shrink-0"></span>
+                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-muted-foreground rounded-full mt-1.5 sm:mt-2 mr-2 sm:mr-3 shrink-0"></span>
                   <span className="line-clamp-2">No details available</span>
                 </li>
               )}

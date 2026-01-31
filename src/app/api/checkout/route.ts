@@ -160,8 +160,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Calculate subtotal
-    const subtotal = cart.items.reduce(
+    // Filter out invalid or inactive products before any calculations
+    const validItems = cart.items.filter((item: { productId: any, quantity: number }) => {
+      if (!item.productId) {
+        console.warn('⚠️ [CHECKOUT] Skipping cart item with null product reference');
+        return false;
+      }
+      if (item.productId.status && item.productId.status !== 'active') {
+        console.warn(`⚠️ [CHECKOUT] Skipping inactive product: ${item.productId.name}`);
+        return false;
+      }
+      if (typeof item.productId.price !== 'number') {
+        console.warn(`⚠️ [CHECKOUT] Skipping product with invalid price: ${item.productId._id}`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validItems.length === 0) {
+      return NextResponse.json(
+        { error: "No valid items in cart" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate subtotal using only valid items to avoid null price errors
+    const subtotal = validItems.reduce(
       (
         total: number,
         item: { productId: { price: number }; quantity: number }
@@ -179,18 +203,13 @@ export async function POST(request: NextRequest) {
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
     // Prepare items for checkout
-    const checkoutItems = cart.items.map(
-      (item: {
-        productId: { _id: string; name: string; price: number; image: string };
-        quantity: number;
-      }) => ({
-        productId: item.productId._id,
-        name: item.productId.name,
-        price: item.productId.price,
-        quantity: item.quantity,
-        image: item.productId.image,
-      })
-    );
+    const checkoutItems = cart.items.map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
+      productId: item.productId._id,
+      name: item.productId.name,
+      price: item.productId.price,
+      quantity: item.quantity,
+      image: item.productId.image,
+    }));
 
     // Generate unique order number
     const orderNumber =
@@ -360,19 +379,13 @@ export async function GET() {
       });
     }
 
-    const items = validItems.map(
-      (item: {
-        _id: string;
-        productId: { _id: string; name: string; price: number; image: string };
-        quantity: number;
-      }) => ({
-        _id: item.productId._id,
-        name: item.productId.name,
-        price: item.productId.price,
-        quantity: item.quantity,
-        image: item.productId.image,
-      })
-    );
+    const items = validItems.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
+      _id: item.productId._id,
+      name: item.productId.name,
+      price: item.productId.price,
+      quantity: item.quantity,
+      image: item.productId.image,
+    }));
 
     const subtotal = items.reduce(
       (total: number, item: { price: number; quantity: number }) =>

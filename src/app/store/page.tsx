@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import ProductCard from '@/components/ProductCard';
-import ProductHero from '@/components/products/ProductHero';
+import ProductHero from '@/components/store/ProductHero';
 
 export const dynamic = 'force-dynamic';
 

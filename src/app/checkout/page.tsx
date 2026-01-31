@@ -1,8 +1,6 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import CashfreeButton from "@/components/CashfreeButton";
 
 // Helper function to get full image URL
 const getImageUrl = (imagePath: string): string => {
@@ -349,52 +347,18 @@ const CheckoutPage = () => {
 
   // Fetch cart data on component mount
   useEffect(() => {
-    fetchCartData();
-  }, []);
-
-  // Recalculate charges when pincode or city changes
-  useEffect(() => {
-    if (cartData && (shippingForm.pincode || shippingForm.city)) {
-      calculateDynamicCharges();
+    const protocol = window.location.protocol;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const mainHostname = window.location.hostname.replace(/^www\./, '');
+    
+    // Check if already on store subdomain
+    if (window.location.hostname.startsWith('store.')) {
+      return; // Already on store subdomain, do nothing
     }
-  }, [
-    shippingForm.pincode,
-    shippingForm.city,
-    cartData,
-    calculateDynamicCharges,
-  ]);
-
-  // Validate form whenever form data changes
-  useEffect(() => {
-    validateForm();
-  }, [shippingForm, validateForm]);
-
-  const calculateTotal = () => {
-    if (!calculatedCharges && !cartData) return 0;
-
-    const charges = calculatedCharges || cartData?.orderSummary;
-    if (!charges) return 0;
-    return (
-      charges.subtotal +
-      charges.gst +
-      charges.transactionFee +
-      charges.deliveryCharges
-    );
-  };
-
-  const getCurrentCharges = () => {
-    return calculatedCharges || cartData?.orderSummary;
-  };
-
-  if (!cartData) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        Loading...
-      </div>
-    );
-  }
-
-  const charges = getCurrentCharges();
+    
+    // Redirect to store subdomain
+    window.location.href = `${protocol}//store.${mainHostname}${port}/store/checkout`;
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-accent mt-16 py-8 relative">

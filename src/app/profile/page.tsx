@@ -607,7 +607,7 @@ export default function ProfilePage() {
                     When you place your first order, it will appear here.
                   </p>
                   <button
-                    onClick={() => router.push("/products")}
+                    onClick={() => router.push("/store")}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Start Shopping

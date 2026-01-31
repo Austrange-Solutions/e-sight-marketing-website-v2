@@ -11,7 +11,7 @@ const DynamicCarousel = dynamic(() => import('./Carousel'), { ssr: false });
 
 const HomeHero = () => {
   return (
-    <section className="relative bg-gradient-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white min-h-[92vh] flex items-center overflow-hidden">
+    <section className="relative bg-linear-to-br from-primary via-primary/90 to-[oklch(0.35_0.08_230)] text-white min-h-[92vh] flex items-center overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse" />
@@ -51,7 +51,7 @@ const HomeHero = () => {
             >
               Making Life easier,
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-white to-white/80">
               For Specially Abled
               </span>
             </motion.h1>
@@ -97,7 +97,7 @@ const HomeHero = () => {
               transition={{ delay: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <Link href="/products">
+              <Link href="/store">
                 <Button
                   size="lg"
                   className="bg-white text-primary hover:bg-white/90 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 group"
@@ -109,7 +109,7 @@ const HomeHero = () => {
               <Link href="/disabled-registration">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
+                  className="bg-linear-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
                 >
                   Register as Specially Abled Person
                 </Button>
@@ -121,7 +121,7 @@ const HomeHero = () => {
               >
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-rose-500 to-pink-600 text-white hover:from-rose-600 hover:to-pink-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
+                  className="bg-linear-to-r from-rose-500 to-pink-600 text-white hover:from-rose-600 hover:to-pink-700 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/20"
                 >
                   Donate Now ❤️
                 </Button>

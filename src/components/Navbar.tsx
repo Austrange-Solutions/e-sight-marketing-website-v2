@@ -23,6 +23,7 @@ const Navbar = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [isDonateDomain, setIsDonateDomain] = useState(false);
   const [mainDomainUrl, setMainDomainUrl] = useState("");
+  const [storeDomainUrl, setStoreDomainUrl] = useState('');
   const [resourceDropdownOpen, setResourceDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -40,7 +41,7 @@ const Navbar = () => {
     setMounted(true);
   }, []);
 
-  // Detect if we're on donate subdomain
+  // Detect if we're on donate subdomain and precompute main/store URLs
   useEffect(() => {
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
@@ -51,9 +52,11 @@ const Navbar = () => {
       if (isDonate) {
         // Remove 'donate.' from hostname
         const mainHostname = hostname.replace("donate.", "");
+        const cleanHostname = mainHostname.replace(/^www\./, '');
         const protocol = window.location.protocol;
         const port = window.location.port ? `:${window.location.port}` : "";
         setMainDomainUrl(`${protocol}//${mainHostname}${port}`);
+        setStoreDomainUrl(`${protocol}//store.${cleanHostname}${port}`);
       }
     }
   }, []);
@@ -62,7 +65,7 @@ const Navbar = () => {
   const getNavItems = () => {
     const baseItems = [
       { path: "/", label: "Home" },
-      { path: "/products", label: "Products" },
+      { path: "/store", label: "Products" },
       { path: "/about", label: "About" },
       { path: "/contact", label: "Contact" },
       { path: "/gallery", label: "Gallery" },
@@ -70,7 +73,10 @@ const Navbar = () => {
     ];
 
     if (isAuthenticated) {
-      return [...baseItems, { path: "/profile", label: "Profile" }];
+      return [
+        ...baseItems,
+        { path: "/profile", label: "Profile" },
+      ];
     } else {
       return [...baseItems, { path: "/login", label: "Login" }];
     }
@@ -106,20 +112,26 @@ const Navbar = () => {
 
   const handleCartCheckout = () => {
     if (!isAuthenticated) {
-      // If on donate subdomain, redirect to main domain for login
+      // Always redirect to store subdomain for login
       if (isDonateDomain) {
-        window.location.href = `${mainDomainUrl}/login?redirect=/checkout`;
+        const storeUrl = mainDomainUrl.replace('donate.', 'store.');
+        window.location.href = `${storeUrl}/login?redirect=/store/checkout`;
       } else {
         router.push("/login?redirect=/checkout");
       }
       return;
     }
     closeCart();
-    // If on donate subdomain, redirect to main domain for checkout
+    // Always redirect to store subdomain for checkout
     if (isDonateDomain) {
-      window.location.href = `${mainDomainUrl}/checkout`;
+      const storeUrl = mainDomainUrl.replace('donate.', 'store.');
+      window.location.href = `${storeUrl}/store/checkout`;
     } else {
-      router.push("/checkout");
+      // On main domain, redirect to store subdomain
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      const mainHostname = window.location.hostname.replace(/^www\./, '');
+      window.location.href = `${protocol}//store.${mainHostname}${port}/store/checkout`;
     }
   };
 
@@ -305,6 +317,37 @@ const Navbar = () => {
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
+              // Handle Products and Profile links - always go to store subdomain
+              if (item.path === '/store' || item.path === '/store/profile') {
+                const buildStoreUrl = () => {
+                  if (typeof window !== 'undefined' && mounted) {
+                    const protocol = window.location.protocol;
+                    const port = window.location.port ? `:${window.location.port}` : '';
+                    const host = window.location.hostname
+                      .replace(/^(donate|store|products)\./, '')
+                      .replace(/^www\./, '');
+                    const path = item.path === '/store' ? '' : item.path;
+                    return `${protocol}//store.${host}${port}${path}`;
+                  }
+                  return item.path;
+                };
+                // Only render external link after hydration
+                if (!mounted) {
+                  return <div key={item.path} className="block px-3 py-2 rounded-md text-base font-medium"></div>;
+                }
+                const href = buildStoreUrl();
+                return (
+                  <a
+                    key={item.path}
+                    href={href}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-2 rounded-md text-base font-medium transition-colors text-muted-foreground hover:text-primary hover:bg-accent"
+                  >
+                    {item.label}
+                  </a>
+                );
+              }
+
               // If on donate subdomain, link to main domain
               const href = isDonateDomain
                 ? `${mainDomainUrl}${item.path}`
@@ -346,7 +389,7 @@ const Navbar = () => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsOpen(false)}
-              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
+              className="block mx-3 my-2 px-4 py-2 text-center text-sm font-semibold bg-linear-to-r from-rose-500 to-pink-600 text-white rounded-full hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md"
             >
               ❤️ Donate Now
             </a>
@@ -636,7 +679,7 @@ const Navbar = () => {
                   disabled={cart.length === 0 || updating !== null}
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-primary to-[oklch(0.35_0.08_230)] text-primary-foreground py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
+                  className="w-full bg-linear-to-r from-primary to-[oklch(0.35_0.08_230)] text-primary-foreground py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl relative overflow-hidden"
                 >
                   <motion.div
                     className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity"

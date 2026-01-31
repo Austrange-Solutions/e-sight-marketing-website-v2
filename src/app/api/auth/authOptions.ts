@@ -48,6 +48,43 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
+  // Configure cookies for cross-subdomain sharing
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        // Set domain to .maceazy.com to share across all subdomains
+        // Use .localhost in development to support store.localhost:3000
+        domain: process.env.NODE_ENV === 'production' 
+          ? '.maceazy.com' 
+          : '.localhost', // Leading dot allows subdomain sharing
+      },
+    },
+    callbackUrl: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' 
+          ? '.maceazy.com' 
+          : '.localhost',
+      },
+    },
+    csrfToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Host-' : ''}next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
