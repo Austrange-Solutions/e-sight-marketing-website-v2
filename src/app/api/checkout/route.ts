@@ -10,6 +10,7 @@ import {
   sanitizeEmail,
   sanitizePhone,
 } from "@/lib/validation/xss";
+import { cookies } from "next/headers";
 
 // Force Node.js runtime to avoid Edge Runtime crypto issues
 export const runtime = "nodejs";
@@ -294,11 +295,30 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  console.log("🛒 [CHECKOUT_GET] Starting GET request...");
+  
   try {
     await connect();
+    console.log("✅ [CHECKOUT_GET] Database connected");
 
+    // Force Next.js to read cookies to establish request context
+    await cookies();
+    
+    // Get session with request context for proper cookie reading
     const session = await getServerSession(authOptions);
+    
+    // Debug logging
+    console.log("🔍 [CHECKOUT_GET] Session check:", {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userId: session?.user?.id,
+      userEmail: session?.user?.email,
+      cookieHeader: request.headers.get('cookie')?.substring(0, 50) + '...',
+      hostHeader: request.headers.get('host'),
+      referer: request.headers.get('referer'),
+    });
+    
     if (!session || !session.user || !session.user.id) {
       console.log("❌ [CHECKOUT_GET] Unauthorized - No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

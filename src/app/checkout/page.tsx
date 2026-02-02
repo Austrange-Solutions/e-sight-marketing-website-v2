@@ -1,6 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import CashfreeButton from "@/components/CashfreeButton";
 
 // Helper function to get full image URL
 const getImageUrl = (imagePath: string): string => {
@@ -347,7 +349,25 @@ const CheckoutPage = () => {
     });
   }, [cartData, shippingForm.pincode, shippingForm.city]);
 
+  // Alias for calculated charges (for backward compatibility)
+  const charges = calculatedCharges;
+
+  // Calculate total amount
+  const calculateTotal = () => {
+    return calculatedCharges?.total || 0;
+  };
+
   // Fetch cart data on component mount
+  useEffect(() => {
+    fetchCartData();
+  }, []);
+
+  // Recalculate charges when cart data or shipping info changes
+  useEffect(() => {
+    calculateDynamicCharges();
+  }, [calculateDynamicCharges]);
+
+  // Subdomain redirect check
   useEffect(() => {
     const protocol = window.location.protocol;
     const port = window.location.port ? `:${window.location.port}` : "";

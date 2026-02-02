@@ -9,6 +9,13 @@ import { type JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+// Calculate cookie domain once for consistency and logging
+const cookieDomain = process.env.NODE_ENV === 'production' 
+  ? '.maceazy.com' 
+  : (process.env.COOKIE_DOMAIN === 'localhost' ? 'localhost' : process.env.COOKIE_DOMAIN || 'localhost');
+
+console.log("🔒 [AUTH_OPTIONS] Initialized with cookie domain:", cookieDomain);
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   providers: [
@@ -57,11 +64,9 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Set domain to .maceazy.com to share across all subdomains
-        // Use .localhost in development to support store.localhost:3000
-        domain: process.env.NODE_ENV === 'production' 
-          ? '.maceazy.com' 
-          : '.localhost', // Leading dot allows subdomain sharing
+        // CRITICAL: Use 'localhost' (no leading dot) in development to share across store.localhost
+        // In production use .maceazy.com
+        domain: cookieDomain,
       },
     },
     callbackUrl: {
@@ -70,9 +75,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' 
-          ? '.maceazy.com' 
-          : '.localhost',
+        domain: cookieDomain,
       },
     },
     csrfToken: {

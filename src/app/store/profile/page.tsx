@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRef } from 'react';
+import Image from 'next/image';
 import { User, Package, Calendar, MapPin, Phone, Mail, Edit, Save, X, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import OrderDetailsModal from '@/components/OrderDetailsModal';
+import { getProductImageUrl } from '@/lib/image-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -522,14 +524,12 @@ const fetchOrders = async (page = 1, reset = false) => {
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                             {order.items.slice(0, 3).map((item, index) => (
                               <div key={index} className="flex items-center gap-2 text-sm">
-                                <img
-                                  src={item.image || item.productId?.image || '/assets/images/maceazy-logo.png'}
+                                <Image
+                                  src={getProductImageUrl(item)}
                                   alt={item.name}
+                                  width={32}
+                                  height={32}
                                   className="w-8 h-8 object-cover rounded border border-border"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = '/assets/images/maceazy-logo.png';
-                                  }}
                                 />
                                 <span className="text-muted-foreground truncate">
                                   {item.name.length > 15 ? item.name.substring(0, 15) + '...' : item.name}

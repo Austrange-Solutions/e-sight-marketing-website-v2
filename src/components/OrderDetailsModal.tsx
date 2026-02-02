@@ -12,6 +12,7 @@ import {
   Calendar,
   Truck,
 } from "lucide-react";
+import { getProductImageUrl } from "@/lib/image-utils";
 
 interface OrderDetailsModalProps {
   order: {
@@ -219,11 +220,7 @@ export default function OrderDetailsModal({
                   className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0"
                 >
                   <Image
-                    src={
-                      item.image ||
-                      item.productId?.image ||
-                      "/assets/images/maceazy-logo.png"
-                    }
+                    src={getProductImageUrl(item)}
                     alt={item.name}
                     width={80}
                     height={80}

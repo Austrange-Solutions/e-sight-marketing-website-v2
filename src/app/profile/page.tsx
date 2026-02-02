@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import OrderDetailsModal from "@/components/OrderDetailsModal";
+import { getProductImageUrl } from "@/lib/image-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -687,11 +688,7 @@ export default function ProfilePage() {
                                 className="flex items-center gap-2 text-sm"
                               >
                                 <Image
-                                  src={
-                                    item.image ||
-                                    item.productId?.image ||
-                                    "/assets/images/maceazy-logo.png"
-                                  }
+                                  src={getProductImageUrl(item)}
                                   alt={item.name}
                                   width={32}
                                   height={32}
