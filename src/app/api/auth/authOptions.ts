@@ -10,9 +10,12 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 // Calculate cookie domain once for consistency and logging
-const cookieDomain = process.env.NODE_ENV === 'production' 
-  ? '.maceazy.com' 
-  : (process.env.COOKIE_DOMAIN === 'localhost' ? 'localhost' : process.env.COOKIE_DOMAIN || 'localhost');
+const cookieDomain =
+  process.env.NODE_ENV === "production"
+    ? ".maceazy.com"
+    : process.env.COOKIE_DOMAIN === "localhost"
+      ? "localhost"
+      : process.env.COOKIE_DOMAIN || "localhost";
 
 console.log("🔒 [AUTH_OPTIONS] Initialized with cookie domain:", cookieDomain);
 
@@ -39,7 +42,7 @@ export const authOptions: NextAuthOptions = {
         if (!user) return null;
         const validPassword = await bcryptjs.compare(
           credentials.password,
-          user.password
+          user.password,
         );
         if (!validPassword) return null;
         return {
@@ -58,33 +61,33 @@ export const authOptions: NextAuthOptions = {
   // Configure cookies for cross-subdomain sharing
   cookies: {
     sessionToken: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      name: `${process.env.NODE_ENV === "production" ? "__Secure-" : ""}next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
         // CRITICAL: Use 'localhost' (no leading dot) in development to share across store.localhost
         // In production use .maceazy.com
         domain: cookieDomain,
       },
     },
     callbackUrl: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.callback-url`,
+      name: `${process.env.NODE_ENV === "production" ? "__Secure-" : ""}next-auth.callback-url`,
       options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
         domain: cookieDomain,
       },
     },
     csrfToken: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Host-' : ''}next-auth.csrf-token`,
+      name: `${process.env.NODE_ENV === "production" ? "__Host-" : ""}next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },

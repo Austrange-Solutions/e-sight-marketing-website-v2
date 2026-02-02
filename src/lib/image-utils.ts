@@ -6,7 +6,7 @@
 /**
  * Normalizes image URLs for product images
  * Handles S3 keys, CloudFront URLs, and local paths
- * 
+ *
  * @param imagePath - The image path from the database (S3 key, URL, or local path)
  * @returns Normalized image URL (CloudFront URL or local path)
  */
@@ -21,7 +21,7 @@ export function normalizeImageUrl(imagePath?: string | null): string {
     process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN ||
     process.env.CLOUDFRONT_DOMAIN ||
     "https://d2z15s8mxf9k1i.cloudfront.net";
-  
+
   const cdn = currentCloudFrontDomain.replace(/\/+$/, "");
 
   // List of old/legacy CloudFront domains to replace
@@ -42,12 +42,15 @@ export function normalizeImageUrl(imagePath?: string | null): string {
           .replace(`http://${oldDomain.replace("https://", "")}`, "")
           .replace(oldDomain, "")
           .replace(/^\/+/, "");
-        
+
         // Replace old S3 prefix with new one if needed
         if (key.startsWith("e-sight-ecommerce-product-images/")) {
-          key = key.replace("e-sight-ecommerce-product-images/", "maceazy-marketing/");
+          key = key.replace(
+            "e-sight-ecommerce-product-images/",
+            "maceazy-marketing/",
+          );
         }
-        
+
         return `${cdn}/${key}`;
       }
     }
@@ -68,7 +71,7 @@ export function normalizeImageUrl(imagePath?: string | null): string {
 /**
  * Gets a product image URL with fallback
  * Tries multiple sources in order: item.image, productId.image, fallback
- * 
+ *
  * @param item - Order item with potential image sources
  * @returns Normalized image URL
  */

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "Missing required shipping address fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
               ? validationError.message
               : "Invalid input detected in shipping address",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -151,37 +151,45 @@ export async function POST(request: NextRequest) {
     } else {
       return NextResponse.json(
         { error: "Invalid user ID format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const cart = await Cart.findOne({ userId: userObjectId }).populate(
-      "items.productId"
+      "items.productId",
     );
     if (!cart || cart.items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
     // Filter out invalid or inactive products before any calculations
-    const validItems = cart.items.filter((item: { productId: any, quantity: number }) => {
-      if (!item.productId) {
-        console.warn('⚠️ [CHECKOUT] Skipping cart item with null product reference');
-        return false;
-      }
-      if (item.productId.status && item.productId.status !== 'active') {
-        console.warn(`⚠️ [CHECKOUT] Skipping inactive product: ${item.productId.name}`);
-        return false;
-      }
-      if (typeof item.productId.price !== 'number') {
-        console.warn(`⚠️ [CHECKOUT] Skipping product with invalid price: ${item.productId._id}`);
-        return false;
-      }
-      return true;
-    });
+    const validItems = cart.items.filter(
+      (item: { productId: any; quantity: number }) => {
+        if (!item.productId) {
+          console.warn(
+            "⚠️ [CHECKOUT] Skipping cart item with null product reference",
+          );
+          return false;
+        }
+        if (item.productId.status && item.productId.status !== "active") {
+          console.warn(
+            `⚠️ [CHECKOUT] Skipping inactive product: ${item.productId.name}`,
+          );
+          return false;
+        }
+        if (typeof item.productId.price !== "number") {
+          console.warn(
+            `⚠️ [CHECKOUT] Skipping product with invalid price: ${item.productId._id}`,
+          );
+          return false;
+        }
+        return true;
+      },
+    );
 
     if (validItems.length === 0) {
       return NextResponse.json(
         { error: "No valid items in cart" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -189,28 +197,33 @@ export async function POST(request: NextRequest) {
     const subtotal = validItems.reduce(
       (
         total: number,
-        item: { productId: { price: number }; quantity: number }
+        item: { productId: { price: number }; quantity: number },
       ) => total + item.productId.price * item.quantity,
-      0
+      0,
     );
 
     // Calculate charges
     const { gst, transactionFee, deliveryCharges } = calculateCharges(
       subtotal,
-      shippingAddress.city
+      shippingAddress.city,
     );
 
     // Calculate total
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
     // Prepare items for checkout
-    const checkoutItems = cart.items.map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-      productId: item.productId._id,
-      name: item.productId.name,
-      price: item.productId.price,
-      quantity: item.quantity,
-      image: item.productId.image,
-    }));
+    const checkoutItems = cart.items.map(
+      (item: {
+        productId: { _id: string; name: string; price: number; image: string };
+        quantity: number;
+      }) => ({
+        productId: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity,
+        image: item.productId.image,
+      }),
+    );
 
     // Generate unique order number
     const orderNumber =
@@ -297,28 +310,28 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   console.log("🛒 [CHECKOUT_GET] Starting GET request...");
-  
+
   try {
     await connect();
     console.log("✅ [CHECKOUT_GET] Database connected");
 
     // Force Next.js to read cookies to establish request context
     await cookies();
-    
+
     // Get session with request context for proper cookie reading
     const session = await getServerSession(authOptions);
-    
+
     // Debug logging
     console.log("🔍 [CHECKOUT_GET] Session check:", {
       hasSession: !!session,
       hasUser: !!session?.user,
       userId: session?.user?.id,
       userEmail: session?.user?.email,
-      cookieHeader: request.headers.get('cookie')?.substring(0, 50) + '...',
-      hostHeader: request.headers.get('host'),
-      referer: request.headers.get('referer'),
+      cookieHeader: request.headers.get("cookie")?.substring(0, 50) + "...",
+      hostHeader: request.headers.get("host"),
+      referer: request.headers.get("referer"),
     });
-    
+
     if (!session || !session.user || !session.user.id) {
       console.log("❌ [CHECKOUT_GET] Unauthorized - No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -340,12 +353,12 @@ export async function GET(request: NextRequest) {
       console.log("❌ [CHECKOUT_GET] Invalid user ID format");
       return NextResponse.json(
         { error: "Invalid user ID format" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const cart = await Cart.findOne({ userId: userObjectId }).populate(
-      "items.productId"
+      "items.productId",
     );
 
     if (!cart || cart.items.length === 0) {
@@ -373,16 +386,16 @@ export async function GET(request: NextRequest) {
         }
         if (item.productId.status && item.productId.status !== "active") {
           console.warn(
-            `⚠️ [CHECKOUT_GET] Skipping inactive product: ${item.productId.name}`
+            `⚠️ [CHECKOUT_GET] Skipping inactive product: ${item.productId.name}`,
           );
           return false;
         }
         return true;
-      }
+      },
     );
 
     console.log(
-      `✅ [CHECKOUT_GET] ${validItems.length} valid items after filtering`
+      `✅ [CHECKOUT_GET] ${validItems.length} valid items after filtering`,
     );
 
     if (validItems.length === 0) {
@@ -399,29 +412,35 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const items = validItems.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-      _id: item.productId._id,
-      name: item.productId.name,
-      price: item.productId.price,
-      quantity: item.quantity,
-      image: item.productId.image,
-    }));
+    const items = validItems.map(
+      (item: {
+        _id: string;
+        productId: { _id: string; name: string; price: number; image: string };
+        quantity: number;
+      }) => ({
+        _id: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity,
+        image: item.productId.image,
+      }),
+    );
 
     const subtotal = items.reduce(
       (total: number, item: { price: number; quantity: number }) =>
         total + item.price * item.quantity,
-      0
+      0,
     );
 
     // For preview, use default charges (Mumbai location)
     const { gst, transactionFee, deliveryCharges } = calculateCharges(
       subtotal,
-      "Mumbai"
+      "Mumbai",
     );
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
     console.log(
-      `✅ [CHECKOUT_GET] Returning ${items.length} items, total: ₹${total}`
+      `✅ [CHECKOUT_GET] Returning ${items.length} items, total: ₹${total}`,
     );
 
     return NextResponse.json({

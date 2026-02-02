@@ -7,21 +7,29 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 // Simple product schema
-const productSchema = new mongoose.Schema({
-  name: String,
-  image: String,
-}, { timestamps: true });
+const productSchema = new mongoose.Schema(
+  {
+    name: String,
+    image: String,
+  },
+  { timestamps: true },
+);
 
 const Product = mongoose.model("Product", productSchema);
 
 // Order schema to update order items too
-const orderSchema = new mongoose.Schema({
-  items: [{
-    productId: mongoose.Schema.Types.ObjectId,
-    image: String,
-    name: String,
-  }],
-}, { timestamps: true });
+const orderSchema = new mongoose.Schema(
+  {
+    items: [
+      {
+        productId: mongoose.Schema.Types.ObjectId,
+        image: String,
+        name: String,
+      },
+    ],
+  },
+  { timestamps: true },
+);
 
 const Order = mongoose.model("Order", orderSchema);
 
@@ -33,27 +41,31 @@ async function fixImagePaths() {
     console.log("✅ Connected to MongoDB\n");
 
     // Get current CloudFront domain from env
-    const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || 
-                            process.env.CLOUDFRONT_DOMAIN || 
-                            "https://d2z15s8mxf9k1i.cloudfront.net";
+    const cloudFrontDomain =
+      process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN ||
+      process.env.CLOUDFRONT_DOMAIN ||
+      "https://d2z15s8mxf9k1i.cloudfront.net";
 
     console.log(`📍 Current CloudFront Domain: ${cloudFrontDomain}\n`);
 
     // Strategy 1: Check current image paths in database
     console.log("📊 Analyzing current product images...");
     const products = await Product.find({}).select("name image");
-    
+
     console.log(`\nFound ${products.length} products:\n`);
-    
+
     for (const product of products) {
       console.log(`  Product: ${product.name}`);
       console.log(`  Current image: ${product.image}`);
-      
+
       // Check if it has old CloudFront domain
-      if (product.image && product.image.includes("dw9tsoyfcyk5k.cloudfront.net")) {
+      if (
+        product.image &&
+        product.image.includes("dw9tsoyfcyk5k.cloudfront.net")
+      ) {
         console.log(`  ⚠️  Has OLD CloudFront domain`);
       }
-      
+
       console.log("");
     }
 
@@ -61,10 +73,14 @@ async function fixImagePaths() {
     console.log("\n" + "=".repeat(80));
     console.log("SUGGESTED FIXES:");
     console.log("=".repeat(80) + "\n");
-    
+
     console.log("Option 1: Replace old CloudFront domain with new one");
-    console.log("  - Changes: dw9tsoyfcyk5k.cloudfront.net → d2z15s8mxf9k1i.cloudfront.net");
-    console.log("  - Keeps the same S3 path: e-sight-ecommerce-product-images/*\n");
+    console.log(
+      "  - Changes: dw9tsoyfcyk5k.cloudfront.net → d2z15s8mxf9k1i.cloudfront.net",
+    );
+    console.log(
+      "  - Keeps the same S3 path: e-sight-ecommerce-product-images/*\n",
+    );
 
     console.log("Option 2: Update to use new S3 bucket/prefix");
     console.log("  - Changes path from: e-sight-ecommerce-product-images/*");
@@ -73,7 +89,9 @@ async function fixImagePaths() {
     console.log("Option 3: Check what files actually exist in S3");
     console.log("  - Need to verify actual file locations in AWS\n");
 
-    console.log("\nTo apply Option 1 automatically, uncomment the code below and run again.\n");
+    console.log(
+      "\nTo apply Option 1 automatically, uncomment the code below and run again.\n",
+    );
 
     // UNCOMMENT THIS SECTION TO APPLY OPTION 1:
     /*
@@ -125,7 +143,6 @@ async function fixImagePaths() {
 
     await mongoose.connection.close();
     console.log("\n✅ Database connection closed");
-
   } catch (error) {
     console.error("❌ Error:", error);
     process.exit(1);

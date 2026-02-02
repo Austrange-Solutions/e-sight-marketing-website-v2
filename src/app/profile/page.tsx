@@ -137,7 +137,7 @@ export default function ProfilePage() {
 
   // Handle input changes with validation
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -197,7 +197,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch(
         `/api/orders?page=${page}&limit=${ORDERS_PAGE_SIZE}`,
-        { credentials: "include" }
+        { credentials: "include" },
       );
       if (res.ok) {
         const data = await res.json();
@@ -207,7 +207,7 @@ export default function ProfilePage() {
           setOrders((prev) => {
             const existingIds = new Set(prev.map((o) => o._id));
             const newOrders = (data.orders || []).filter(
-              (o: Order) => !existingIds.has(o._id)
+              (o: Order) => !existingIds.has(o._id),
             );
             return [...prev, ...newOrders];
           });
@@ -250,7 +250,7 @@ export default function ProfilePage() {
 
   const handleCancelOrder = async (orderId: string, orderNumber: string) => {
     const cancelReason = prompt(
-      `Are you sure you want to cancel order ${orderNumber}? Please provide a reason:`
+      `Are you sure you want to cancel order ${orderNumber}? Please provide a reason:`,
     );
 
     if (!cancelReason) return;
