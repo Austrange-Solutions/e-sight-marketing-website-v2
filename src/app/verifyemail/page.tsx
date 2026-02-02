@@ -1,38 +1,45 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, LockKeyhole, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Mail,
+  LockKeyhole,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 
 export default function VerifyEmailPage() {
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      const res = await fetch('/api/users/verifyemail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
+      const res = await fetch("/api/users/verifyemail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Verification failed');
+        throw new Error(data.error || "Verification failed");
       }
 
-      setMessage('✅ Email verified successfully! Redirecting to login...');
-      setTimeout(() => router.push('/login'), 2000);
+      setMessage("✅ Email verified successfully! Redirecting to login...");
+      setTimeout(() => router.push("/login"), 2000);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+      const errorMessage =
+        error instanceof Error ? error.message : "Verification failed";
       setMessage(`❌ ${errorMessage}`);
     } finally {
       setIsLoading(false);
@@ -41,22 +48,23 @@ export default function VerifyEmailPage() {
 
   const handleResendCode = async () => {
     if (!email) {
-      setMessage('❌ Please enter your email address first');
+      setMessage("❌ Please enter your email address first");
       return;
     }
-    
+
     try {
-      setMessage('🔄 Resending verification code...');
+      setMessage("🔄 Resending verification code...");
       // Add your resend code API call here
-      const res = await fetch('/api/users/resend-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+      const res = await fetch("/api/users/resend-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-      
-      setMessage('✅ Verification code resent successfully!');
+
+      setMessage("✅ Verification code resent successfully!");
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Resend failed';
+      const errorMessage =
+        error instanceof Error ? error.message : "Resend failed";
       setMessage(`❌ ${errorMessage}`);
     }
   };
@@ -79,7 +87,10 @@ export default function VerifyEmailPage() {
           <div className="space-y-4">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-foreground mb-1"
+              >
                 Email Address
               </label>
               <div className="relative">
@@ -90,6 +101,7 @@ export default function VerifyEmailPage() {
                   id="email"
                   name="email"
                   type="email"
+                  inputMode="email"
                   required
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Enter your email"
@@ -102,7 +114,10 @@ export default function VerifyEmailPage() {
             {/* Verification Code Field */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="code" className="block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="code"
+                  className="block text-sm font-medium text-foreground"
+                >
                   Verification Code
                 </label>
                 <button
@@ -126,7 +141,7 @@ export default function VerifyEmailPage() {
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-border placeholder-gray-500 text-foreground rounded-md focus:outline-none focus:ring-ring focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Enter 6-digit code"
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">
@@ -137,21 +152,25 @@ export default function VerifyEmailPage() {
 
           {/* Message Display */}
           {message && (
-            <div className={`rounded-md p-3 ${
-              message.includes('✅') 
-                ? 'bg-green-50 border border-green-200' 
-                : message.includes('🔄')
-                ? 'bg-blue-50 border border-blue-200'
-                : 'bg-red-50 border border-red-200'
-            }`}>
-              <p className={`text-sm flex items-center ${
-                message.includes('✅') 
-                  ? 'text-green-800' 
-                  : message.includes('🔄')
-                  ? 'text-blue-800'
-                  : 'text-red-800'
-              }`}>
-                {message.includes('✅') ? (
+            <div
+              className={`rounded-md p-3 ${
+                message.includes("✅")
+                  ? "bg-green-50 border border-green-200"
+                  : message.includes("🔄")
+                    ? "bg-blue-50 border border-blue-200"
+                    : "bg-red-50 border border-red-200"
+              }`}
+            >
+              <p
+                className={`text-sm flex items-center ${
+                  message.includes("✅")
+                    ? "text-green-800"
+                    : message.includes("🔄")
+                      ? "text-blue-800"
+                      : "text-red-800"
+                }`}
+              >
+                {message.includes("✅") ? (
                   <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                 ) : (
                   <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
@@ -170,14 +189,30 @@ export default function VerifyEmailPage() {
             >
               {isLoading ? (
                 <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Verifying...
                 </span>
               ) : (
-                'Verify Email'
+                "Verify Email"
               )}
             </button>
           </div>
@@ -189,9 +224,7 @@ export default function VerifyEmailPage() {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-accent text-gray-500">
-                  Need help?
-                </span>
+                <span className="px-2 bg-accent text-gray-500">Need help?</span>
               </div>
             </div>
           </div>
@@ -199,7 +232,7 @@ export default function VerifyEmailPage() {
           {/* Footer Links */}
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              Didn&apos;t receive the code?{' '}
+              Didn&apos;t receive the code?{" "}
               <button
                 type="button"
                 onClick={handleResendCode}

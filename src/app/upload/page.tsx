@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Upload, X, Check, AlertCircle, Copy, Eye, Trash2 } from 'lucide-react';
+import { useState } from "react";
+import Image from "next/image";
+import { Upload, X, Check, AlertCircle, Copy, Eye, Trash2 } from "lucide-react";
 
 interface UploadedFile {
   id: string;
@@ -19,7 +20,9 @@ export default function S3FileUploader() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [uploadProgress, setUploadProgress] = useState<{
+    [key: string]: number;
+  }>({});
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -34,7 +37,7 @@ export default function S3FileUploader() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const droppedFiles = Array.from(e.dataTransfer.files);
     addFiles(droppedFiles);
   };
@@ -48,28 +51,39 @@ export default function S3FileUploader() {
 
   const addFiles = (newFiles: File[]) => {
     // Filter for allowed file types
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm'];
-    const validFiles = newFiles.filter(file => allowedTypes.includes(file.type));
-    
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "video/mp4",
+      "video/webm",
+    ];
+    const validFiles = newFiles.filter((file) =>
+      allowedTypes.includes(file.type)
+    );
+
     if (validFiles.length !== newFiles.length) {
-      setError('Some files were skipped. Only images (JPEG, PNG, WebP, GIF) and videos (MP4, WebM) are allowed.');
+      setError(
+        "Some files were skipped. Only images (JPEG, PNG, WebP, GIF) and videos (MP4, WebM) are allowed."
+      );
     } else {
       setError(null);
     }
 
-    setFiles(prev => [...prev, ...validFiles]);
+    setFiles((prev) => [...prev, ...validFiles]);
   };
 
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const uploadFiles = async () => {
@@ -82,24 +96,24 @@ export default function S3FileUploader() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileId = `${file.name}-${Date.now()}`;
-        
+
         // Update progress
-        setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
+        setUploadProgress((prev) => ({ ...prev, [fileId]: 0 }));
 
         try {
           // Method 1: Using the form upload endpoint
           const formData = new FormData();
-          formData.append('file', file);
+          formData.append("file", file);
 
-          const response = await fetch('/api/aws/upload', {
-            method: 'POST',
+          const response = await fetch("/api/aws/upload", {
+            method: "POST",
             body: formData,
           });
 
           const result = await response.json();
 
           if (!response.ok) {
-            throw new Error(result.error || 'Upload failed');
+            throw new Error(result.error || "Upload failed");
           }
 
           // Add to uploaded files
@@ -113,21 +127,23 @@ export default function S3FileUploader() {
             uploadedAt: new Date(),
           };
 
-          setUploadedFiles(prev => [...prev, uploadedFile]);
-          setUploadProgress(prev => ({ ...prev, [fileId]: 100 }));
-
+          setUploadedFiles((prev) => [...prev, uploadedFile]);
+          setUploadProgress((prev) => ({ ...prev, [fileId]: 100 }));
         } catch (fileError) {
-          console.error(`Failed to upload ${file.name}:`, fileError);
-          setError(`Failed to upload ${file.name}: ${fileError instanceof Error ? fileError.message : 'Unknown error'}`);
+          console.error("Failed to upload file:", file.name, fileError);
+          setError(
+            `Failed to upload ${file.name}: ${fileError instanceof Error ? fileError.message : "Unknown error"}`
+          );
         }
       }
 
       // Clear files after upload
       setFiles([]);
-      
     } catch (error) {
-      console.error('Upload error:', error);
-      setError(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Upload error:", error);
+      setError(
+        `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     } finally {
       setUploading(false);
       setUploadProgress({});
@@ -140,7 +156,7 @@ export default function S3FileUploader() {
   };
 
   const removeUploadedFile = (id: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== id));
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
   return (
@@ -159,8 +175,8 @@ export default function S3FileUploader() {
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
             dragOver
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400'
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-300 hover:border-gray-400"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -175,7 +191,7 @@ export default function S3FileUploader() {
               Supports: JPEG, PNG, WebP, GIF, MP4, WebM (Max 5MB each)
             </p>
           </div>
-          
+
           <input
             type="file"
             multiple
@@ -206,7 +222,7 @@ export default function S3FileUploader() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0">
-                      {file.type.startsWith('image/') ? (
+                      {file.type.startsWith("image/") ? (
                         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                           <Eye className="h-5 w-5 text-blue-600" />
                         </div>
@@ -232,15 +248,15 @@ export default function S3FileUploader() {
                 </div>
               ))}
             </div>
-            
+
             <div className="mt-4 flex justify-end">
               <button
                 onClick={uploadFiles}
                 disabled={uploading}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                   uploading
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-green-700"
                 }`}
               >
                 {uploading ? (
@@ -249,7 +265,7 @@ export default function S3FileUploader() {
                     <span>Uploading...</span>
                   </span>
                 ) : (
-                  `Upload ${files.length} File${files.length > 1 ? 's' : ''}`
+                  `Upload ${files.length} File${files.length > 1 ? "s" : ""}`
                 )}
               </button>
             </div>
@@ -276,18 +292,18 @@ export default function S3FileUploader() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {uploadedFiles.map((file) => (
-              <div
-                key={file.id}
-                className="border rounded-lg p-4 space-y-3"
-              >
+              <div key={file.id} className="border rounded-lg p-4 space-y-3">
                 {/* File Preview */}
                 <div className="relative">
-                  {file.type.startsWith('image/') ? (
-                    <img
-                      src={file.viewUrl}
-                      alt={file.name}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                  {file.type.startsWith("image/") ? (
+                    <div className="relative w-full h-32">
+                      <Image
+                        src={file.viewUrl}
+                        alt={file.name}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
                   ) : (
                     <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
                       <Upload className="h-8 w-8 text-gray-400" />
@@ -302,11 +318,15 @@ export default function S3FileUploader() {
 
                 {/* File Info */}
                 <div>
-                  <p className="font-medium text-gray-900 truncate" title={file.name}>
+                  <p
+                    className="font-medium text-gray-900 truncate"
+                    title={file.name}
+                  >
                     {file.name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {formatFileSize(file.size)} • {file.uploadedAt.toLocaleTimeString()}
+                    {formatFileSize(file.size)} •{" "}
+                    {file.uploadedAt.toLocaleTimeString()}
                   </p>
                 </div>
 
@@ -342,14 +362,20 @@ export default function S3FileUploader() {
 
       {/* Usage Instructions */}
       <div className="bg-blue-50 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-blue-900 mb-3">
-          How to Use
-        </h3>
+        <h3 className="text-lg font-medium text-blue-900 mb-3">How to Use</h3>
         <div className="space-y-2 text-sm text-blue-800">
-          <p>• Drag and drop files or click &quot;Choose Files&quot; to select</p>
-          <p>• Supported formats: JPEG, PNG, WebP, GIF images and MP4, WebM videos</p>
+          <p>
+            • Drag and drop files or click &quot;Choose Files&quot; to select
+          </p>
+          <p>
+            • Supported formats: JPEG, PNG, WebP, GIF images and MP4, WebM
+            videos
+          </p>
           <p>• Maximum file size: 5MB per file</p>
-          <p>• Files are uploaded directly to AWS S3 and served via CloudFront CDN</p>
+          <p>
+            • Files are uploaded directly to AWS S3 and served via CloudFront
+            CDN
+          </p>
           <p>• Copy the CloudFront URLs to use in your applications</p>
           <p>• URLs are permanent and globally accessible</p>
         </div>

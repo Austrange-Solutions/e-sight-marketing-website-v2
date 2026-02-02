@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 
 type ImageItem = { url: string; alt?: string };
 
@@ -15,8 +16,14 @@ export default function GalleryGrid({ images }: { images: ImageItem[] }) {
 
   const close = () => setOpen(false);
 
-  const prev = useCallback(() => setIndex((i) => (i - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setIndex((i) => (i + 1) % images.length), [images.length]);
+  const prev = useCallback(
+    () => setIndex((i) => (i - 1 + images.length) % images.length),
+    [images.length]
+  );
+  const next = useCallback(
+    () => setIndex((i) => (i + 1) % images.length),
+    [images.length]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -36,14 +43,19 @@ export default function GalleryGrid({ images }: { images: ImageItem[] }) {
       <h2 className="text-xl font-semibold mb-4">Gallery</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {images.map((img, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <div
             key={i}
-            src={img.url}
-            alt={img.alt || `image-${i}`}
-            className="w-full h-56 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+            className="relative w-full h-56 cursor-pointer hover:opacity-90 transition-opacity"
             onClick={() => openAt(i)}
-          />
+          >
+            <Image
+              src={img.url}
+              alt={img.alt || `image-${i}`}
+              fill
+              className="object-cover rounded-lg"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          </div>
         ))}
       </div>
 
@@ -75,8 +87,15 @@ export default function GalleryGrid({ images }: { images: ImageItem[] }) {
             </button>
 
             <div className="w-full h-full flex items-center justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={images[index].url} alt={images[index].alt || `image-${index}`} className="max-w-full max-h-[80vh] rounded" />
+              <div className="relative max-w-full max-h-[80vh]">
+                <Image
+                  src={images[index].url}
+                  alt={images[index].alt || `image-${index}`}
+                  width={1200}
+                  height={800}
+                  className="max-w-full max-h-[80vh] rounded object-contain"
+                />
+              </div>
             </div>
 
             <div className="absolute left-1/2 -translate-x-1/2 bottom-2 text-white text-sm">

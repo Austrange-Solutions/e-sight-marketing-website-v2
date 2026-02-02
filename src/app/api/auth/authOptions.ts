@@ -1,7 +1,23 @@
-import { type NextAuthOptions, type Session, type User, type Account, type Profile } from "next-auth";
+import {
+  type NextAuthOptions,
+  type Session,
+  type User,
+  type Account,
+  type Profile,
+} from "next-auth";
 import { type JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+// Calculate cookie domain once for consistency and logging
+const cookieDomain =
+  process.env.NODE_ENV === "production"
+    ? ".maceazy.com"
+    : process.env.COOKIE_DOMAIN === "localhost"
+      ? "localhost"
+      : process.env.COOKIE_DOMAIN || "localhost";
+
+console.log("🔒 [AUTH_OPTIONS] Initialized with cookie domain:", cookieDomain);
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
@@ -24,7 +40,10 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
         const user = await User.findOne({ email: credentials.email });
         if (!user) return null;
-        const validPassword = await bcryptjs.compare(credentials.password, user.password);
+        const validPassword = await bcryptjs.compare(
+          credentials.password,
+          user.password,
+        );
         if (!validPassword) return null;
         return {
           id: user._id.toString(),
@@ -42,52 +61,53 @@ export const authOptions: NextAuthOptions = {
   // Configure cookies for cross-subdomain sharing
   cookies: {
     sessionToken: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      name: `${process.env.NODE_ENV === "production" ? "__Secure-" : ""}next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        // Set domain to .maceazy.com to share across all subdomains
-        // Use .localhost in development to support store.localhost:3000
-        domain: process.env.NODE_ENV === 'production' 
-          ? '.maceazy.com' 
-          : '.localhost', // Leading dot allows subdomain sharing
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        // CRITICAL: Use 'localhost' (no leading dot) in development to share across store.localhost
+        // In production use .maceazy.com
+        domain: cookieDomain,
       },
     },
     callbackUrl: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.callback-url`,
+      name: `${process.env.NODE_ENV === "production" ? "__Secure-" : ""}next-auth.callback-url`,
       options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' 
-          ? '.maceazy.com' 
-          : '.localhost',
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        domain: cookieDomain,
       },
     },
     csrfToken: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Host-' : ''}next-auth.csrf-token`,
+      name: `${process.env.NODE_ENV === "production" ? "__Host-" : ""}next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'google') {
-        const { connect } = await import('@/dbConfig/dbConfig');
-        const UserModel = (await import('@/models/userModel')).default;
+      if (account?.provider === "google") {
+        const { connect } = await import("@/dbConfig/dbConfig");
+        const UserModel = (await import("@/models/userModel")).default;
         await connect();
         const existing = await UserModel.findOne({ email: user.email });
         if (!existing) {
+          // Generate a cryptographically secure random password for OAuth users
+          const crypto = await import("crypto");
+          // deepcode ignore HardcodedNonCryptoSecret: Using crypto.randomBytes(32) for secure random password generation
+          const randomPassword = crypto.randomBytes(32).toString("hex");
+
           await UserModel.create({
-            username: user.name || user.email?.split('@')[0] || 'GoogleUser',
+            username: user.name || user.email?.split("@")[0] || "GoogleUser",
             email: user.email,
-            password: '',
+            password: randomPassword,
             isVerified: true,
             isAdmin: false,
           });
@@ -95,21 +115,46 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-  async session({ session, token, user }: { session: Session, token: JWT, user?: User }) {
+    async session({
+      session,
+      token,
+      user,
+    }: {
+      session: Session;
+      token: JWT;
+      user?: User;
+    }) {
       if (session.user) {
         const tokenObj = token as Record<string, unknown>;
-        session.user.id = user?.id || (tokenObj.id as string) || session.user.id;
-        session.user.isAdmin = user?.isAdmin || (tokenObj.isAdmin as boolean) || session.user.isAdmin;
-        session.user.isVerified = user?.isVerified || (tokenObj.isVerified as boolean) || session.user.isVerified;
+        session.user.id =
+          user?.id || (tokenObj.id as string) || session.user.id;
+        session.user.isAdmin =
+          user?.isAdmin ||
+          (tokenObj.isAdmin as boolean) ||
+          session.user.isAdmin;
+        session.user.isVerified =
+          user?.isVerified ||
+          (tokenObj.isVerified as boolean) ||
+          session.user.isVerified;
       }
       return session;
     },
-  async jwt({ token, user }: { token: JWT, user?: User, account?: Account | null, profile?: Profile }) {
+    async jwt({
+      token,
+      user,
+    }: {
+      token: JWT;
+      user?: User;
+      account?: Account | null;
+      profile?: Profile;
+    }) {
       if (user) {
         const tokenObj = token as Record<string, unknown>;
         tokenObj.id = user.id;
         tokenObj.isAdmin = (user as unknown as Record<string, unknown>).isAdmin;
-        tokenObj.isVerified = (user as unknown as Record<string, unknown>).isVerified;
+        tokenObj.isVerified = (
+          user as unknown as Record<string, unknown>
+        ).isVerified;
       }
       return token;
     },

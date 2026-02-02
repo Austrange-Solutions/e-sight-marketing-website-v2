@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -14,8 +14,27 @@ const ContactForm = () => {
     "idle" | "success" | "error" | "submitting"
   >("idle");
 
+  const [messageWordCount, setMessageWordCount] = useState(0);
+  const maxWords = 150;
+
+  // Count words in message
+  const countWords = (text: string): number => {
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate word count
+    if (messageWordCount > maxWords) {
+      setFormStatus("error");
+      setTimeout(() => setFormStatus("idle"), 3000);
+      return;
+    }
+
     setFormStatus("submitting");
     try {
       // Create FormData object instead of using JSON
@@ -71,10 +90,16 @@ const ContactForm = () => {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
+    const { name, value } = e.target;
     setFormState({
       ...formState,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Update word count for message field
+    if (name === "message") {
+      setMessageWordCount(countWords(value));
+    }
   };
 
   return (
@@ -111,6 +136,7 @@ const ContactForm = () => {
         <div className="relative">
           <input
             type="email"
+            inputMode="email"
             name="email"
             id="email"
             value={formState.email}
@@ -151,7 +177,9 @@ const ContactForm = () => {
             onChange={handleChange}
             required
             rows={4}
-            className="w-full px-4 py-3 border-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 peer bg-background"
+            className={`w-full px-4 py-3 border-2 ${
+              messageWordCount > maxWords ? "border-red-500" : "border-input"
+            } rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200 peer bg-background`}
             placeholder=" "
           ></textarea>
           <label
@@ -160,27 +188,39 @@ const ContactForm = () => {
           >
             Your Message
           </label>
+          <div
+            className={`text-sm mt-1 ${messageWordCount > maxWords ? "text-red-600" : "text-muted-foreground"}`}
+          >
+            {messageWordCount}/{maxWords} words
+          </div>
+          {messageWordCount > maxWords && (
+            <p className="text-red-600 text-sm mt-1">
+              Message exceeds {maxWords} words limit. Please reduce by{" "}
+              {messageWordCount - maxWords} words.
+            </p>
+          )}
         </div>
 
         <button
           type="submit"
+          disabled={messageWordCount > maxWords || formStatus === "submitting"}
           className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors duration-200 ${
             formStatus === "success"
               ? "bg-[oklch(0.70_0.15_160)]"
               : formStatus === "error"
-              ? "bg-destructive"
-              : formStatus === "submitting"
-              ? "bg-muted cursor-not-allowed"
-              : "bg-primary hover:bg-primary/90"
+                ? "bg-destructive"
+                : formStatus === "submitting" || messageWordCount > maxWords
+                  ? "bg-muted cursor-not-allowed"
+                  : "bg-primary hover:bg-primary/90"
           }`}
         >
           {formStatus === "success"
             ? "Message Sent!"
             : formStatus === "submitting"
-            ? "Sending..."
-            : formStatus === "error"
-            ? "Error Sending Message"
-            : "Send Message"}
+              ? "Sending..."
+              : formStatus === "error"
+                ? "Error Sending Message"
+                : "Send Message"}
         </button>
       </form>
     </motion.div>

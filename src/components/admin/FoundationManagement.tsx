@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Save, X, Power, PowerOff, Upload, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Save,
+  X,
+  Power,
+  PowerOff,
+  Upload,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface Foundation {
@@ -32,7 +43,18 @@ interface Foundation {
   updatedAt: string;
 }
 
-const DEFAULT_EMOJIS = ["❤️", "💚", "💜", "🧡", "💙", "💛", "🤍", "🖤", "💖", "💗"];
+const DEFAULT_EMOJIS = [
+  "❤️",
+  "💚",
+  "💜",
+  "🧡",
+  "💙",
+  "💛",
+  "🤍",
+  "🖤",
+  "💖",
+  "💗",
+];
 
 export default function FoundationManagement() {
   const [foundations, setFoundations] = useState<Foundation[]>([]);
@@ -95,15 +117,18 @@ export default function FoundationManagement() {
       setUploadingLogo(targetId);
 
       // Generate pre-signed URL
-      const presignedResponse = await fetch("/api/images/generate-presigned-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          filename: file.name,
-          fileType: file.type,
-          folder: "donation-logos",
-        }),
-      });
+      const presignedResponse = await fetch(
+        "/api/images/generate-presigned-url",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filename: file.name,
+            fileType: file.type,
+            folder: "donation-logos",
+          }),
+        }
+      );
 
       if (!presignedResponse.ok) {
         const errorData = await presignedResponse.json();
@@ -156,7 +181,8 @@ export default function FoundationManagement() {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Failed to create foundation");
+      if (!response.ok)
+        throw new Error(data.error || "Failed to create foundation");
 
       toast.success("Foundation created successfully");
       fetchFoundations();
@@ -178,7 +204,8 @@ export default function FoundationManagement() {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Failed to update foundation");
+      if (!response.ok)
+        throw new Error(data.error || "Failed to update foundation");
 
       toast.success("Foundation updated successfully");
       fetchFoundations();
@@ -191,7 +218,11 @@ export default function FoundationManagement() {
 
   // Delete foundation
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${name}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
@@ -202,7 +233,8 @@ export default function FoundationManagement() {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Failed to delete foundation");
+      if (!response.ok)
+        throw new Error(data.error || "Failed to delete foundation");
 
       toast.success("Foundation deleted successfully");
       fetchFoundations();
@@ -285,7 +317,9 @@ export default function FoundationManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Foundation Management</h2>
+          <h2 className="text-2xl font-bold text-foreground">
+            Foundation Management
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">
             Add, edit, and manage foundations for your donation platform
           </p>
@@ -294,7 +328,11 @@ export default function FoundationManagement() {
           onClick={() => setShowAddForm(!showAddForm)}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
-          {showAddForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          {showAddForm ? (
+            <X className="w-4 h-4" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
           {showAddForm ? "Cancel" : "Add Foundation"}
         </button>
       </div>
@@ -303,7 +341,11 @@ export default function FoundationManagement() {
       {(showAddForm || editingId) && (
         <div className="bg-card border border-border rounded-lg p-6 space-y-6">
           <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            {editingId ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+            {editingId ? (
+              <Edit2 className="w-5 h-5" />
+            ) : (
+              <Plus className="w-5 h-5" />
+            )}
             {editingId ? "Edit Foundation" : "Add New Foundation"}
           </h3>
 
@@ -316,7 +358,9 @@ export default function FoundationManagement() {
               <input
                 type="text"
                 value={formData.foundationName}
-                onChange={(e) => setFormData({ ...formData, foundationName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, foundationName: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                 placeholder="e.g., Vishnu Shakti Foundation"
               />
@@ -330,12 +374,18 @@ export default function FoundationManagement() {
               <input
                 type="text"
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value.toLowerCase() })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    code: e.target.value.toLowerCase(),
+                  })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground font-mono"
                 placeholder="vsf, cf, abc (auto-generated if empty)"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Lowercase letters, numbers, hyphens only. Leave empty for auto-generation.
+                Lowercase letters, numbers, hyphens only. Leave empty for
+                auto-generation.
               </p>
             </div>
 
@@ -347,7 +397,9 @@ export default function FoundationManagement() {
               <input
                 type="text"
                 value={formData.displayName}
-                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                 placeholder="VSF, CF (optional)"
               />
@@ -365,7 +417,10 @@ export default function FoundationManagement() {
                 step="0.01"
                 value={formData.foundationSharePercent}
                 onChange={(e) =>
-                  setFormData({ ...formData, foundationSharePercent: parseFloat(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    foundationSharePercent: parseFloat(e.target.value) || 0,
+                  })
                 }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
@@ -386,7 +441,10 @@ export default function FoundationManagement() {
                 step="0.01"
                 value={formData.companySharePercent}
                 onChange={(e) =>
-                  setFormData({ ...formData, companySharePercent: parseFloat(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    companySharePercent: parseFloat(e.target.value) || 0,
+                  })
                 }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
@@ -407,12 +465,19 @@ export default function FoundationManagement() {
                 step="0.01"
                 value={formData.platformFeePercent}
                 onChange={(e) =>
-                  setFormData({ ...formData, platformFeePercent: parseFloat(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    platformFeePercent: parseFloat(e.target.value) || 0,
+                  })
                 }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Deducted before Foundation/Company split. Example: ₹100 donation → ₹{formData.platformFeePercent} platform fee → ₹{(100 - formData.platformFeePercent).toFixed(2)} split between foundation ({formData.foundationSharePercent}%) and company ({formData.companySharePercent}%)
+                Deducted before Foundation/Company split. Example: ₹100 donation
+                → ₹{formData.platformFeePercent} platform fee → ₹
+                {(100 - formData.platformFeePercent).toFixed(2)} split between
+                foundation ({formData.foundationSharePercent}%) and company (
+                {formData.companySharePercent}%)
               </p>
             </div>
 
@@ -424,7 +489,9 @@ export default function FoundationManagement() {
               <input
                 type="text"
                 value={formData.tagline}
-                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, tagline: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                 placeholder="e.g., Empowering visually impaired individuals"
                 maxLength={150}
@@ -438,7 +505,9 @@ export default function FoundationManagement() {
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none"
                 rows={3}
                 placeholder="Full description of the foundation's mission and work"
@@ -481,13 +550,17 @@ export default function FoundationManagement() {
                 <input
                   type="color"
                   value={formData.primaryColor}
-                  onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, primaryColor: e.target.value })
+                  }
                   className="w-16 h-10 rounded-lg cursor-pointer border border-border"
                 />
                 <input
                   type="text"
                   value={formData.primaryColor}
-                  onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, primaryColor: e.target.value })
+                  }
                   className="flex-1 px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground font-mono"
                   placeholder="#10b981"
                 />
@@ -501,15 +574,19 @@ export default function FoundationManagement() {
               </label>
               <div className="flex items-center gap-4">
                 {formData.logoUrl && (
-                  <img
+                  <Image
                     src={formData.logoUrl}
                     alt="Logo preview"
+                    width={64}
+                    height={64}
                     className="w-16 h-16 object-contain rounded-lg border border-border"
                   />
                 )}
                 <label className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 cursor-pointer transition-colors">
                   <Upload className="w-4 h-4" />
-                  {uploadingLogo === (editingId || "new") ? "Uploading..." : "Upload Logo"}
+                  {uploadingLogo === (editingId || "new")
+                    ? "Uploading..."
+                    : "Upload Logo"}
                   <input
                     type="file"
                     accept="image/*"
@@ -544,7 +621,9 @@ export default function FoundationManagement() {
               <input
                 type="email"
                 value={formData.contactEmail}
-                onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, contactEmail: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                 placeholder="contact@foundation.org"
               />
@@ -558,7 +637,9 @@ export default function FoundationManagement() {
               <input
                 type="tel"
                 value={formData.contactPhone}
-                onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, contactPhone: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                 placeholder="+91 98765 43210"
               />
@@ -572,7 +653,9 @@ export default function FoundationManagement() {
               <input
                 type="url"
                 value={formData.website}
-                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, website: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                 placeholder="https://foundation.org"
               />
@@ -587,7 +670,12 @@ export default function FoundationManagement() {
                 type="number"
                 min="1"
                 value={formData.minimumDonation}
-                onChange={(e) => setFormData({ ...formData, minimumDonation: parseInt(e.target.value) || 1 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    minimumDonation: parseInt(e.target.value) || 1,
+                  })
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
             </div>
@@ -598,10 +686,15 @@ export default function FoundationManagement() {
                 type="checkbox"
                 id="isActive"
                 checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                onChange={(e) =>
+                  setFormData({ ...formData, isActive: e.target.checked })
+                }
                 className="w-5 h-5 rounded border-border text-primary focus:ring-ring"
               />
-              <label htmlFor="isActive" className="text-sm font-medium text-foreground cursor-pointer">
+              <label
+                htmlFor="isActive"
+                className="text-sm font-medium text-foreground cursor-pointer"
+              >
                 Active (show on donation page)
               </label>
             </div>
@@ -653,9 +746,11 @@ export default function FoundationManagement() {
                     }}
                   >
                     {foundation.logoUrl ? (
-                      <img
+                      <Image
                         src={foundation.logoUrl}
                         alt={foundation.foundationName}
+                        width={96}
+                        height={96}
                         className="w-full h-full object-contain rounded-lg"
                       />
                     ) : (
@@ -690,7 +785,9 @@ export default function FoundationManagement() {
                     </div>
 
                     {foundation.tagline && (
-                      <p className="text-sm text-muted-foreground mb-2">{foundation.tagline}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {foundation.tagline}
+                      </p>
                     )}
 
                     {foundation.description && (
@@ -702,19 +799,26 @@ export default function FoundationManagement() {
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-border">
                       <div>
-                        <p className="text-xs text-muted-foreground">Total Donations</p>
+                        <p className="text-xs text-muted-foreground">
+                          Total Donations
+                        </p>
                         <p className="text-sm font-semibold text-foreground">
                           {foundation.stats.totalDonations}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Total Amount</p>
+                        <p className="text-xs text-muted-foreground">
+                          Total Amount
+                        </p>
                         <p className="text-sm font-semibold text-foreground">
-                          ₹{foundation.stats.totalAmount.toLocaleString("en-IN")}
+                          ₹
+                          {foundation.stats.totalAmount.toLocaleString("en-IN")}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Unique Donors</p>
+                        <p className="text-xs text-muted-foreground">
+                          Unique Donors
+                        </p>
                         <p className="text-sm font-semibold text-foreground">
                           {foundation.stats.donorCount}
                         </p>
@@ -724,19 +828,25 @@ export default function FoundationManagement() {
                     {/* Percentage Split */}
                     <div className="flex gap-6 mt-3">
                       <div>
-                        <span className="text-xs text-muted-foreground">Foundation: </span>
+                        <span className="text-xs text-muted-foreground">
+                          Foundation:{" "}
+                        </span>
                         <span className="text-sm font-semibold text-green-600">
                           {foundation.foundationSharePercent}%
                         </span>
                       </div>
                       <div>
-                        <span className="text-xs text-muted-foreground">Company: </span>
+                        <span className="text-xs text-muted-foreground">
+                          Company:{" "}
+                        </span>
                         <span className="text-sm font-semibold text-orange-600">
                           {foundation.companySharePercent}%
                         </span>
                       </div>
                       <div>
-                        <span className="text-xs text-muted-foreground">Priority: </span>
+                        <span className="text-xs text-muted-foreground">
+                          Priority:{" "}
+                        </span>
                         <span className="text-sm font-semibold text-foreground">
                           {foundation.priority}
                         </span>
@@ -756,7 +866,11 @@ export default function FoundationManagement() {
                     }`}
                     title={foundation.isActive ? "Deactivate" : "Activate"}
                   >
-                    {foundation.isActive ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                    {foundation.isActive ? (
+                      <PowerOff className="w-4 h-4" />
+                    ) : (
+                      <Power className="w-4 h-4" />
+                    )}
                   </button>
                   <button
                     onClick={() => startEdit(foundation)}
@@ -766,7 +880,9 @@ export default function FoundationManagement() {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(foundation._id, foundation.foundationName)}
+                    onClick={() =>
+                      handleDelete(foundation._id, foundation.foundationName)
+                    }
                     className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                     title="Delete"
                   >
@@ -786,11 +902,25 @@ export default function FoundationManagement() {
           <div className="text-sm text-blue-800">
             <p className="font-semibold mb-1">How it works:</p>
             <ul className="list-disc list-inside space-y-1">
-              <li>Only <strong>active</strong> foundations appear on the donation page</li>
-              <li>Foundation Share % = portion foundation receives from each donation</li>
-              <li>Company Share % = remaining portion (auto-calculated: 100 - Foundation Share)</li>
-              <li>Priority determines display order (lower number = appears first)</li>
-              <li>Foundations with donations cannot be deleted (deactivate instead)</li>
+              <li>
+                Only <strong>active</strong> foundations appear on the donation
+                page
+              </li>
+              <li>
+                Foundation Share % = portion foundation receives from each
+                donation
+              </li>
+              <li>
+                Company Share % = remaining portion (auto-calculated: 100 -
+                Foundation Share)
+              </li>
+              <li>
+                Priority determines display order (lower number = appears first)
+              </li>
+              <li>
+                Foundations with donations cannot be deleted (deactivate
+                instead)
+              </li>
             </ul>
           </div>
         </div>

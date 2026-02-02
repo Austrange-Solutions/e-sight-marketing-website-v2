@@ -35,6 +35,7 @@ export const metadata: Metadata = {
 };
 
 const Home = () => {
+ 
   return (
     <div className="pt-16">
       {/* Hero Section - Client Component with animations */}

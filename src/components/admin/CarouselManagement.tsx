@@ -1,6 +1,7 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
+"use client";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { toast } from "react-hot-toast";
 
 export default function CarouselManagement() {
   const [images, setImages] = useState<any[]>([]);
@@ -12,14 +13,14 @@ export default function CarouselManagement() {
   const fetchImages = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/images?tags=carousel&limit=200');
+      const res = await fetch("/api/images?tags=carousel&limit=200");
       const data = await res.json();
       if (data && data.success) {
         setImages(data.data || []);
       }
     } catch (err) {
       console.error(err);
-      toast.error('Failed to fetch images');
+      toast.error("Failed to fetch images");
     } finally {
       setLoading(false);
     }
@@ -36,77 +37,81 @@ export default function CarouselManagement() {
   };
 
   const handleUpload = async () => {
-    if (!file) return toast.error('Select a file first');
+    if (!file) return toast.error("Select a file first");
     setUploading(true);
     try {
       // Request presigned URL from backend (admin endpoint)
-      const presignedRes = await fetch('/api/images/generate-presigned-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name, fileType: file.type, folder: 'carousel' }),
-        credentials: 'include',
+      const presignedRes = await fetch("/api/images/generate-presigned-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          fileType: file.type,
+          folder: "carousel",
+        }),
+        credentials: "include",
       });
       const presignedData = await presignedRes.json();
       if (!presignedRes.ok || !presignedData || !presignedData.uploadUrl) {
-        throw new Error(presignedData?.error || 'Failed to get upload URL');
+        throw new Error(presignedData?.error || "Failed to get upload URL");
       }
 
       // Upload file directly to S3 (PUT)
       await fetch(presignedData.uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
+        method: "PUT",
+        headers: { "Content-Type": file.type },
         body: file,
       });
 
       // Save metadata in DB
-      const saveRes = await fetch('/api/images', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const saveRes = await fetch("/api/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
-          filename: presignedData.key.split('/').pop(),
+          filename: presignedData.key.split("/").pop(),
           originalName: file.name,
           s3Key: presignedData.key,
           cloudFrontUrl: presignedData.fileUrl,
           s3Url: presignedData.fileUrl,
           fileSize: file.size,
           fileType: file.type,
-          tags: ['carousel'],
-          uploadMethod: 'signed-url'
-        })
+          tags: ["carousel"],
+          uploadMethod: "signed-url",
+        }),
       });
 
       const saved = await saveRes.json();
       if (saveRes.ok && saved && saved.success) {
-        toast.success('Image uploaded and saved');
+        toast.success("Image uploaded and saved");
         setFile(null);
         fetchImages();
       } else {
-        console.error('Save failed', saved);
-        toast.error(saved?.error || 'Failed to save image metadata');
+        console.error("Save failed", saved);
+        toast.error(saved?.error || "Failed to save image metadata");
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err?.message || 'Upload failed');
+      toast.error(err?.message || "Upload failed");
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this image?')) return;
+    if (!confirm("Delete this image?")) return;
     try {
-      const res = await fetch(`/api/images/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/images/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data && data.success) {
-        toast.success('Image deleted');
+        toast.success("Image deleted");
         fetchImages();
       } else {
-        toast.error('Delete failed');
+        toast.error("Delete failed");
       }
     } catch (err) {
       console.error(err);
-      toast.error('Delete failed');
+      toast.error("Delete failed");
     }
   };
 
@@ -120,25 +125,25 @@ export default function CarouselManagement() {
     if (!editing) return;
     try {
       const res = await fetch(`/api/images/${editing._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           altText: editing.altText,
           description: editing.description,
           isActive: editing.isActive,
-        })
+        }),
       });
       const data = await res.json();
       if (data && data.success) {
-        toast.success('Saved');
+        toast.success("Saved");
         setEditing(null);
         fetchImages();
       } else {
-        toast.error('Save failed');
+        toast.error("Save failed");
       }
     } catch (err) {
       console.error(err);
-      toast.error('Save failed');
+      toast.error("Save failed");
     }
   };
 
@@ -147,15 +152,25 @@ export default function CarouselManagement() {
       <h2 className="text-xl font-semibold mb-4">Homepage Carousel</h2>
 
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className='border p-1'>
+        <div className="border p-1">
           {/* Allow both images and videos for carousel uploads */}
-          <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
+          <input
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleFileChange}
+          />
         </div>
         <div className="flex gap-2">
-          <button onClick={handleUpload} disabled={!file || uploading} className="px-3 py-1 bg-primary text-white rounded disabled:opacity-50">
-            {uploading ? 'Uploading...' : 'Upload to Carousel'}
+          <button
+            onClick={handleUpload}
+            disabled={!file || uploading}
+            className="px-3 py-1 bg-primary text-white rounded disabled:opacity-50"
+          >
+            {uploading ? "Uploading..." : "Upload to Carousel"}
           </button>
-          <button onClick={fetchImages} className="px-3 py-1 border rounded">Refresh</button>
+          <button onClick={fetchImages} className="px-3 py-1 border rounded">
+            Refresh
+          </button>
         </div>
       </div>
 
@@ -165,21 +180,47 @@ export default function CarouselManagement() {
         <div>No carousel images configured</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {images.map(img => (
-            <div key={img._id} className="border p-2 rounded bg-card flex flex-col">
-              <div className="w-full h-40 bg-gray-100 rounded overflow-hidden">
-                {((img.fileType || '') as string).startsWith('video') ? (
-                  <video src={img.cloudFrontUrl || img.s3Url} controls className="w-full h-full object-cover" />
+          {images.map((img) => (
+            <div
+              key={img._id}
+              className="border p-2 rounded bg-card flex flex-col"
+            >
+              <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
+                {((img.fileType || "") as string).startsWith("video") ? (
+                  <video
+                    src={img.cloudFrontUrl || img.s3Url}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <img src={img.cloudFrontUrl || img.s3Url} alt={img.altText || img.originalName} className="w-full h-full object-cover" />
+                  <Image
+                    src={img.cloudFrontUrl || img.s3Url}
+                    alt={img.altText || img.originalName}
+                    fill
+                    className="object-cover"
+                  />
                 )}
               </div>
-              <div className="mt-2 text-sm font-medium truncate">{img.filename}</div>
-              <div className="text-xs text-muted-foreground truncate">{img.originalName}</div>
+              <div className="mt-2 text-sm font-medium truncate">
+                {img.filename}
+              </div>
+              <div className="text-xs text-muted-foreground truncate">
+                {img.originalName}
+              </div>
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => startEdit(img)} className="px-2 py-1 border rounded text-sm">Edit</button>
-                  <button onClick={() => handleDelete(img._id)} className="px-2 py-1 border text-destructive text-sm ">Delete</button>
+                  <button
+                    onClick={() => startEdit(img)}
+                    className="px-2 py-1 border rounded text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(img._id)}
+                    className="px-2 py-1 border text-destructive text-sm "
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>
@@ -194,25 +235,54 @@ export default function CarouselManagement() {
             <h3 className="text-lg font-semibold mb-2">Edit Slide</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
-                <div className="w-full h-48 bg-gray-100 rounded overflow-hidden">
-                  {((editing.fileType || '') as string).startsWith('video') ? (
-                    <video src={editing.cloudFrontUrl || editing.s3Url} controls className="w-full h-full object-cover" />
+                <div className="relative w-full h-48 bg-gray-100 rounded overflow-hidden">
+                  {((editing.fileType || "") as string).startsWith("video") ? (
+                    <video
+                      src={editing.cloudFrontUrl || editing.s3Url}
+                      controls
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <img src={editing.cloudFrontUrl || editing.s3Url} alt={editing.altText || editing.originalName} className="w-full h-full object-cover" />
+                    <Image
+                      src={editing.cloudFrontUrl || editing.s3Url}
+                      alt={editing.altText || editing.originalName}
+                      fill
+                      className="object-cover"
+                    />
                   )}
                 </div>
               </div>
               <div className="md:col-span-2 space-y-3">
                 <label className="block text-sm">Alt Text</label>
-                <input value={editing.altText || ''} onChange={(e) => setEditing({ ...editing, altText: e.target.value })} className="w-full p-2 border rounded" />
+                <input
+                  value={editing.altText || ""}
+                  onChange={(e) =>
+                    setEditing({ ...editing, altText: e.target.value })
+                  }
+                  className="w-full p-2 border rounded"
+                />
                 <label className="block text-sm">Description</label>
-                <textarea value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="w-full p-2 border rounded" rows={3} />
+                <textarea
+                  value={editing.description || ""}
+                  onChange={(e) =>
+                    setEditing({ ...editing, description: e.target.value })
+                  }
+                  className="w-full p-2 border rounded"
+                  rows={3}
+                />
               </div>
             </div>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button onClick={cancelEdit} className="px-3 py-1 border rounded">Cancel</button>
-              <button onClick={saveEdit} className="px-3 py-1 bg-primary text-white rounded">Save</button>
+              <button onClick={cancelEdit} className="px-3 py-1 border rounded">
+                Cancel
+              </button>
+              <button
+                onClick={saveEdit}
+                className="px-3 py-1 bg-primary text-white rounded"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>

@@ -1,6 +1,16 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { Upload, Trash2, Eye, FileText, Search, Filter, AlertCircle, CheckCircle } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Upload,
+  Trash2,
+  Eye,
+  FileText,
+  Search,
+  Filter,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { sanitizeUrl } from "@/lib/validation";
 
 interface Resource {
   _id: string;
@@ -18,25 +28,28 @@ interface Resource {
 }
 
 const categoryLabels: Record<string, string> = {
-  'annual-reports': 'Annual Reports',
-  'project-reports': 'Project Reports',
-  'documents': 'Documents',
+  "annual-reports": "Annual Reports",
+  "project-reports": "Project Reports",
+  documents: "Documents",
 };
 
 const ResourcesManagement = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [filter, setFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
-    title: '',
-    description: '',
-    category: 'documents' as 'annual-reports' | 'project-reports' | 'documents',
+    title: "",
+    description: "",
+    category: "documents" as "annual-reports" | "project-reports" | "documents",
     file: null as File | null,
   });
 
@@ -47,15 +60,15 @@ const ResourcesManagement = () => {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/resources?limit=200');
+      const response = await fetch("/api/resources?limit=200");
       const data = await response.json();
 
       if (data.success) {
         setResources(data.data);
       }
     } catch (error) {
-      console.error('Error fetching resources:', error);
-      showMessage('error', 'Failed to fetch resources');
+      console.error("Error fetching resources:", error);
+      showMessage("error", "Failed to fetch resources");
     } finally {
       setLoading(false);
     }
@@ -65,7 +78,7 @@ const ResourcesManagement = () => {
     e.preventDefault();
 
     if (!uploadForm.file || !uploadForm.title) {
-      showMessage('error', 'Please provide a title and select a file');
+      showMessage("error", "Please provide a title and select a file");
       return;
     }
 
@@ -73,9 +86,9 @@ const ResourcesManagement = () => {
       setUploading(true);
 
       // Step 1: Create resource and get presigned URL
-      const createResponse = await fetch('/api/resources', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const createResponse = await fetch("/api/resources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: uploadForm.title,
           description: uploadForm.description,
@@ -89,90 +102,94 @@ const ResourcesManagement = () => {
       const createData = await createResponse.json();
 
       if (!createData.success) {
-        throw new Error(createData.error || 'Failed to create resource');
+        throw new Error(createData.error || "Failed to create resource");
       }
 
       // Step 2: Upload file to S3 using presigned URL
       const uploadResponse = await fetch(createData.data.uploadUrl, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': uploadForm.file.type,
+          "Content-Type": uploadForm.file.type,
         },
         body: uploadForm.file,
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file to S3');
+        throw new Error("Failed to upload file to S3");
       }
 
-      showMessage('success', 'Resource uploaded successfully!');
+      showMessage("success", "Resource uploaded successfully!");
       setShowUploadForm(false);
       setUploadForm({
-        title: '',
-        description: '',
-        category: 'documents',
+        title: "",
+        description: "",
+        category: "documents",
         file: null,
       });
       fetchResources();
     } catch (error: any) {
-      console.error('Upload error:', error);
-      showMessage('error', error.message || 'Failed to upload resource');
+      console.error("Upload error:", error);
+      showMessage("error", error.message || "Failed to upload resource");
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (resourceId: string, resourceTitle: string) => {
-    if (!confirm(`Are you sure you want to delete "${resourceTitle}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${resourceTitle}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
     try {
       const response = await fetch(`/api/resources/${resourceId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       const data = await response.json();
 
       if (data.success) {
-        showMessage('success', 'Resource deleted successfully');
+        showMessage("success", "Resource deleted successfully");
         fetchResources();
       } else {
-        throw new Error(data.error || 'Failed to delete resource');
+        throw new Error(data.error || "Failed to delete resource");
       }
     } catch (error: any) {
-      console.error('Delete error:', error);
-      showMessage('error', error.message || 'Failed to delete resource');
+      console.error("Delete error:", error);
+      showMessage("error", error.message || "Failed to delete resource");
     }
   };
 
-  const showMessage = (type: 'success' | 'error', text: string) => {
+  const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const filteredResources = resources.filter((resource) => {
-    const matchesCategory = filter === 'all' || resource.category === filter;
+    const matchesCategory = filter === "all" || resource.category === filter;
     const matchesSearch =
-      searchTerm === '' ||
+      searchTerm === "" ||
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -183,7 +200,9 @@ const ResourcesManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Resources Management</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Resources Management
+          </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Upload and manage annual reports, project reports, and documents
           </p>
@@ -201,12 +220,12 @@ const ResourcesManagement = () => {
       {message && (
         <div
           className={`flex items-center gap-2 p-4 rounded-lg ${
-            message.type === 'success'
-              ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200'
-              : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200'
+            message.type === "success"
+              ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200"
+              : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200"
           }`}
         >
-          {message.type === 'success' ? (
+          {message.type === "success" ? (
             <CheckCircle className="w-5 h-5" />
           ) : (
             <AlertCircle className="w-5 h-5" />
@@ -218,7 +237,9 @@ const ResourcesManagement = () => {
       {/* Upload Form */}
       {showUploadForm && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upload New Resource</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Upload New Resource
+          </h3>
 
           {/* Metadata Stripping Info */}
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
@@ -226,7 +247,11 @@ const ResourcesManagement = () => {
               <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-yellow-800 dark:text-yellow-200">
                 <p className="font-medium mb-1">Metadata Stripping Notice:</p>
-                <p>All file metadata will be removed during upload for privacy and security. Only essential information (upload date) will be retained.</p>
+                <p>
+                  All file metadata will be removed during upload for privacy
+                  and security. Only essential information (upload date) will be
+                  retained.
+                </p>
               </div>
             </div>
           </div>
@@ -239,7 +264,9 @@ const ResourcesManagement = () => {
               <input
                 type="text"
                 value={uploadForm.title}
-                onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
+                onChange={(e) =>
+                  setUploadForm({ ...uploadForm, title: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 placeholder="e.g., Annual Report 2024"
                 required
@@ -252,7 +279,9 @@ const ResourcesManagement = () => {
               </label>
               <textarea
                 value={uploadForm.description}
-                onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
+                onChange={(e) =>
+                  setUploadForm({ ...uploadForm, description: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 placeholder="Brief description of the resource"
                 rows={3}
@@ -268,7 +297,10 @@ const ResourcesManagement = () => {
                 onChange={(e) =>
                   setUploadForm({
                     ...uploadForm,
-                    category: e.target.value as 'annual-reports' | 'project-reports' | 'documents',
+                    category: e.target.value as
+                      | "annual-reports"
+                      | "project-reports"
+                      | "documents",
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
@@ -286,14 +318,20 @@ const ResourcesManagement = () => {
               </label>
               <input
                 type="file"
-                onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
+                onChange={(e) =>
+                  setUploadForm({
+                    ...uploadForm,
+                    file: e.target.files?.[0] || null,
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp"
                 required
               />
               {uploadForm.file && (
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Selected: {uploadForm.file.name} ({formatFileSize(uploadForm.file.size)})
+                  Selected: {uploadForm.file.name} (
+                  {formatFileSize(uploadForm.file.size)})
                 </p>
               )}
             </div>
@@ -364,7 +402,9 @@ const ResourcesManagement = () => {
       {loading ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
           <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading resources...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading resources...
+          </p>
         </div>
       ) : filteredResources.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
@@ -402,12 +442,17 @@ const ResourcesManagement = () => {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredResources.map((resource) => (
-                  <tr key={resource._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <tr
+                    key={resource._id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                         <div>
-                          <div className="font-medium text-gray-900 dark:text-white">{resource.title}</div>
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            {resource.title}
+                          </div>
                           {resource.description && (
                             <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
                               {resource.description}
@@ -438,17 +483,25 @@ const ResourcesManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {/* deepcode ignore DOMXSS: URL validated via sanitizeUrl which checks against CloudFront/S3 allowlist */}
                         <a
-                          href={resource.fileUrl}
+                          href={sanitizeUrl(resource.fileUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => {
+                            if (sanitizeUrl(resource.fileUrl) === "#") {
+                              e.preventDefault();
+                            }
+                          }}
                           className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                           title="View resource"
                         >
                           <Eye className="w-4 h-4" />
                         </a>
                         <button
-                          onClick={() => handleDelete(resource._id, resource.title)}
+                          onClick={() =>
+                            handleDelete(resource._id, resource.title)
+                          }
                           className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
                           title="Delete resource"
                         >

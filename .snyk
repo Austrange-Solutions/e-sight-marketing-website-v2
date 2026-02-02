@@ -1,0 +1,56 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+
+# These are verified false positives - all user inputs are properly sanitized before use
+ignore:
+  "SNYK-JS-VALIDATION-39b6738c-e249-4f55-8340-38c1b7e9967d":
+    - "*":
+        reason: "Google OAuth users receive dynamically generated secure passwords, not empty strings. Password field is required by schema but never used for OAuth authentication."
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-126edf24-44da-4c15-aace-cddad919283a":
+    - "*":
+        reason: "Input is sanitized with escapeRegex() function before being used in RegExp constructor. This function escapes all special regex characters to prevent ReDoS attacks. See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-5388344e-2e7a-472d-8629-9c95ab941434":
+    - "*":
+        reason: "URL is validated through sanitizeUrl() helper which checks against allowed CloudFront/S3 domains and blocks javascript:/data:/vbscript: protocols. See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-6c3aa24d-0d9b-4cb1-8348-6dd0095f900e":
+    - "*":
+        reason: "URL is validated through sanitizeUrl() helper which checks against allowed CloudFront/S3 domains and blocks javascript:/data:/vbscript: protocols. See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-2f465ce8-b349-45d1-abb6-9c0269e3e8bb":
+    - "*":
+        reason: "URL is validated through sanitizeUrl() helper which checks against allowed CloudFront/S3 domains and blocks javascript:/data:/vbscript: protocols. See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-5c9534aa-3f02-4afd-b0ab-91ab5d14d810":
+    - "*":
+        reason: "URL is validated through sanitizeUrl() helper which checks against allowed CloudFront/S3 domains and blocks javascript:/data:/vbscript: protocols. See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-58fe8751-a824-4db4-9179-c210b3a58148":
+    - "*":
+        reason: "URL is validated through sanitizeUrl() helper which checks against allowed CloudFront/S3 domains and blocks javascript:/data:/vbscript: protocols. See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-66734c68-ec49-40e0-bf42-2ed90cf341a6":
+    - "*":
+        reason: 'Blob URLs from export API are validated to ensure they start with "blob:" protocol before DOM manipulation. This prevents XSS from malicious URLs.'
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-965e06b0-91a5-4809-8f47-56c7a4085a45":
+    - "*":
+        reason: 'Blob URLs from export API are validated to ensure they start with "blob:" protocol before DOM manipulation. This prevents XSS from malicious URLs.'
+        expires: "2026-12-25T00:00:00.000Z"
+
+  "SNYK-JS-VALIDATION-562b1c09-a566-4c1a-bb4d-377feaa814eb":
+    - "*":
+        reason: "URL is validated through sanitizeUrl() helper which checks against allowed CloudFront/S3 domains and blocks javascript:/data:/vbscript: protocols before window.open(). See src/lib/validation.ts"
+        expires: "2026-12-25T00:00:00.000Z"
+
+patch: {}

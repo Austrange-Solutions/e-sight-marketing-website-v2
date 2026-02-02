@@ -1,4 +1,4 @@
-﻿'use client';
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {Upload, CheckCircle, Loader2, FileText, X, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Upload,
+  CheckCircle,
+  Loader2,
+  FileText,
+  X,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 
 // Simple toast replacement
 const toast = {
@@ -35,105 +43,190 @@ const formSchema = z.object({
     .max(100, "Full name must not exceed 100 characters")
     .regex(/^[a-zA-Z\s.]+$/, "Only letters, spaces, and dots allowed"),
   email: z.string().email("Invalid email address").toLowerCase(),
-  aadharNumber: z.string().regex(/^\d{12}$/, "Aadhaar must be a 12-digit number").optional().or(z.literal("")),
-  phone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit Indian mobile number"),
-  alternatePhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
+  aadharNumber: z
+    .string()
+    .regex(/^\d{12}$/, "Aadhaar must be a 12-digit number")
+    .optional()
+    .or(z.literal("")),
+  phone: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit Indian mobile number"),
+  alternatePhone: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number")
+    .optional()
+    .or(z.literal("")),
   dateOfBirth: z.string().refine((date) => {
     const birthDate = new Date(date);
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
     return age >= 1 && age <= 120;
   }, "Age must be between 1 and 120 years"),
-  gender: z.enum(["Male", "Female", "Other"], { message: "Please select a gender" }),
-  address: z.string().min(10, "Address must be at least 10 characters").max(500, "Address must not exceed 500 characters"),
-  city: z.string().min(2, "City name must be at least 2 characters").max(100, "City must not exceed 100 characters"),
+  gender: z.enum(["Male", "Female", "Other"], {
+    message: "Please select a gender",
+  }),
+  address: z
+    .string()
+    .min(10, "Address must be at least 10 characters")
+    .max(500, "Address must not exceed 500 characters"),
+  city: z
+    .string()
+    .min(2, "City name must be at least 2 characters")
+    .max(100, "City must not exceed 100 characters"),
   state: z.string().min(2, "Please select a state"),
   pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
-  disabilityType: z.enum([
-    "Blindness",
-    "Low Vision",
-    "Leprosy Cured Persons",
-    "Hearing Impairment (Deaf and hard of hearing)",
-    "Locomotor Disability",
-    "Dwarfism",
-    "Intellectual Disability",
-    "Mental Illness",
-    "Autism Spectrum Disorder",
-    "Cerebral Palsy",
-    "Muscular Dystrophy",
-    "Chronic Neurological Conditions",
-    "Specific Learning Disabilities (e.g., Dyslexia)",
-    "Multiple Sclerosis",
-    "Speech and Language Disability",
-    "Thalassemia",
-    "Hemophilia",
-    "Sickle Cell Disease",
-    "Multiple Disabilities (More than one of the above)",
-    "Acid Attack Victims",
-    "Parkinsonâ€™s Disease",
-    "Others"
-  ], { message: "Please select a disability type" }),
+  disabilityType: z.enum(
+    [
+      "Blindness",
+      "Low Vision",
+      "Leprosy Cured Persons",
+      "Hearing Impairment (Deaf and hard of hearing)",
+      "Locomotor Disability",
+      "Dwarfism",
+      "Intellectual Disability",
+      "Mental Illness",
+      "Autism Spectrum Disorder",
+      "Cerebral Palsy",
+      "Muscular Dystrophy",
+      "Chronic Neurological Conditions",
+      "Specific Learning Disabilities (e.g., Dyslexia)",
+      "Multiple Sclerosis",
+      "Speech and Language Disability",
+      "Thalassemia",
+      "Hemophilia",
+      "Sickle Cell Disease",
+      "Multiple Disabilities (More than one of the above)",
+      "Acid Attack Victims",
+      "Parkinsonâ€™s Disease",
+      "Others",
+    ],
+    { message: "Please select a disability type" }
+  ),
   disabilityPercentage: z
     .number({ message: "Must be a number" })
     .min(40, "Must be at least 40%")
     .max(100, "Cannot exceed 100%"),
-  disabilityDescription: z.string().min(20, "Please provide at least 20 characters").max(1000, "Must not exceed 1000 characters"),
-  medicalConditions: z.string().max(1000, "Must not exceed 1000 characters").optional().or(z.literal("")),
-  guardianName: z.string().min(3, "Guardian name must be at least 3 characters").max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
-  guardianEmail: z.string().email("Invalid guardian email").optional().or(z.literal("")),
-  guardianRelation: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
-  guardianPhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
-  emergencyContactName: z.string().min(3, "Emergency contact must be at least 3 characters").max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
-  emergencyContactPhone: z.string().regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number").optional().or(z.literal("")),
-  emergencyContactRelation: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
-  assistiveDevicesUsed: z.string().max(500, "Must not exceed 500 characters").optional().or(z.literal("")),
-  employmentStatus: z.string().max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
-  monthlyIncome: z.string().max(50, "Must not exceed 50 characters").optional().or(z.literal("")),
-  EducationLevel: z.string().max(100, "Must not exceed 100 characters").optional().or(z.literal("")),
-  additionalNotes: z.string().max(1000, "Must not exceed 1000 characters").optional().or(z.literal("")),
-  documents: z.object({
-    passportPhoto: z.object({
-      fileName: z.string(),
-      fileUrl: z.string(),
-      fileSize: z.number(),
-      fileType: z.string().optional(),
-      uploadedAt: z.date().optional(),
-    }),
-    aadharCard: z.object({
-      fileName: z.string(),
-      fileUrl: z.string(),
-      fileSize: z.number(),
-      fileType: z.string().optional(),
-      uploadedAt: z.date().optional(),
-    }).optional(),
-    panCard: z.object({
-      fileName: z.string(),
-      fileUrl: z.string(),
-      fileSize: z.number(),
-      fileType: z.string().optional(),
-      uploadedAt: z.date().optional(),
-    }).optional(),
-    disabilityCertificate: z.object({
-      fileName: z.string(),
-      fileUrl: z.string(),
-      fileSize: z.number(),
-      fileType: z.string().optional(),
-      uploadedAt: z.date().optional(),
-    }),
-    udidCard: z.object({
-      fileName: z.string(),
-      fileUrl: z.string(),
-      fileSize: z.number(),
-      fileType: z.string().optional(),
-      uploadedAt: z.date().optional(),
-    }).optional(),
-  }).refine(
-    (docs) => docs.aadharCard || docs.panCard,
-    {
-      message: "At least one ID proof (Aadhar Card or PAN Card) is required",
-      path: ["aadharCard"],
-    }
-  ),
+  disabilityDescription: z
+    .string()
+    .min(20, "Please provide at least 20 characters")
+    .max(1000, "Must not exceed 1000 characters"),
+  medicalConditions: z
+    .string()
+    .max(1000, "Must not exceed 1000 characters")
+    .optional()
+    .or(z.literal("")),
+  guardianName: z
+    .string()
+    .min(3, "Guardian name must be at least 3 characters")
+    .max(100, "Must not exceed 100 characters")
+    .optional()
+    .or(z.literal("")),
+  guardianEmail: z
+    .string()
+    .email("Invalid guardian email")
+    .optional()
+    .or(z.literal("")),
+  guardianRelation: z
+    .string()
+    .max(50, "Must not exceed 50 characters")
+    .optional()
+    .or(z.literal("")),
+  guardianPhone: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number")
+    .optional()
+    .or(z.literal("")),
+  emergencyContactName: z
+    .string()
+    .min(3, "Emergency contact must be at least 3 characters")
+    .max(100, "Must not exceed 100 characters")
+    .optional()
+    .or(z.literal("")),
+  emergencyContactPhone: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, "Must be a valid 10-digit number")
+    .optional()
+    .or(z.literal("")),
+  emergencyContactRelation: z
+    .string()
+    .max(50, "Must not exceed 50 characters")
+    .optional()
+    .or(z.literal("")),
+  assistiveDevicesUsed: z
+    .string()
+    .max(500, "Must not exceed 500 characters")
+    .optional()
+    .or(z.literal("")),
+  employmentStatus: z
+    .string()
+    .max(100, "Must not exceed 100 characters")
+    .optional()
+    .or(z.literal("")),
+  monthlyIncome: z
+    .string()
+    .max(50, "Must not exceed 50 characters")
+    .optional()
+    .or(z.literal("")),
+  EducationLevel: z
+    .string()
+    .max(100, "Must not exceed 100 characters")
+    .optional()
+    .or(z.literal("")),
+  additionalNotes: z
+    .string()
+    .max(1000, "Must not exceed 1000 characters")
+    .optional()
+    .or(z.literal("")),
+  // Documents field made optional since upload functionality is currently commented out
+  documents: z
+    .object({
+      passportPhoto: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
+      aadharCard: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
+      panCard: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
+      disabilityCertificate: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
+      udidCard: z
+        .object({
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileSize: z.number(),
+          fileType: z.string().optional(),
+          uploadedAt: z.date().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -160,23 +253,55 @@ const DISABILITY_TYPES = [
   "Multiple Disabilities (More than one of the above)",
   "Acid Attack Victims",
   "Parkinsonâ€™s Disease",
-  "Others"
+  "Others",
 ];
 
 const INDIAN_STATES = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
-  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
-  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
 ];
 
 export default function DisabledRegistrationForm() {
   const router = useRouter();
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
-  const [checkingDuplicate, setCheckingDuplicate] = useState<{ email: boolean; phone: boolean }>({
+  const [checkingDuplicate, setCheckingDuplicate] = useState<{
+    email: boolean;
+    phone: boolean;
+  }>({
     email: false,
     phone: false,
   });
@@ -198,7 +323,7 @@ export default function DisabledRegistrationForm() {
       fullName: "",
       aadharNumber: "",
       email: "",
-  guardianEmail: "",
+      guardianEmail: "",
       phone: "",
       alternatePhone: "",
       dateOfBirth: "",
@@ -235,14 +360,14 @@ export default function DisabledRegistrationForm() {
   useEffect(() => {
     if (watchEmail && watchEmail.includes("@") && touchedFields.email) {
       setCheckingDuplicate((prev) => ({ ...prev, email: true }));
-      
+
       const timeoutId = setTimeout(async () => {
         try {
           const response = await fetch(
             `/api/disabled-registration/check-duplicate?email=${encodeURIComponent(watchEmail)}`
           );
           const data = await response.json();
-          
+
           if (data.exists) {
             setError("email", {
               type: "manual",
@@ -266,14 +391,14 @@ export default function DisabledRegistrationForm() {
   useEffect(() => {
     if (watchPhone && watchPhone.length === 10 && touchedFields.phone) {
       setCheckingDuplicate((prev) => ({ ...prev, phone: true }));
-      
+
       const timeoutId = setTimeout(async () => {
         try {
           const response = await fetch(
             `/api/disabled-registration/check-duplicate?phone=${watchPhone}`
           );
           const data = await response.json();
-          
+
           if (data.exists) {
             setError("phone", {
               type: "manual",
@@ -295,7 +420,12 @@ export default function DisabledRegistrationForm() {
 
   // Handle file upload with React Hook Form
   const handleFileUpload = async (
-    documentType: "passportPhoto" | "aadharCard" | "panCard" | "disabilityCertificate" | "udidCard",
+    documentType:
+      | "passportPhoto"
+      | "aadharCard"
+      | "panCard"
+      | "disabilityCertificate"
+      | "udidCard",
     file: File
   ) => {
     try {
@@ -308,22 +438,33 @@ export default function DisabledRegistrationForm() {
       }
 
       // Validate file type
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "application/pdf",
+      ];
       if (!allowedTypes.includes(file.type)) {
-        toast.error("Only images (JPEG, PNG, WebP, GIF) and PDF files are allowed");
+        toast.error(
+          "Only images (JPEG, PNG, WebP, GIF) and PDF files are allowed"
+        );
         return;
       }
 
       // Step 1: Get signed URL
-      const signedUrlResponse = await fetch("/api/disabled-registration/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: file.name,
-          fileType: file.type,
-          documentType,
-        }),
-      });
+      const signedUrlResponse = await fetch(
+        "/api/disabled-registration/upload",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type,
+            documentType,
+          }),
+        }
+      );
 
       if (!signedUrlResponse.ok) {
         throw new Error("Failed to get upload URL");
@@ -372,7 +513,14 @@ export default function DisabledRegistrationForm() {
   };
 
   // Remove document with React Hook Form
-  const handleRemoveDocument = (documentType: "passportPhoto" | "aadharCard" | "panCard" | "disabilityCertificate" | "udidCard") => {
+  const handleRemoveDocument = (
+    documentType:
+      | "passportPhoto"
+      | "aadharCard"
+      | "panCard"
+      | "disabilityCertificate"
+      | "udidCard"
+  ) => {
     const currentDocuments = getValues("documents") || {};
     setValue(
       "documents",
@@ -389,7 +537,7 @@ export default function DisabledRegistrationForm() {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       console.log("Submitting form data:", data);
-      
+
       const response = await fetch("/api/disabled-registration/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -403,12 +551,16 @@ export default function DisabledRegistrationForm() {
         if (responseData.details) {
           console.error("Validation errors from API:", responseData.details);
           // Show all validation errors
-          responseData.details.forEach((error: { field: string; message: string }) => {
-            console.error(`Field: ${error.field} - ${error.message}`);
-          });
+          responseData.details.forEach(
+            (error: { field: string; message: string }) => {
+              console.error(`Field: ${error.field} - ${error.message}`);
+            }
+          );
           // Show first validation error to user
           const firstError = responseData.details[0];
-          toast.error(`Validation Error - ${firstError.field}: ${firstError.message}`);
+          toast.error(
+            `Validation Error - ${firstError.field}: ${firstError.message}`
+          );
         } else {
           toast.error(responseData.error || "Registration failed");
         }
@@ -416,15 +568,21 @@ export default function DisabledRegistrationForm() {
       }
 
       toast.success("Registration submitted successfully!");
-      
+
       // Redirect to status page after a short delay
       setTimeout(() => {
-        router.push(`/disabled-registration/status?id=${responseData.registrationId}`);
+        router.push(
+          `/disabled-registration/status?id=${responseData.registrationId}`
+        );
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
-      if (!(error instanceof Error && error.message.includes("Validation failed"))) {
-        toast.error(error instanceof Error ? error.message : "Registration failed");
+      if (
+        !(error instanceof Error && error.message.includes("Validation failed"))
+      ) {
+        toast.error(
+          error instanceof Error ? error.message : "Registration failed"
+        );
       }
     }
   };
@@ -437,7 +595,12 @@ export default function DisabledRegistrationForm() {
     description,
   }: {
     label: string;
-    documentType: "passportPhoto" | "aadharCard" | "panCard" | "disabilityCertificate" | "udidCard";
+    documentType:
+      | "passportPhoto"
+      | "aadharCard"
+      | "panCard"
+      | "disabilityCertificate"
+      | "udidCard";
     required?: boolean;
     description?: string;
   }) => {
@@ -453,7 +616,7 @@ export default function DisabledRegistrationForm() {
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <Input
             id={documentType}
             type="file"
@@ -468,10 +631,15 @@ export default function DisabledRegistrationForm() {
             aria-required={required}
             suppressHydrationWarning
           />
-          {isUploading && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
+          {isUploading && (
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          )}
           {document && (
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-success" aria-label="Uploaded" />
+              <CheckCircle
+                className="w-5 h-5 text-success"
+                aria-label="Uploaded"
+              />
               <Button
                 type="button"
                 variant="ghost"
@@ -484,30 +652,47 @@ export default function DisabledRegistrationForm() {
               </Button>
             </div>
           )}
-        </div>
-        {document && !Array.isArray(document) && (
+        </div> */}
+        {/* {document && !Array.isArray(document) && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <FileText className="w-4 h-4" />
-            <span>{document.fileName} ({(document.fileSize / 1024).toFixed(0)} KB)</span>
+            <span>
+              {document.fileName} ({(document.fileSize / 1024).toFixed(0)} KB)
+            </span>
           </div>
-        )}
+        )} */}
       </div>
     );
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" aria-label="Disabled Person Registration Form" suppressHydrationWarning>
-
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-8"
+      aria-label="Disabled Person Registration Form"
+      suppressHydrationWarning
+    >
       {/* Guardian Information (moved above Personal Information as requested) */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Guardian Information <span className="text-sm text-muted-foreground">(If applicable)</span></CardTitle>
+          <CardTitle className="text-2xl">
+            Guardian Information{" "}
+            <span className="text-sm text-muted-foreground">
+              (If applicable)
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="guardianName">Guardian Full Name</Label>
-              <Input id="guardianName" {...register("guardianName")} placeholder="Guardian full name" disabled={isSubmitting} suppressHydrationWarning />
+              <Input
+                id="guardianName"
+                {...register("guardianName")}
+                placeholder="Guardian full name"
+                disabled={isSubmitting}
+                suppressHydrationWarning
+              />
               {errors.guardianName && (
                 <p className="text-sm text-destructive flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
@@ -518,7 +703,15 @@ export default function DisabledRegistrationForm() {
 
             <div className="space-y-2">
               <Label htmlFor="guardianEmail">Guardian Email</Label>
-              <Input id="guardianEmail" type="email" {...register("guardianEmail")} placeholder="guardian@example.com" disabled={isSubmitting} suppressHydrationWarning />
+              <Input
+                id="guardianEmail"
+                type="email"
+                inputMode="email"
+                {...register("guardianEmail")}
+                placeholder="guardian@example.com"
+                disabled={isSubmitting}
+                suppressHydrationWarning
+              />
               {errors.guardianEmail && (
                 <p className="text-sm text-destructive flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
@@ -529,7 +722,17 @@ export default function DisabledRegistrationForm() {
 
             <div className="space-y-2">
               <Label htmlFor="guardianPhone">Guardian Phone</Label>
-              <Input id="guardianPhone" type="tel" {...register("guardianPhone")} placeholder="10-digit mobile number" maxLength={10} disabled={isSubmitting} suppressHydrationWarning />
+              <Input
+                id="guardianPhone"
+                type="tel"
+                inputMode="numeric"
+                pattern="[6-9][0-9]{9}"
+                {...register("guardianPhone")}
+                placeholder="10-digit mobile number"
+                maxLength={10}
+                disabled={isSubmitting}
+                suppressHydrationWarning
+              />
               {errors.guardianPhone && (
                 <p className="text-sm text-destructive flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
@@ -574,7 +777,9 @@ export default function DisabledRegistrationForm() {
               </Label>
               <Input
                 id="aadharNumber"
-                type="text"
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]{12}"
                 {...register("aadharNumber")}
                 placeholder="12-digit Aadhaar number"
                 maxLength={12}
@@ -598,6 +803,7 @@ export default function DisabledRegistrationForm() {
                 <Input
                   id="email"
                   type="email"
+                  inputMode="email"
                   {...register("email")}
                   placeholder="your.email@example.com"
                   aria-required="true"
@@ -624,6 +830,8 @@ export default function DisabledRegistrationForm() {
                 <Input
                   id="phone"
                   type="tel"
+                  inputMode="numeric"
+                  pattern="[6-9][0-9]{9}"
                   {...register("phone")}
                   placeholder="10-digit mobile number"
                   maxLength={10}
@@ -651,7 +859,7 @@ export default function DisabledRegistrationForm() {
                 id="dateOfBirth"
                 type="date"
                 {...register("dateOfBirth")}
-                max={new Date().toISOString().split('T')[0]}
+                max={new Date().toISOString().split("T")[0]}
                 aria-required="true"
                 disabled={isSubmitting}
                 suppressHydrationWarning
@@ -704,26 +912,27 @@ export default function DisabledRegistrationForm() {
           <CardTitle className="text-2xl">Address Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="address">
-                Address Line 1 <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="address"
-                {...register("address")}
-                placeholder="House/Flat No., Street Name"
-                rows={2}
-                aria-required="true"
-                disabled={isSubmitting}
-                suppressHydrationWarning
-              />
-              {errors.address && (
-                <p className="text-sm text-destructive flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.address.message}
-                </p>
-              )}
-            </div>          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="address">
+              Address Line 1 <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
+              id="address"
+              {...register("address")}
+              placeholder="House/Flat No., Street Name"
+              rows={2}
+              aria-required="true"
+              disabled={isSubmitting}
+              suppressHydrationWarning
+            />
+            {errors.address && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.address.message}
+              </p>
+            )}
+          </div>{" "}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="city">
                 City <span className="text-destructive">*</span>
@@ -783,6 +992,8 @@ export default function DisabledRegistrationForm() {
               </Label>
               <Input
                 id="pincode"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
                 {...register("pincode")}
                 placeholder="6-digit pincode"
                 maxLength={6}
@@ -843,7 +1054,8 @@ export default function DisabledRegistrationForm() {
 
             <div className="space-y-2">
               <Label htmlFor="disabilityPercentage">
-                Disability Percentage (40%-100%) <span className="text-destructive">*</span>
+                Disability Percentage (40%-100%){" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="disabilityPercentage"
@@ -867,7 +1079,8 @@ export default function DisabledRegistrationForm() {
 
           <div className="space-y-2">
             <Label htmlFor="disabilityDescription">
-              Describe Your Disability <span className="text-destructive">*</span>
+              Describe Your Disability{" "}
+              <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="disabilityDescription"
@@ -889,7 +1102,8 @@ export default function DisabledRegistrationForm() {
           {watchDisabilityType === "Others" && (
             <div className="bg-muted/50 border border-border rounded-lg p-4">
               <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> Please provide comprehensive details about your specific disability in the description above.
+                <strong>Note:</strong> Please provide comprehensive details
+                about your specific disability in the description above.
               </p>
             </div>
           )}
@@ -897,11 +1111,12 @@ export default function DisabledRegistrationForm() {
       </Card>
 
       {/* Documents Upload */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Document Upload</CardTitle>
           <p className="text-sm text-muted-foreground">
-            All documents must be clear and legible. Accepted formats: JPEG, PNG, WebP, GIF, PDF (Max 10MB each)
+            All documents must be clear and legible. Accepted formats: JPEG,
+            PNG, WebP, GIF, PDF (Max 10MB each)
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -934,11 +1149,12 @@ export default function DisabledRegistrationForm() {
 
           <div className="bg-muted/50 border border-border rounded-lg p-4">
             <p className="text-sm text-muted-foreground">
-              <strong>Note:</strong> At least one ID proof (Aadhar or PAN Card) is mandatory for verification.
+              <strong>Note:</strong> At least one ID proof (Aadhar or PAN Card)
+              is mandatory for verification.
             </p>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Submit Button */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -964,7 +1180,11 @@ export default function DisabledRegistrationForm() {
         </Button>
 
         {isSubmitting && (
-          <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+          <p
+            className="text-sm text-muted-foreground"
+            role="status"
+            aria-live="polite"
+          >
             Please wait while we process your registration...
           </p>
         )}

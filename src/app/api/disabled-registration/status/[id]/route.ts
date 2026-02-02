@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import DisabledPerson from "@/models/disabledPersonModel";
 import mongoose from "mongoose";
+import { validateObjectId } from "@/lib/validation/objectId";
 
 connect();
 
@@ -13,14 +14,25 @@ export async function GET(
     const params = await context.params;
     const { id } = params;
 
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    if (!id) {
       return NextResponse.json(
-        { error: "Invalid registration ID" },
+        { error: "Missing registration ID" },
         { status: 400 }
       );
     }
 
+    try {
+      validateObjectId(id);
+    } catch (validationError) {
+      return NextResponse.json(
+        { error: "Invalid registration ID format" },
+        { status: 400 }
+      );
+    }
+
+    // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
     const person = await DisabledPerson.findById(id).select(
+      // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
       "fullName email phone verificationStatus verificationHistory createdAt updatedAt verifiedAt rejectionReason"
     );
 

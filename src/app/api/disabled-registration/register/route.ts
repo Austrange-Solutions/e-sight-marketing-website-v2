@@ -4,6 +4,12 @@ import DisabledPerson from "@/models/disabledPersonModel";
 import { sendDisabledRegistrationEmail } from "@/helpers/resendEmail";
 import { disabledRegistrationSchema } from "@/lib/validations/disabled-registration";
 import { z } from "zod";
+import {
+  validateAndSanitize,
+  sanitizeEmail,
+  sanitizePhone,
+  validateAndSanitizeWithWordLimit,
+} from "@/lib/validation/xss";
 
 connect();
 
@@ -32,57 +38,159 @@ export async function POST(request: NextRequest) {
       throw validationError;
     }
 
-  // Normalize inputs for checks
-  const normalizedEmail = validatedData.email ? String(validatedData.email).trim().toLowerCase() : undefined;
-  const normalizedPhone = validatedData.phone ? String(validatedData.phone).replace(/[^0-9]/g, "") : undefined;
-  const normalizedAadhar = (validatedData as any).aadharNumber ? String((validatedData as any).aadharNumber).replace(/[^0-9]/g, "") : undefined;
+    // Normalize inputs for checks
+    const normalizedEmail = validatedData.email
+      ? String(validatedData.email).trim().toLowerCase()
+      : undefined;
+    const normalizedPhone = validatedData.phone
+      ? String(validatedData.phone).replace(/[^0-9]/g, "")
+      : undefined;
+    const normalizedAadhar = (validatedData as any).aadharNumber
+      ? String((validatedData as any).aadharNumber).replace(/[^0-9]/g, "")
+      : undefined;
 
-  // Check if email, phone or aadhar already exists
-  const conflictQuery = [] as Record<string, unknown>[];
-  if (normalizedEmail) conflictQuery.push({ email: normalizedEmail });
-  if (normalizedPhone) conflictQuery.push({ phone: normalizedPhone });
-  if (normalizedAadhar) conflictQuery.push({ aadharNumber: normalizedAadhar });
+    // Sanitize all text fields to prevent XSS
+    let sanitizedData: any;
+    try {
+      sanitizedData = {
+        fullName: validateAndSanitize(validatedData.fullName, {
+          fieldName: "full name",
+          maxLength: 200,
+          strict: true,
+        }),
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        aadharNumber: normalizedAadhar,
+        address: validateAndSanitize(validatedData.address, {
+          fieldName: "address",
+          maxLength: 500,
+          strict: false,
+        }),
+        addressLine2: validatedData.addressLine2
+          ? validateAndSanitize(validatedData.addressLine2, {
+              fieldName: "address line 2",
+              maxLength: 200,
+              strict: false,
+            })
+          : undefined,
+        city: validateAndSanitize(validatedData.city, {
+          fieldName: "city",
+          maxLength: 100,
+          strict: true,
+        }),
+        state: validateAndSanitize(validatedData.state, {
+          fieldName: "state",
+          maxLength: 100,
+          strict: true,
+        }),
+        pincode: validateAndSanitize(validatedData.pincode, {
+          fieldName: "pincode",
+          maxLength: 10,
+          strict: false,
+        }),
+        disabilityType: validateAndSanitize(validatedData.disabilityType, {
+          fieldName: "disability type",
+          maxLength: 100,
+          strict: false,
+        }),
+        disabilityDescription: validatedData.disabilityDescription
+          ? validateAndSanitize(validatedData.disabilityDescription, {
+              fieldName: "disability description",
+              maxLength: 1000,
+              strict: true,
+            })
+          : undefined,
+        guardianName: validatedData.guardianName
+          ? validateAndSanitize(validatedData.guardianName, {
+              fieldName: "guardian name",
+              maxLength: 200,
+              strict: true,
+            })
+          : undefined,
+        guardianEmail: validatedData.guardianEmail
+          ? sanitizeEmail(validatedData.guardianEmail)
+          : undefined,
+        guardianPhone: validatedData.guardianPhone
+          ? sanitizePhone(validatedData.guardianPhone)
+          : undefined,
+      };
+    } catch (validationError) {
+      return NextResponse.json(
+        {
+          error:
+            validationError instanceof Error
+              ? validationError.message
+              : "Invalid input detected",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if email, phone or aadhar already exists
+    const conflictQuery = [] as Record<string, unknown>[];
+    if (normalizedEmail) conflictQuery.push({ email: normalizedEmail });
+    if (normalizedPhone) conflictQuery.push({ phone: normalizedPhone });
+    if (normalizedAadhar)
+      conflictQuery.push({ aadharNumber: normalizedAadhar });
 
     if (conflictQuery.length > 0) {
-      const existingPerson = await DisabledPerson.findOne({ $or: conflictQuery });
+      const existingPerson = await DisabledPerson.findOne({
+        $or: conflictQuery,
+      });
       if (existingPerson) {
         // Determine which field conflicts
         if (existingPerson.email === validatedData.email) {
-          return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+          return NextResponse.json(
+            { error: "Email already registered" },
+            { status: 409 }
+          );
         }
         if (existingPerson.phone === validatedData.phone) {
-          return NextResponse.json({ error: "Phone number already registered" }, { status: 409 });
+          return NextResponse.json(
+            { error: "Phone number already registered" },
+            { status: 409 }
+          );
         }
-        if ((existingPerson as any).aadharNumber && (existingPerson as any).aadharNumber === (validatedData as any).aadharNumber) {
-          return NextResponse.json({ error: "Aadhaar number already registered" }, { status: 409 });
+        if (
+          (existingPerson as any).aadharNumber &&
+          (existingPerson as any).aadharNumber ===
+            (validatedData as any).aadharNumber
+        ) {
+          return NextResponse.json(
+            { error: "Aadhaar number already registered" },
+            { status: 409 }
+          );
         }
         // Fallback
-        return NextResponse.json({ error: "A record with similar details already exists" }, { status: 409 });
+        return NextResponse.json(
+          { error: "A record with similar details already exists" },
+          { status: 409 }
+        );
       }
     }
 
     // Create new disabled person record (explicit mapping to ensure fields are persisted)
     const newPerson = new DisabledPerson({
-      fullName: validatedData.fullName,
-      email: normalizedEmail,
-      phone: normalizedPhone,
-      aadharNumber: normalizedAadhar || undefined,
+      fullName: sanitizedData.fullName,
+      email: sanitizedData.email,
+      phone: sanitizedData.phone,
+      aadharNumber: sanitizedData.aadharNumber || undefined,
       dateOfBirth: new Date(validatedData.dateOfBirth),
       gender: validatedData.gender,
 
-      address: validatedData.address,
-      addressLine2: validatedData.addressLine2,
-      city: validatedData.city,
-      state: validatedData.state,
-      pincode: validatedData.pincode,
+      address: sanitizedData.address,
+      addressLine2: sanitizedData.addressLine2,
+      city: sanitizedData.city,
+      state: sanitizedData.state,
+      pincode: sanitizedData.pincode,
 
-      disabilityType: validatedData.disabilityType,
+      disabilityType: sanitizedData.disabilityType,
       disabilityPercentage: validatedData.disabilityPercentage,
-      disabilityDescription: validatedData.disabilityDescription,
+      disabilityDescription: sanitizedData.disabilityDescription,
 
-      guardianName: validatedData.guardianName,
-      guardianEmail: validatedData.guardianEmail,
-      guardianPhone: validatedData.guardianPhone,
+      guardianName: sanitizedData.guardianName,
+      guardianEmail: sanitizedData.guardianEmail,
+      guardianPhone: sanitizedData.guardianPhone,
 
       documents: (validatedData as any).documents || {},
 

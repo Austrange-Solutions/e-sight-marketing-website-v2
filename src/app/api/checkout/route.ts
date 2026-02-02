@@ -5,10 +5,16 @@ import mongoose from "mongoose";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/authOptions";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  validateAndSanitize,
+  sanitizeEmail,
+  sanitizePhone,
+} from "@/lib/validation/xss";
+import { cookies } from "next/headers";
 
 // Force Node.js runtime to avoid Edge Runtime crypto issues
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 connect();
 
@@ -16,44 +22,117 @@ connect();
 const calculateCharges = (subtotal: number, city: string) => {
   // GST calculation (18%)
   const gst = subtotal * 0.18;
-  
+
   // Transaction fee (2% of subtotal)
   const transactionFee = subtotal * 0.02;
-  
+
   // Delivery charges based on location
-  const isMumbai = city.toLowerCase().includes('mumbai') || 
-                   city.toLowerCase().includes('bombay');
-  
+  const isMumbai =
+    city.toLowerCase().includes("mumbai") ||
+    city.toLowerCase().includes("bombay");
+
   const deliveryCharges = isMumbai ? 500 : 1000; // ₹500 for Mumbai, ₹1000 for outside
-  
+
   return { gst, transactionFee, deliveryCharges };
 };
 
 export async function POST(request: NextRequest) {
   console.log("🛒 [CHECKOUT] Starting checkout process...");
-  
+
   try {
     await connect();
     console.log("✅ [CHECKOUT] Database connected");
-    
+
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
       console.log("❌ [CHECKOUT] Unauthorized - No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const {
-      shippingAddress,
-      paymentMethod = "cashfree"
-    } = await request.json();
+    const { shippingAddress, paymentMethod = "cashfree" } =
+      await request.json();
 
     // Validate required fields
-    if (!shippingAddress || !shippingAddress.name || !shippingAddress.phone || 
-        !shippingAddress.email || !shippingAddress.address || !shippingAddress.city || 
-        !shippingAddress.state || !shippingAddress.pincode) {
+    if (
+      !shippingAddress ||
+      !shippingAddress.name ||
+      !shippingAddress.phone ||
+      !shippingAddress.email ||
+      !shippingAddress.address ||
+      !shippingAddress.city ||
+      !shippingAddress.state ||
+      !shippingAddress.pincode
+    ) {
       return NextResponse.json(
         { error: "Missing required shipping address fields" },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    // Sanitize shipping address fields to prevent XSS
+    let sanitizedAddress;
+    try {
+      sanitizedAddress = {
+        name: validateAndSanitize(shippingAddress.name, {
+          fieldName: "name",
+          maxLength: 100,
+          strict: true,
+        }),
+        phone: sanitizePhone(shippingAddress.phone),
+        email: sanitizeEmail(shippingAddress.email),
+        address: validateAndSanitize(shippingAddress.address, {
+          fieldName: "address",
+          maxLength: 500,
+          strict: true,
+        }),
+        addressLine2: shippingAddress.addressLine2
+          ? validateAndSanitize(shippingAddress.addressLine2, {
+              fieldName: "addressLine2",
+              maxLength: 200,
+            })
+          : undefined,
+        landmark: shippingAddress.landmark
+          ? validateAndSanitize(shippingAddress.landmark, {
+              fieldName: "landmark",
+              maxLength: 100,
+            })
+          : "",
+        city: validateAndSanitize(shippingAddress.city, {
+          fieldName: "city",
+          maxLength: 100,
+          strict: true,
+        }),
+        state: validateAndSanitize(shippingAddress.state, {
+          fieldName: "state",
+          maxLength: 100,
+          strict: true,
+        }),
+        pincode: validateAndSanitize(shippingAddress.pincode, {
+          fieldName: "pincode",
+          maxLength: 10,
+        }),
+        country: shippingAddress.country
+          ? validateAndSanitize(shippingAddress.country, {
+              fieldName: "country",
+              maxLength: 100,
+            })
+          : "India",
+        addressType: shippingAddress.addressType
+          ? validateAndSanitize(shippingAddress.addressType, {
+              fieldName: "addressType",
+              maxLength: 20,
+            })
+          : "Home",
+      };
+    } catch (validationError) {
+      return NextResponse.json(
+        {
+          error:
+            validationError instanceof Error
+              ? validationError.message
+              : "Invalid input detected in shipping address",
+        },
+        { status: 400 },
       );
     }
 
@@ -70,95 +149,118 @@ export async function POST(request: NextRequest) {
       }
       userObjectId = userDoc._id;
     } else {
-      return NextResponse.json({ error: "Invalid user ID format" }, { status: 400 });
-    }
-    const cart = await Cart.findOne({ userId: userObjectId }).populate('items.productId');
-    if (!cart || cart.items.length === 0) {
       return NextResponse.json(
-        { error: "Cart is empty" },
-        { status: 400 }
+        { error: "Invalid user ID format" },
+        { status: 400 },
       );
+    }
+    const cart = await Cart.findOne({ userId: userObjectId }).populate(
+      "items.productId",
+    );
+    if (!cart || cart.items.length === 0) {
+      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
     // Filter out invalid or inactive products before any calculations
-    const validItems = cart.items.filter((item: { productId: any, quantity: number }) => {
-      if (!item.productId) {
-        console.warn('⚠️ [CHECKOUT] Skipping cart item with null product reference');
-        return false;
-      }
-      if (item.productId.status && item.productId.status !== 'active') {
-        console.warn(`⚠️ [CHECKOUT] Skipping inactive product: ${item.productId.name}`);
-        return false;
-      }
-      if (typeof item.productId.price !== 'number') {
-        console.warn(`⚠️ [CHECKOUT] Skipping product with invalid price: ${item.productId._id}`);
-        return false;
-      }
-      return true;
-    });
+    const validItems = cart.items.filter(
+      (item: { productId: any; quantity: number }) => {
+        if (!item.productId) {
+          console.warn(
+            "⚠️ [CHECKOUT] Skipping cart item with null product reference",
+          );
+          return false;
+        }
+        if (item.productId.status && item.productId.status !== "active") {
+          console.warn(
+            `⚠️ [CHECKOUT] Skipping inactive product: ${item.productId.name}`,
+          );
+          return false;
+        }
+        if (typeof item.productId.price !== "number") {
+          console.warn(
+            `⚠️ [CHECKOUT] Skipping product with invalid price: ${item.productId._id}`,
+          );
+          return false;
+        }
+        return true;
+      },
+    );
 
     if (validItems.length === 0) {
       return NextResponse.json(
         { error: "No valid items in cart" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Calculate subtotal using only valid items to avoid null price errors
-    const subtotal = validItems.reduce((total: number, item: { productId: { price: number }, quantity: number }) => 
-      total + (item.productId.price * item.quantity), 0
+    const subtotal = validItems.reduce(
+      (
+        total: number,
+        item: { productId: { price: number }; quantity: number },
+      ) => total + item.productId.price * item.quantity,
+      0,
     );
 
     // Calculate charges
     const { gst, transactionFee, deliveryCharges } = calculateCharges(
-      subtotal, 
-      shippingAddress.city
+      subtotal,
+      shippingAddress.city,
     );
 
     // Calculate total
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
-    // Prepare items for checkout - map only validated items
-    const checkoutItems = validItems.map((item: { productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => ({
-      productId: item.productId._id,
-      name: item.productId.name,
-      price: item.productId.price,
-      quantity: item.quantity,
-      image: item.productId.image,
-    }));
+    // Prepare items for checkout
+    const checkoutItems = cart.items.map(
+      (item: {
+        productId: { _id: string; name: string; price: number; image: string };
+        quantity: number;
+      }) => ({
+        productId: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity,
+        image: item.productId.image,
+      }),
+    );
 
     // Generate unique order number
-    const orderNumber = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    const orderNumber =
+      "ORD-" +
+      Date.now() +
+      "-" +
+      Math.random().toString(36).substr(2, 5).toUpperCase();
 
-    // Create checkout record with ALL required fields
+    // Create checkout record with ALL required fields (using sanitized data)
     const checkout = new Order({
       userId: userObjectId,
       orderNumber: orderNumber,
-      
+
       // Customer Information (required)
       customerInfo: {
-        name: shippingAddress.name,
-        email: shippingAddress.email,
-        phone: shippingAddress.phone,
+        name: sanitizedAddress.name,
+        email: sanitizedAddress.email,
+        phone: sanitizedAddress.phone,
       },
-      
+
       // Shipping Address
       shippingAddress: {
-        name: shippingAddress.name,
-        phone: shippingAddress.phone,
-        email: shippingAddress.email,
-        address: shippingAddress.address,
-        addressLine2: shippingAddress.addressLine2, 
-        landmark: shippingAddress.landmark || "",
-        city: shippingAddress.city,
-        state: shippingAddress.state,
-        pincode: shippingAddress.pincode,
-        country: shippingAddress.country || "India",
-        addressType: shippingAddress.addressType || "Home",
+        name: sanitizedAddress.name,
+        phone: sanitizedAddress.phone,
+        email: sanitizedAddress.email,
+        address: sanitizedAddress.address,
+        addressLine2: sanitizedAddress.addressLine2,
+        landmark: sanitizedAddress.landmark,
+        city: sanitizedAddress.city,
+        state: sanitizedAddress.state,
+        pincode: sanitizedAddress.pincode,
+        country: sanitizedAddress.country,
+        addressType: sanitizedAddress.addressType,
       },
-      
+
       items: checkoutItems,
-      
+
       // Order Summary
       orderSummary: {
         subtotal,
@@ -167,18 +269,18 @@ export async function POST(request: NextRequest) {
         deliveryCharges,
         total,
       },
-      
+
       // Total Amount (required)
       totalAmount: total,
-      
+
       // Payment Information (required)
       paymentInfo: {
         method: paymentMethod,
-        status: 'pending',
+        status: "pending",
       },
-      
+
       // Order Status
-      status: 'pending',
+      status: "pending",
     });
 
     await checkout.save();
@@ -198,22 +300,38 @@ export async function POST(request: NextRequest) {
       shippingAddress: checkout.shippingAddress, // Return saved address for verification
       items: checkoutItems, // Include purchased items in the response
     });
-
   } catch (error: unknown) {
     console.error("Checkout error:", error); // Debug log
-    const errorMessage = error instanceof Error ? error.message : 'Error creating checkout';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "Error creating checkout";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  console.log("🛒 [CHECKOUT_GET] Starting GET request...");
+
   try {
     await connect();
-    
+    console.log("✅ [CHECKOUT_GET] Database connected");
+
+    // Force Next.js to read cookies to establish request context
+    await cookies();
+
+    // Get session with request context for proper cookie reading
     const session = await getServerSession(authOptions);
+
+    // Debug logging
+    console.log("🔍 [CHECKOUT_GET] Session check:", {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userId: session?.user?.id,
+      userEmail: session?.user?.email,
+      cookieHeader: request.headers.get("cookie")?.substring(0, 50) + "...",
+      hostHeader: request.headers.get("host"),
+      referer: request.headers.get("referer"),
+    });
+
     if (!session || !session.user || !session.user.id) {
       console.log("❌ [CHECKOUT_GET] Unauthorized - No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -233,98 +351,112 @@ export async function GET() {
       userObjectId = userDoc._id;
     } else {
       console.log("❌ [CHECKOUT_GET] Invalid user ID format");
-      return NextResponse.json({ error: "Invalid user ID format" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid user ID format" },
+        { status: 401 },
+      );
     }
 
-    const cart = await Cart.findOne({ userId: userObjectId }).populate('items.productId');
+    const cart = await Cart.findOne({ userId: userObjectId }).populate(
+      "items.productId",
+    );
 
     if (!cart || cart.items.length === 0) {
       console.log("⚠️ [CHECKOUT_GET] Cart is empty");
-      return NextResponse.json({ 
-        items: [], 
-        orderSummary: { 
-          subtotal: 0, 
-          gst: 0, 
-          transactionFee: 0, 
-          deliveryCharges: 500, 
-          total: 500 
-        } 
+      return NextResponse.json({
+        items: [],
+        orderSummary: {
+          subtotal: 0,
+          gst: 0,
+          transactionFee: 0,
+          deliveryCharges: 500,
+          total: 500,
+        },
       });
     }
 
     console.log(`✅ [CHECKOUT_GET] Found cart with ${cart.items.length} items`);
 
     // Filter out items with null/deleted products and inactive products
-    const validItems = cart.items.filter((item: { _id: string, productId: any, quantity: number }) => {
-      if (!item.productId) {
-        console.warn(`⚠️ [CHECKOUT_GET] Skipping item with null product`);
-        return false;
-      }
-      if (item.productId.status && item.productId.status !== 'active') {
-        console.warn(`⚠️ [CHECKOUT_GET] Skipping inactive product: ${item.productId.name}`);
-        return false;
-      }
-      return true;
-    });
+    const validItems = cart.items.filter(
+      (item: { _id: string; productId: any; quantity: number }) => {
+        if (!item.productId) {
+          console.warn(`⚠️ [CHECKOUT_GET] Skipping item with null product`);
+          return false;
+        }
+        if (item.productId.status && item.productId.status !== "active") {
+          console.warn(
+            `⚠️ [CHECKOUT_GET] Skipping inactive product: ${item.productId.name}`,
+          );
+          return false;
+        }
+        return true;
+      },
+    );
 
-    console.log(`✅ [CHECKOUT_GET] ${validItems.length} valid items after filtering`);
+    console.log(
+      `✅ [CHECKOUT_GET] ${validItems.length} valid items after filtering`,
+    );
 
     if (validItems.length === 0) {
       console.log("⚠️ [CHECKOUT_GET] No valid items in cart after filtering");
-      return NextResponse.json({ 
-        items: [], 
-        orderSummary: { 
-          subtotal: 0, 
-          gst: 0, 
-          transactionFee: 0, 
-          deliveryCharges: 500, 
-          total: 500 
-        } 
+      return NextResponse.json({
+        items: [],
+        orderSummary: {
+          subtotal: 0,
+          gst: 0,
+          transactionFee: 0,
+          deliveryCharges: 500,
+          total: 500,
+        },
       });
     }
 
-    const items = validItems.map((item: { _id: string, productId: { _id: string, name: string, price: number, image: string }, quantity: number }) => {
-      // Ensure price exists and is a valid number
-      const price = item.productId?.price || 0;
-      if (!price || typeof price !== 'number' || price < 0) {
-        console.warn(`⚠️ [CHECKOUT_GET] Invalid price for product ${item.productId?._id}: ${price}`);
-      }
-      return {
+    const items = validItems.map(
+      (item: {
+        _id: string;
+        productId: { _id: string; name: string; price: number; image: string };
+        quantity: number;
+      }) => ({
         _id: item.productId._id,
-        name: item.productId.name || 'Unknown Product',
-        price: price,
-        quantity: item.quantity || 1,
-        image: item.productId.image || '/placeholder-product.jpg',
-      };
-    });
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity,
+        image: item.productId.image,
+      }),
+    );
 
-    const subtotal = items.reduce((total: number, item: { price: number, quantity: number }) => 
-      total + (item.price * item.quantity), 0
+    const subtotal = items.reduce(
+      (total: number, item: { price: number; quantity: number }) =>
+        total + item.price * item.quantity,
+      0,
     );
 
     // For preview, use default charges (Mumbai location)
-    const { gst, transactionFee, deliveryCharges } = calculateCharges(subtotal, "Mumbai");
+    const { gst, transactionFee, deliveryCharges } = calculateCharges(
+      subtotal,
+      "Mumbai",
+    );
     const total = subtotal + gst + transactionFee + deliveryCharges;
 
-    console.log(`✅ [CHECKOUT_GET] Returning ${items.length} items, total: ₹${total}`);
+    console.log(
+      `✅ [CHECKOUT_GET] Returning ${items.length} items, total: ₹${total}`,
+    );
 
     return NextResponse.json({
       items,
-      orderSummary: { 
-        subtotal, 
-        gst, 
-        transactionFee, 
-        deliveryCharges, 
-        total 
+      orderSummary: {
+        subtotal,
+        gst,
+        transactionFee,
+        deliveryCharges,
+        total,
       },
     });
-
   } catch (error: unknown) {
     console.error("❌ [CHECKOUT_GET] Error:", error);
-    const errorMessage = error instanceof Error ? error.message : 'Error fetching checkout data';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "Error fetching checkout data";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

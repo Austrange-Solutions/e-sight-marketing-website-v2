@@ -84,7 +84,9 @@ export default function DonationsManagement() {
   const [foundationFilter, setFoundationFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -112,34 +114,40 @@ export default function DonationsManagement() {
         params.append("search", searchTerm);
       }
 
-      console.log('Fetching donations from:', `/api/admin/donations?${params.toString()}`);
+      console.log(
+        "Fetching donations from:",
+        `/api/admin/donations?${params.toString()}`
+      );
       const response = await fetch(`/api/admin/donations?${params.toString()}`);
-      console.log('Response status:', response.status);
-      
+      console.log("Response status:", response.status);
+
       const data = await response.json();
-      console.log('Response data:', data);
+      console.log("Response data:", data);
 
       if (data.success) {
-        console.log('Setting donations:', data.donations?.length || 0);
-        
+        console.log("Setting donations:", data.donations?.length || 0);
+
         // Debug: Log first few donations' foundation data
         if (data.donations && data.donations.length > 0) {
-          console.log('=== Foundation Data Debug ===');
+          console.log("=== Foundation Data Debug ===");
           data.donations.slice(0, 3).forEach((d: any, idx: number) => {
-            console.log(`Donation ${idx + 1}:`, {
+            console.log("Donation", idx + 1, ":", {
               id: d._id,
               foundation: d.foundation,
               foundationType: typeof d.foundation,
-              foundationKeys: typeof d.foundation === 'object' ? Object.keys(d.foundation) : 'N/A'
+              foundationKeys:
+                typeof d.foundation === "object"
+                  ? Object.keys(d.foundation)
+                  : "N/A",
             });
           });
         }
-        
+
         setDonations(data.donations || []);
         setStats(data.stats || null);
         setTotalPages(data.pagination?.totalPages || 1);
       } else {
-        console.error('API returned success: false', data);
+        console.error("API returned success: false", data);
         setDonations([]);
         setStats(null);
       }
@@ -185,15 +193,21 @@ export default function DonationsManagement() {
     setSelectedDonation(null);
   };
 
-  const handleAnonymityToggle = async (donationId: string, newStatus: boolean) => {
+  const handleAnonymityToggle = async (
+    donationId: string,
+    newStatus: boolean
+  ) => {
     try {
-      const response = await fetch(`/api/admin/donations/${donationId}/anonymity`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ isAnonymous: newStatus }),
-      });
+      const response = await fetch(
+        `/api/admin/donations/${donationId}/anonymity`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ isAnonymous: newStatus }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update anonymity status");
@@ -256,8 +270,10 @@ export default function DonationsManagement() {
           d.companySharePercent?.toFixed(2) || "0.00",
           (d.companyAmount || 0).toFixed(2),
           d.sticksEquivalent.toFixed(2),
-          typeof d.foundation === 'object' 
-            ? (d.foundation?.foundationName || d.foundation?.displayName || "Unknown")
+          typeof d.foundation === "object"
+            ? d.foundation?.foundationName ||
+              d.foundation?.displayName ||
+              "Unknown"
             : foundationLabels[d.foundation || "vsf"],
           d.status,
           d.paymentId || "",
@@ -293,8 +309,12 @@ export default function DonationsManagement() {
             <div className="bg-card border rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Donations</p>
-                  <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Donations
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {stats.total}
+                  </p>
                 </div>
                 <Heart className="w-8 h-8 text-primary" />
               </div>
@@ -329,7 +349,9 @@ export default function DonationsManagement() {
             <div className="bg-card border border-[oklch(0.70_0.15_160)] rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">To Foundations</p>
+                  <p className="text-sm text-muted-foreground">
+                    To Foundations
+                  </p>
                   <p className="text-2xl font-bold text-[oklch(0.70_0.15_160)]">
                     ₹{stats.totalNetAmount?.toLocaleString("en-IN") || "0"}
                   </p>
@@ -345,11 +367,13 @@ export default function DonationsManagement() {
                 <div>
                   <p className="text-sm text-muted-foreground">To Company</p>
                   <p className="text-2xl font-bold text-[oklch(0.65_0.14_230)]">
-                    ₹{(
-                      // Prefer server-aggregated value when present to avoid small rounding/logic differences
-                      (stats as any).totalCompanyAmount !== undefined
-                        ? (stats as any).totalCompanyAmount
-                        : (stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0))
+                    ₹
+                    {// Prefer server-aggregated value when present to avoid small rounding/logic differences
+                    ((stats as any).totalCompanyAmount !== undefined
+                      ? (stats as any).totalCompanyAmount
+                      : stats.totalRevenue -
+                        (stats.totalPlatformFees || 0) -
+                        (stats.totalNetAmount || 0)
                     ).toLocaleString("en-IN")}
                   </p>
                 </div>
@@ -363,7 +387,9 @@ export default function DonationsManagement() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {stats.pending}
+                  </p>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold">
                   ⏱
@@ -376,9 +402,12 @@ export default function DonationsManagement() {
           <div className="bg-gradient-to-br from-[oklch(0.96_0.015_230)] to-[oklch(0.96_0.015_200)] border-2 border-[oklch(0.65_0.14_230)] rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               💰 Revenue Breakdown
-              <span className="text-sm font-normal text-gray-600">(How ₹{stats.totalRevenue.toLocaleString("en-IN")} is distributed)</span>
+              <span className="text-sm font-normal text-gray-600">
+                (How ₹{stats.totalRevenue.toLocaleString("en-IN")} is
+                distributed)
+              </span>
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Platform Fee */}
               <div className="bg-white rounded-lg p-4 border-2 border-orange-300 shadow-sm">
@@ -387,18 +416,21 @@ export default function DonationsManagement() {
                     <span className="text-xl">🔧</span>
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-semibold text-orange-800 uppercase">Platform Fees</div>
-                    <div className="text-xs text-orange-600">Website & Payment Costs</div>
+                    <div className="text-xs font-semibold text-orange-800 uppercase">
+                      Platform Fees
+                    </div>
+                    <div className="text-xs text-orange-600">
+                      Website & Payment Costs
+                    </div>
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-orange-600 mb-1">
                   ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"}
                 </div>
                 <div className="text-xs text-orange-700">
-                  {stats.totalRevenue > 0 
+                  {stats.totalRevenue > 0
                     ? `${((stats.totalPlatformFees / stats.totalRevenue) * 100).toFixed(1)}% of total revenue`
-                    : '0%'
-                  }
+                    : "0%"}
                 </div>
               </div>
 
@@ -409,18 +441,21 @@ export default function DonationsManagement() {
                     <span className="text-xl">🏛️</span>
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-semibold text-[oklch(0.70_0.15_160)] uppercase">To Foundations</div>
-                    <div className="text-xs text-[oklch(0.70_0.15_160)]">NGO/Foundation Share</div>
+                    <div className="text-xs font-semibold text-[oklch(0.70_0.15_160)] uppercase">
+                      To Foundations
+                    </div>
+                    <div className="text-xs text-[oklch(0.70_0.15_160)]">
+                      NGO/Foundation Share
+                    </div>
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-[oklch(0.70_0.15_160)] mb-1">
                   ₹{stats.totalNetAmount?.toLocaleString("en-IN") || "0"}
                 </div>
                 <div className="text-xs text-[oklch(0.70_0.15_160)]">
-                  {stats.totalRevenue > 0 
+                  {stats.totalRevenue > 0
                     ? `${((stats.totalNetAmount / stats.totalRevenue) * 100).toFixed(1)}% of total revenue`
-                    : '0%'
-                  }
+                    : "0%"}
                 </div>
               </div>
 
@@ -431,26 +466,35 @@ export default function DonationsManagement() {
                     <span className="text-xl">🏢</span>
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-semibold text-[oklch(0.65_0.14_230)] uppercase">To Company</div>
-                    <div className="text-xs text-[oklch(0.65_0.14_230)]">MACEAZY Revenue Share</div>
+                    <div className="text-xs font-semibold text-[oklch(0.65_0.14_230)] uppercase">
+                      To Company
+                    </div>
+                    <div className="text-xs text-[oklch(0.65_0.14_230)]">
+                      MACEAZY Revenue Share
+                    </div>
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-[oklch(0.65_0.14_230)] mb-1">
-                  ₹{(
-                    (stats as any).totalCompanyAmount !== undefined
-                      ? (stats as any).totalCompanyAmount
-                      : (stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0))
+                  ₹
+                  {((stats as any).totalCompanyAmount !== undefined
+                    ? (stats as any).totalCompanyAmount
+                    : stats.totalRevenue -
+                      (stats.totalPlatformFees || 0) -
+                      (stats.totalNetAmount || 0)
                   ).toLocaleString("en-IN")}
                 </div>
                 <div className="text-xs text-[oklch(0.65_0.14_230)]">
-                  {stats.totalRevenue > 0 
-                    ? `${(((
-                        (stats as any).totalCompanyAmount !== undefined
+                  {stats.totalRevenue > 0
+                    ? `${(
+                        (((stats as any).totalCompanyAmount !== undefined
                           ? (stats as any).totalCompanyAmount
-                          : (stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0))
-                      ) / stats.totalRevenue) * 100).toFixed(1)}% of total revenue`
-                    : '0%'
-                  }
+                          : stats.totalRevenue -
+                            (stats.totalPlatformFees || 0) -
+                            (stats.totalNetAmount || 0)) /
+                          stats.totalRevenue) *
+                        100
+                      ).toFixed(1)}% of total revenue`
+                    : "0%"}
                 </div>
               </div>
             </div>
@@ -459,17 +503,28 @@ export default function DonationsManagement() {
             <div className="mt-4 pt-4 border-t border-[oklch(0.65_0.14_230)]">
               <div className="flex flex-wrap justify-between items-center text-sm">
                 <div className="text-gray-700">
-                  <span className="font-semibold">Total Revenue:</span> ₹{stats.totalRevenue.toLocaleString("en-IN")}
+                  <span className="font-semibold">Total Revenue:</span> ₹
+                  {stats.totalRevenue.toLocaleString("en-IN")}
                 </div>
                 <div className="text-gray-600">
-                  = ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"} (Platform) + 
-                  ₹{stats.totalNetAmount?.toLocaleString("en-IN") || "0"} (Foundations) + 
-                  ₹{(stats.totalRevenue - (stats.totalPlatformFees || 0) - (stats.totalNetAmount || 0)).toLocaleString("en-IN")} (Company)
+                  = ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"}{" "}
+                  (Platform) + ₹
+                  {stats.totalNetAmount?.toLocaleString("en-IN") || "0"}{" "}
+                  (Foundations) + ₹
+                  {(
+                    stats.totalRevenue -
+                    (stats.totalPlatformFees || 0) -
+                    (stats.totalNetAmount || 0)
+                  ).toLocaleString("en-IN")}{" "}
+                  (Company)
                 </div>
               </div>
               <div className="mt-2 text-xs text-gray-600 flex items-center gap-1">
                 <span>👥</span>
-                <span><strong>{stats.completed}</strong> completed donations from <strong>{stats.completed}</strong> individual donors</span>
+                <span>
+                  <strong>{stats.completed}</strong> completed donations from{" "}
+                  <strong>{stats.completed}</strong> individual donors
+                </span>
               </div>
             </div>
           </div>
@@ -477,12 +532,16 @@ export default function DonationsManagement() {
           {/* Foundation Summary Table */}
           <div className="bg-card border rounded-lg overflow-hidden">
             <div className="px-6 py-4 bg-accent border-b border-border flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-foreground">Foundation-wise Collection Summary</h3>
+              <h3 className="text-lg font-semibold text-foreground">
+                Foundation-wise Collection Summary
+              </h3>
               <button
                 onClick={() => setShowZeroDonations(!showZeroDonations)}
                 className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
               >
-                {showZeroDonations ? "Hide Zero Donations" : "Show Zero Donations"}
+                {showZeroDonations
+                  ? "Hide Zero Donations"
+                  : "Show Zero Donations"}
               </button>
             </div>
             <div className="overflow-x-auto">
@@ -508,31 +567,46 @@ export default function DonationsManagement() {
                 </thead>
                 <tbody className="bg-card divide-y divide-border">
                   {stats.byFoundation
-                    .filter(foundation => showZeroDonations || foundation.count > 0)
+                    .filter(
+                      (foundation) => showZeroDonations || foundation.count > 0
+                    )
                     .map((foundation) => (
-                    <tr key={foundation.foundationId} className="hover:bg-accent/50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{foundation.icon}</span>
-                          <span className="text-sm font-medium text-foreground">
-                            {foundation.displayName || foundation.foundationName}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                        {foundation.count}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold" style={{ color: foundation.primaryColor }}>
-                        ₹{foundation.totalAmount.toLocaleString("en-IN")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
-                        ₹{foundation.totalPlatformFee?.toLocaleString("en-IN") || "0"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[oklch(0.70_0.15_160)]">
-                        ₹{foundation.totalFoundationAmount?.toLocaleString("en-IN") || "0"}
-                      </td>
-                    </tr>
-                  ))}
+                      <tr
+                        key={foundation.foundationId}
+                        className="hover:bg-accent/50"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl">{foundation.icon}</span>
+                            <span className="text-sm font-medium text-foreground">
+                              {foundation.displayName ||
+                                foundation.foundationName}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {foundation.count}
+                        </td>
+                        <td
+                          className="px-6 py-4 whitespace-nowrap text-sm font-semibold"
+                          style={{ color: foundation.primaryColor }}
+                        >
+                          ₹{foundation.totalAmount.toLocaleString("en-IN")}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
+                          ₹
+                          {foundation.totalPlatformFee?.toLocaleString(
+                            "en-IN"
+                          ) || "0"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[oklch(0.70_0.15_160)]">
+                          ₹
+                          {foundation.totalFoundationAmount?.toLocaleString(
+                            "en-IN"
+                          ) || "0"}
+                        </td>
+                      </tr>
+                    ))}
                   <tr className="bg-accent/30 font-bold">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                       Total
@@ -547,7 +621,13 @@ export default function DonationsManagement() {
                       ₹{stats.totalPlatformFees?.toLocaleString("en-IN") || "0"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-[oklch(0.70_0.15_160)]">
-                      ₹{stats.byFoundation.reduce((sum, f) => sum + (f.totalFoundationAmount || 0), 0).toLocaleString("en-IN")}
+                      ₹
+                      {stats.byFoundation
+                        .reduce(
+                          (sum, f) => sum + (f.totalFoundationAmount || 0),
+                          0
+                        )
+                        .toLocaleString("en-IN")}
                     </td>
                   </tr>
                 </tbody>
@@ -648,8 +728,8 @@ export default function DonationsManagement() {
             </thead>
             <tbody className="bg-card divide-y divide-border">
               {donations.map((donation) => (
-                <tr 
-                  key={donation._id} 
+                <tr
+                  key={donation._id}
                   className="hover:bg-accent/50 cursor-pointer transition-colors"
                   onClick={() => handleRowClick(donation)}
                 >
@@ -682,8 +762,12 @@ export default function DonationsManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-foreground">{donation.email}</div>
-                    <div className="text-sm text-muted-foreground">{donation.phone}</div>
+                    <div className="text-sm text-foreground">
+                      {donation.email}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {donation.phone}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="space-y-0.5">
@@ -691,13 +775,19 @@ export default function DonationsManagement() {
                         ₹{donation.amount.toLocaleString("en-IN")}
                       </div>
                       <div className="text-xs text-orange-600">
-                        - Platform ({donation.platformFeePercent?.toFixed(1) || "0"}%): ₹{(donation.platformFee || 0).toFixed(2)}
+                        - Platform (
+                        {donation.platformFeePercent?.toFixed(1) || "0"}%): ₹
+                        {(donation.platformFee || 0).toFixed(2)}
                       </div>
                       <div className="text-xs text-green-700 font-semibold border-t border-gray-200 pt-0.5">
-                        Foundation ({donation.foundationSharePercent?.toFixed(1) || "0"}%): ₹{(donation.foundationAmount || 0).toFixed(2)}
+                        Foundation (
+                        {donation.foundationSharePercent?.toFixed(1) || "0"}%):
+                        ₹{(donation.foundationAmount || 0).toFixed(2)}
                       </div>
                       <div className="text-xs text-blue-600">
-                        Company ({donation.companySharePercent?.toFixed(1) || "0"}%): ₹{(donation.companyAmount || 0).toFixed(2)}
+                        Company (
+                        {donation.companySharePercent?.toFixed(1) || "0"}%): ₹
+                        {(donation.companyAmount || 0).toFixed(2)}
                       </div>
                     </div>
                   </td>
@@ -705,31 +795,64 @@ export default function DonationsManagement() {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1">
                         <span className="text-lg">
-                          {typeof donation.foundation === 'object' && donation.foundation?.icon 
-                            ? donation.foundation.icon 
-                            : foundationIcons[donation.foundation?.code || donation.foundation || "vsf"]}
+                          {typeof donation.foundation === "object" &&
+                          donation.foundation?.icon
+                            ? donation.foundation.icon
+                            : foundationIcons[
+                                donation.foundation?.code ||
+                                  donation.foundation ||
+                                  "vsf"
+                              ]}
                         </span>
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full border ${
-                            typeof donation.foundation === 'object' && donation.foundation?.primaryColor
+                            typeof donation.foundation === "object" &&
+                            donation.foundation?.primaryColor
                               ? `border-[${donation.foundation.primaryColor}]`
-                              : foundationColors[donation.foundation?.code || donation.foundation || "vsf"]
+                              : foundationColors[
+                                  donation.foundation?.code ||
+                                    donation.foundation ||
+                                    "vsf"
+                                ]
                           }`}
-                          style={typeof donation.foundation === 'object' && donation.foundation?.primaryColor ? {
-                            backgroundColor: `${donation.foundation.primaryColor}20`,
-                            color: donation.foundation.primaryColor,
-                            borderColor: donation.foundation.primaryColor
-                          } : undefined}
+                          style={
+                            typeof donation.foundation === "object" &&
+                            donation.foundation?.primaryColor
+                              ? {
+                                  backgroundColor: `${donation.foundation.primaryColor}20`,
+                                  color: donation.foundation.primaryColor,
+                                  borderColor: donation.foundation.primaryColor,
+                                }
+                              : undefined
+                          }
                         >
-                          {typeof donation.foundation === 'object' 
-                            ? (donation.foundation.displayName || donation.foundation.foundationName || donation.foundation.code || "Unknown").toUpperCase()
-                            : foundationLabels[donation.foundation as string] || (donation.foundation || "vsf").toUpperCase()}
+                          {typeof donation.foundation === "object"
+                            ? (
+                                donation.foundation.displayName ||
+                                donation.foundation.foundationName ||
+                                donation.foundation.code ||
+                                "Unknown"
+                              ).toUpperCase()
+                            : foundationLabels[donation.foundation as string] ||
+                              (donation.foundation || "vsf").toUpperCase()}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500 font-mono truncate max-w-xs" title={typeof donation.foundation === 'object' ? (donation.foundation._id || donation.foundation.id || donation.foundation) : donation.foundation}>
-                        ID: {typeof donation.foundation === 'object' 
-                          ? (donation.foundation._id || donation.foundation.id || 'N/A')
-                          : donation.foundation || 'N/A'}
+                      <div
+                        className="text-xs text-gray-500 font-mono truncate max-w-xs"
+                        title={
+                          typeof donation.foundation === "object"
+                            ? donation.foundation._id ||
+                              donation.foundation.id ||
+                              donation.foundation
+                            : donation.foundation
+                        }
+                      >
+                        ID:{" "}
+                        {typeof donation.foundation === "object"
+                          ? donation.foundation._id ||
+                            donation.foundation.id ||
+                            "N/A"
+                          : donation.foundation || "N/A"}
                       </div>
                     </div>
                   </td>
@@ -739,7 +862,8 @@ export default function DonationsManagement() {
                         donation.status
                       )}`}
                     >
-                      {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
+                      {donation.status.charAt(0).toUpperCase() +
+                        donation.status.slice(1)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
@@ -765,7 +889,9 @@ export default function DonationsManagement() {
               Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
               disabled={currentPage === totalPages}
               className="px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-lg hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
             >

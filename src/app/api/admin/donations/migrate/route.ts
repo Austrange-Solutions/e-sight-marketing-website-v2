@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
         { foundation: { $exists: false } },
         { foundation: null },
         { platformFee: { $exists: false } },
-        { netAmount: { $exists: false } }
-      ]
+        { netAmount: { $exists: false } },
+      ],
     });
 
     let updated = 0;
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       try {
         // Set default foundation if missing
         if (!donation.foundation) {
-          donation.foundation = 'general';
+          donation.foundation = "general";
         }
 
         // Calculate platform fee if missing
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         await donation.save();
         updated++;
       } catch (error) {
-        console.error(`Error updating donation ${donation._id}:`, error);
+        console.error("Error updating donation:", donation._id, error);
         errors++;
       }
     }
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: `Migration complete: ${updated} donations updated, ${errors} errors`,
       updated,
-      errors
+      errors,
     });
   } catch (error) {
     console.error("Migration error:", error);

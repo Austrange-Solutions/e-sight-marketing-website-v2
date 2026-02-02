@@ -64,7 +64,9 @@ export default function DonateButton({
       const createData = await createResponse.json();
 
       if (!createResponse.ok) {
-        throw new Error(createData.message || "Failed to create donation order");
+        throw new Error(
+          createData.message || "Failed to create donation order"
+        );
       }
 
       if (!createData.paymentSessionId) {
@@ -72,14 +74,18 @@ export default function DonateButton({
       }
 
       // Initialize Cashfree
-      const mode = process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT === "https://api.cashfree.com/pg" 
-        ? "production" 
-        : "sandbox";
-      
+      const mode =
+        process.env.NEXT_PUBLIC_CASHFREE_ENDPOINT ===
+        "https://api.cashfree.com/pg"
+          ? "production"
+          : "sandbox";
+
       const cashfree = await load({ mode });
 
       if (!cashfree) {
-        throw new Error("Failed to load payment gateway. Please check your internet connection.");
+        throw new Error(
+          "Failed to load payment gateway. Please check your internet connection."
+        );
       }
 
       // Configure checkout options - prefer modal to avoid full page redirect
@@ -114,17 +120,22 @@ export default function DonateButton({
               `/donate/success?payment_id=${verifyData.donation.paymentId}&order_id=${createData.orderId}`
             );
           } else {
-            throw new Error(verifyData.message || "Payment verification failed");
+            throw new Error(
+              verifyData.message || "Payment verification failed"
+            );
           }
         } catch (error) {
           const errorMessage =
-            error instanceof Error ? error.message : "Payment verification failed";
+            error instanceof Error
+              ? error.message
+              : "Payment verification failed";
           onError?.(errorMessage);
           setLoading(false);
         }
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to process donation";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to process donation";
       onError?.(errorMessage);
       setLoading(false);
     }

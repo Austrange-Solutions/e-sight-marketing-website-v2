@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -33,11 +33,13 @@ const VideoSection = () => {
           }}
         >
           <iframe
-            src="https://www.youtube.com/embed/-dqg8zQ9v90?si=WS5kGbDl19A1ejOr"
+            src="https://www.youtube.com/embed/-dqg8zQ9v90"
             title="e-Kaathi Informational Video"
             className="absolute top-0 left-0 w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
           ></iframe>
         </motion.div>
       </div>

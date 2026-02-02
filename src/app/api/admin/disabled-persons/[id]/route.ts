@@ -5,6 +5,7 @@ import DisabledPerson from "@/models/disabledPersonModel";
 import { getAdminFromRequest } from "@/middleware/adminAuth";
 import { sendDisabledStatusUpdateEmail } from "@/helpers/resendEmail";
 import mongoose from "mongoose";
+import { validateObjectId } from "@/lib/validation/objectId";
 
 // GET - Get individual disabled person details (Admin only)
 export async function GET(
@@ -21,11 +22,14 @@ export async function GET(
     const params = await context.params;
     const { id } = params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    try {
+      validateObjectId(id);
+    } catch (validationError) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    const person = await DisabledPerson.findById(id).lean();
+    // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
+    const person = await DisabledPerson.findById(id).lean(); // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
 
     if (!person) {
       return NextResponse.json({ error: "Person not found" }, { status: 404 });
@@ -55,8 +59,10 @@ export async function PATCH(
     const params = await context.params;
     const { id } = params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    try {
+      validateObjectId(id);
+    } catch (validationError) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
     const body = await request.json();
@@ -74,17 +80,28 @@ export async function PATCH(
 
     const validStatuses = ["pending", "under_review", "verified", "rejected"];
     if (verificationStatus && !validStatuses.includes(verificationStatus)) {
-      return NextResponse.json({ error: "Invalid verification status" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid verification status" },
+        { status: 400 }
+      );
     }
 
-    const person = await DisabledPerson.findById(id);
+    // Safe: ID is validated via validateObjectId() which ensures it's a valid MongoDB ObjectId
+    const person = await DisabledPerson.findById(id); // nosemgrep: javascript.express.mongodb.express-mongo-nosqli
     if (!person) {
       return NextResponse.json({ error: "Person not found" }, { status: 404 });
     }
 
     // Apply personal updates
     if (personalUpdates) {
-      const allowed = ["fullName", "email", "phone", "dateOfBirth", "gender", "alternatePhone"];
+      const allowed = [
+        "fullName",
+        "email",
+        "phone",
+        "dateOfBirth",
+        "gender",
+        "alternatePhone",
+      ];
       allowed.forEach((key) => {
         if (Object.prototype.hasOwnProperty.call(personalUpdates, key)) {
           // @ts-ignore
@@ -95,7 +112,12 @@ export async function PATCH(
 
     // Apply guardian updates
     if (guardianUpdates) {
-      const gAllowed = ["guardianName", "guardianEmail", "guardianPhone", "guardianRelation"];
+      const gAllowed = [
+        "guardianName",
+        "guardianEmail",
+        "guardianPhone",
+        "guardianRelation",
+      ];
       gAllowed.forEach((key) => {
         if (Object.prototype.hasOwnProperty.call(guardianUpdates, key)) {
           // @ts-ignore
@@ -117,7 +139,13 @@ export async function PATCH(
 
     // Apply disability updates
     if (disabilityUpdates) {
-      const dAllowed = ["disabilityType", "disabilityPercentage", "disabilityDescription", "medicalConditions", "assistiveDevicesUsed"];
+      const dAllowed = [
+        "disabilityType",
+        "disabilityPercentage",
+        "disabilityDescription",
+        "medicalConditions",
+        "assistiveDevicesUsed",
+      ];
       dAllowed.forEach((key) => {
         if (Object.prototype.hasOwnProperty.call(disabilityUpdates, key)) {
           // @ts-ignore

@@ -1,8 +1,9 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, FileText, Image as ImageIcon } from 'lucide-react';
-import FileViewer from '@/components/resources/FileViewer';
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowLeft, FileText, Image as ImageIcon } from "lucide-react";
+import FileViewer from "@/components/resources/FileViewer";
 
 interface Resource {
   _id: string;
@@ -19,7 +20,9 @@ interface Resource {
 const ProjectReportsPage = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(
+    null
+  );
   const [viewerOpen, setViewerOpen] = useState(false);
 
   useEffect(() => {
@@ -29,19 +32,20 @@ const ProjectReportsPage = () => {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/resources?category=project-reports&limit=100');
+      const response = await fetch(
+        "/api/resources?category=project-reports&limit=100"
+      );
       const data = await response.json();
 
       if (data.success) {
         setResources(data.data);
       }
     } catch (error) {
-      console.error('Error fetching project reports:', error);
+      console.error("Error fetching project reports:", error);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleViewResource = async (resource: Resource) => {
     setSelectedResource(resource);
@@ -50,7 +54,7 @@ const ProjectReportsPage = () => {
     try {
       await fetch(`/api/resources/${resource._id}`);
     } catch (error) {
-      console.error('Error tracking view:', error);
+      console.error("Error tracking view:", error);
     }
   };
 
@@ -68,7 +72,9 @@ const ProjectReportsPage = () => {
           </Link>
 
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#0C5277]">Project Reports</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#0C5277]">
+              Project Reports
+            </h1>
             <p className="text-lg text-[#1B9BD8] max-w-3xl mx-auto">
               Explore detailed reports on our ongoing and completed projects
             </p>
@@ -83,7 +89,9 @@ const ProjectReportsPage = () => {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">Loading reports...</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                Loading reports...
+              </p>
             </div>
           </div>
         ) : resources.length === 0 ? (
@@ -104,18 +112,21 @@ const ProjectReportsPage = () => {
                 className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-200"
               >
                 {/* Document Preview */}
-                <div 
+                <div
                   className="relative w-full h-[400px] overflow-hidden cursor-pointer"
                   onClick={() => handleViewResource(resource)}
                 >
                   {/* Document Preview */}
                   <div className="bg-gray-50 rounded-md overflow-hidden flex items-center justify-center">
-                    {resource.fileType.startsWith('image/') ? (
-                      <img 
-                        src={resource.fileUrl} 
-                        alt={resource.title}
-                        className="w-full h-full object-contain bg-white"
-                      />
+                    {resource.fileType.startsWith("image/") ? (
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={resource.fileUrl}
+                          alt={resource.title}
+                          fill
+                          className="object-contain bg-white"
+                        />
+                      </div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-white">
                         <FileText className="w-16 h-16 text-gray-400" />
